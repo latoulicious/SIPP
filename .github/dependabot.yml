@@ -1,0 +1,11 @@
+version: 2
+updates:
+  - package-ecosystem: "gomod"  # For Go modules
+    directory: "/server"  # Location of Go package manifests
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "npm"  # For Node.js/npm packages
+    directory: "/web"  # Location of Vue.js package manifests
+    schedule:
+      interval: "weekly"
