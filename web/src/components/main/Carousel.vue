@@ -33,8 +33,8 @@ export default {
 <style scoped>
 .carousel-wrapper {
   margin-top: 20px;
-  margin-left: 80px;
-  margin-right: 80px;
+  margin-left: 60px;
+  margin-right: 60px;
   margin-bottom: 20px;
 }
 </style>

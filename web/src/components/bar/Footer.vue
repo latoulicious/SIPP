@@ -1,52 +1,71 @@
 <template>
-  <va-footer>
-    <div class="footer-content">
-      <div class="footer-text">
-        <p>
-          <span class="name">placeholder</span>
-          <span class="divider"> • </span>
-          <a
-            href="https://github.com/latoulicious/SIPP"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <img src="@/assets/github.svg" alt="GitHub" class="github-icon" />
-          </a>
-        </p>
-        <p class="year">&copy; 2023</p>
-      </div>
-    </div>
-  </va-footer>
+  <div class="footer-wrapper">
+    <VaNavbar class="a">
+      <template #left>
+        <!-- Placeholder for left content -->
+        <div class="placeholder"></div>
+      </template>
+      <template #center>
+        <va-navbar-item>
+          <div class="center-content">
+            <p>
+              <a href="https://github.com/latoulicious/SIPP">
+                <img src="@/assets/github.svg" alt="GitHub" class="logo" />
+              </a>
+            </p>
+            <p>&copy; latoulicious &bull; 2023</p>
+          </div>
+        </va-navbar-item>
+      </template>
+      <template #right>
+        <!-- Placeholder for right content -->
+        <div class="placeholder2"></div>
+      </template>
+    </VaNavbar>
+  </div>
 </template>
 
-<style scoped>
-.footer-content {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  text-align: center;
-  padding: 10px;
-  background-color: var(--va-background-primary);
-  color: var(--va-text-primary);
+<style lang="scss" scoped>
+.a {
+  padding-top: 0.3rem;
+  padding-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.footer-text {
-  line-height: 1.5; /* Adjust as needed for spacing between lines */
+.logo {
+  height: 20px;
+  max-height: 20px;
+  width: auto;
+  margin: 0; /* Remove any default margin */
 }
 
-.name,
-.year {
-  font-size: 16px; /* Adjust font size as needed */
-  line-height: 20px; /* Adjust line height to match the height of the GitHub icon */
-  vertical-align: middle; /* Align text vertically with the GitHub icon */
+.va-navbar-item {
+  display: flex;
+  align-items: center;
 }
 
-.divider {
-  margin: 0 10px; /* Adjust as needed for spacing around the divider */
+.center-content {
+  display: flex;
+  flex-direction: column; /* Align items in a column */
+  align-items: center;
 }
 
-.github-icon {
-  height: 20px; /* Set the desired height */
-  vertical-align: middle; /* Align the GitHub icon vertically with the text */
+/* If you want to center the placeholder elements in the #left and #right sections */
+.placeholder {
+  width: 18px; /* Adjust the width as needed */
+  height: 18px; /* Adjust the height as needed */
+}
+
+.placeholder2 {
+  width: 54.4333px;
+  height: 20px;
+}
+
+#right,
+#left {
+  display: flex;
+  align-items: center;
 }
 </style>
