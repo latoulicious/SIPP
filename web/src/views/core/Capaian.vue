@@ -52,8 +52,26 @@ const searchQuery = ref("");
                 <va-card-title>Input Data Capaian</va-card-title>
                 <va-card-content>
                   <div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
+                    <div class="container">
                       <div class="flex flex-col md6">
+                        <va-input
+                          v-model="value"
+                          placeholder="nama penyusun"
+                          label="Nama"
+                          preset="bordered"
+                        />
+                      </div>
+                      <div class="flex flex-col md6">
+                        <va-input
+                          v-model="value"
+                          placeholder="nama mata pelajaran"
+                          label="Mata Pelajaran"
+                          preset="bordered"
+                        />
+                      </div>
+                    </div>
+                    <div class="container">
+                    <div class="flex flex-col md6">
                         <va-input
                           v-model="value"
                           placeholder="nama penyusun"
@@ -134,6 +152,7 @@ const searchQuery = ref("");
   display: flex;
   size-adjust: auto;
   margin-bottom: 20px;
+  width: 100%;
 }
 
 </style>
