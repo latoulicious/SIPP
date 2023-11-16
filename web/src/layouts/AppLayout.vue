@@ -16,9 +16,9 @@ import Footer from "@/components/bar/Footer.vue";
 
     <template #content>
       <main>
-        <router-view/>
+        <router-view />
       </main>
-      <Footer/>
+      <Footer />
     </template>
   </VaLayout>
 </template>
