@@ -48,29 +48,28 @@ const searchQuery = ref("");
               >Add</va-button
             >
             <va-modal v-model="showModal" blur>
-              <va-card :bordered="false">
+              <va-card :bordered="false" color="warning" gradient>
                 <va-card-title>Input Data Capaian</va-card-title>
                 <va-card-content>
                   <div>
-                  <div class="row">
-                    <div class="flex flex-col md6">
-                      <va-input
-                        v-model="value"
-                        placeholder="nama penyusun"
-                        label="Nama"
-                        preset="solid"
-                      />
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
+                      <div class="flex flex-col md6">
+                        <va-input
+                          v-model="value"
+                          placeholder="nama penyusun"
+                          label="Nama"
+                          preset="bordered"
+                        />
+                      </div>
+                      <div class="flex flex-col md6">
+                        <va-input
+                          v-model="value"
+                          placeholder="nama mata pelajaran"
+                          label="Mata Pelajaran"
+                          preset="bordered"
+                        />
+                      </div>
                     </div>
-                    <va-spacer class="spacer" />
-                    <div class="flex flex-col md6">
-                      <va-input
-                        v-model="value"
-                        placeholder="nama mata pelajaran"
-                        label="Mata Pelajaran"
-                        preset="solid"
-                      />
-                    </div>
-                  </div>
                     <va-card>
                       <va-card-content>
                         <va-file-upload
@@ -128,4 +127,13 @@ const searchQuery = ref("");
   align-items: center;
   size-adjust: auto;
 }
+</style>
+
+<style scoped>
+.container {
+  display: flex;
+  size-adjust: auto;
+  margin-bottom: 20px;
+}
+
 </style>
