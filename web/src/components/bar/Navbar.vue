@@ -12,7 +12,7 @@ const toggleSidebar = () => {
 
 <template>
   <div class="navbar-wrapper">
-    <VaNavbar class="a" color="primary">
+    <VaNavbar class="a" color="#090F33">
       <template #left>
         <VaButton
           color="#ffffff"

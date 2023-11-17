@@ -4,7 +4,7 @@ const appStore = useAppStore();
 </script>
 
 <template>
-  <VaSidebar v-model="appStore.isSidebarVisible" color="primary">
+  <VaSidebar v-model="appStore.isSidebarVisible" color="#AFC1EE">
     <router-link to="/dashboard">
       <VaSidebarItem>
         <VaSidebarItemContent>
