@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useAppStore } from "@/stores/index";
 
-import Dropdown from "@/components/Dropdown.vue";
+import Dropdown from "@/components/main/Dropdown.vue";
 
 const appStore = useAppStore();
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import TableCrud from "@/components/core/Table.vue";
+/* import Table from "@/components/core/Table.vue"; */
+import tabletest from "@/components/core/tabletest.vue";
 
 import { ref } from "vue";
 import { useModal } from "vuestic-ui";
@@ -16,7 +17,7 @@ const onButtonClick = () => {
 const basic = ref([]);
 const value = ref("");
 const showModal = ref(false);
-const searchQuery = ref("");
+const input = ref("");
 </script>
 
 <template>
@@ -25,7 +26,8 @@ const searchQuery = ref("");
       <va-card-title>Data Capaian Pendidikan</va-card-title>
       <div class="row">
         <div class="sb-1">
-          <va-input
+          <va-input v-model="input" placeholder="Filter..." class="w-full" />
+          <!-- <va-input
             v-model="searchQuery"
             placeholder="Search"
             preset="solid"
@@ -34,7 +36,7 @@ const searchQuery = ref("");
             <template #prependInner>
               <va-icon name="search" color="secondary" />
             </template>
-          </va-input>
+          </va-input> -->
         </div>
         <va-spacer />
         <div class="bg-1">
@@ -47,58 +49,135 @@ const searchQuery = ref("");
             <va-button @click="showModal = !showModal" icon="add"
               >Add</va-button
             >
-            <va-modal v-model="showModal" blur>
-              <va-card :bordered="false" color="warning" gradient>
+            <va-modal v-model="showModal" blur size="large" fixed-layout>
+              <va-card :bordered="false" stripe>
                 <va-card-title>Input Data Capaian</va-card-title>
                 <va-card-content>
                   <div>
                     <div class="container">
-                      <div class="flex flex-col md6">
+                      <div>
                         <va-input
                           v-model="value"
                           placeholder="nama penyusun"
                           label="Nama"
                           preset="bordered"
+                          style="width: 100%"
                         />
                       </div>
-                      <div class="flex flex-col md6">
+                      <div style="margin-top: 10px">
                         <va-input
                           v-model="value"
                           placeholder="nama mata pelajaran"
                           label="Mata Pelajaran"
                           preset="bordered"
+                          style="width: 100%"
                         />
                       </div>
                     </div>
-                    <div class="container">
-                    <div class="flex flex-col md6">
-                        <va-input
+                    <div class="txt flex justify-between">
+                      <div
+                        class="flex flex-col md6"
+                        style="margin-right: 10px; width: 100%"
+                      >
+                        <va-textarea
                           v-model="value"
-                          placeholder="nama penyusun"
-                          label="Nama"
+                          label="Judul Elemen"
+                          placeholder="Judul mengenai elemen pemahaman suatu mata pelajaran"
                           preset="bordered"
                         />
                       </div>
-                      <div class="flex flex-col md6">
-                        <va-input
+                      <div
+                        class="flex flex-col md6"
+                        style="margin-left: 10px; width: 100%"
+                      >
+                        <va-textarea
                           v-model="value"
-                          placeholder="nama mata pelajaran"
-                          label="Mata Pelajaran"
+                          label="Keterangan Elemen"
+                          placeholder="Menjelaskan inti dari judul elemen tersebut"
                           preset="bordered"
                         />
                       </div>
                     </div>
-                    <va-card>
+                    <div class="txt flex justify-between">
+                      <div
+                        class="flex flex-col md6"
+                        style="margin-right: 10px; width: 100%"
+                      >
+                        <va-textarea
+                          v-model="value"
+                          label="Keterangan Proses Mengamati"
+                          placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
+                          preset="bordered"
+                        />
+                      </div>
+                      <div
+                        class="flex flex-col md6"
+                        style="margin-left: 10px; width: 100%"
+                      >
+                        <va-textarea
+                          v-model="value"
+                          label="Keterangan Proses Mempertanyakan"
+                          placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
+                          preset="bordered"
+                        />
+                      </div>
+                    </div>
+                    <div class="txt flex justify-between">
+                      <div
+                        class="flex flex-col md6"
+                        style="margin-right: 10px; width: 100%"
+                      >
+                        <va-textarea
+                          v-model="value"
+                          label="Keterangan Proses Merencanakan"
+                          placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
+                          preset="bordered"
+                        />
+                      </div>
+                      <div
+                        class="flex flex-col md6"
+                        style="margin-left: 10px; width: 100%"
+                      >
+                        <va-textarea
+                          v-model="value"
+                          label="Keterangan Proses Memproses"
+                          placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
+                          preset="bordered"
+                        />
+                      </div>
+                    </div>
+                    <div class="txt flex justify-between">
+                      <div
+                        class="flex flex-col md6"
+                        style="margin-right: 10px; width: 100%"
+                      >
+                        <va-textarea
+                          v-model="value"
+                          label="Keterangan Proses Mengevaluasi"
+                          placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajarann"
+                          preset="bordered"
+                        />
+                      </div>
+                      <div
+                        class="flex flex-col md6"
+                        style="margin-left: 10px; width: 100%"
+                      >
+                        <va-textarea
+                          v-model="value"
+                          label="Keterangan Proses Mengkomunikasikan"
+                          placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
+                          preset="bordered"
+                        />
+                      </div>
+                    </div>
+                    <va-card :bordered="false" stripe disabled>
+                      <va-card-title>Upload Data Capaian</va-card-title>
                       <va-card-content>
                         <va-file-upload
                           v-model="basic"
                           dropzone
-                          file-types="doc,docs,rtf,xls,xlsx,ppt,pptx,pdf,txt"
-                        />
-                        <va-spacer vertical />
-                        <va-file-upload
-                          v-model="basic"
-                          dropzone
+                          undo
+                          undo-button-text="Restore"
                           file-types="doc,docs,rtf,xls,xlsx,ppt,pptx,pdf,txt"
                         />
                       </va-card-content>
@@ -115,7 +194,7 @@ const searchQuery = ref("");
         </div>
       </div>
       <va-card-content>
-        <TableCrud :searchQuery="searchQuery" />
+        <tabletest />
       </va-card-content>
     </va-card>
   </div>
@@ -149,10 +228,17 @@ const searchQuery = ref("");
 
 <style scoped>
 .container {
-  display: flex;
-  size-adjust: auto;
-  margin-bottom: 20px;
-  width: 100%;
+  margin-bottom: 10px;
 }
 
+.txt {
+  display: flex;
+  justify-content: space-between;
+}
+
+.va-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+}
 </style>
