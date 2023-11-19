@@ -5,7 +5,6 @@
     :item-size="40"
     :animated="animated"
     :striped="isTableStriped"
-    :loading="isTableLoading"
     virtual-scroller
     sticky-header
   />

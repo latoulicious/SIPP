@@ -1,8 +1,20 @@
-<script>
-import { defineComponent, ref } from "vue";
-import debounce from "lodash/debounce.js";
+<template>
+  <div class="grid md:grid-cols-2 gap-6 mb-6">
+    <!-- <va-input v-model="input" placeholder="Filter..." class="w-full" /> -->
+  </div>
 
-const showModal = ref(false);
+  <va-data-table
+    :items="items"
+    :columns="columns"
+    :filter="filter"
+    :filter-method="customFilteringFn"
+    @filtered="filteredCount = $event.items.length"
+  />
+</template>
+
+<script>
+import { defineComponent } from "vue";
+import debounce from "lodash/debounce.js";
 
 export default defineComponent({
   data() {
@@ -179,84 +191,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<template>
-  <div class="c-2">
-    <va-card stripe stripe-color="danger">
-      <va-card-title>Data Alur Tujuan Pendidikan</va-card-title>
-      <va-card-component>
-        <div class="container">
-          <div class="grid md:grid-cols-2 gap-6 mb-6 bar-1">
-            <va-input v-model="input" placeholder="Filter..." />
-            <div class="flex flex-col gap-6 f-1">
-              <va-checkbox
-                v-model="isCustomFilteringFn"
-                label="Use custom filtering function (looks for an exact match)"
-              />
-              <va-spacer />
-              <va-checkbox v-model="isDebounceInput" label="Debounce input" />
-              <va-spacer />
-              <div class="grid grid-col gap-6 f-1">
-                <va-button @click="showModal = !showModal" icon="add"
-                  >Add</va-button
-                >
-                <va-modal
-                  v-model="showModal"
-                  blur
-                  size="large"
-                  fixed-layout="true"
-                >
-                  <va-card :bordered="false" stripe>
-                    <div class="max-w-xs">
-                      <va-select
-                        v-model="value"
-                        label="mata pelajaran"
-                        placeholder="Select an option"
-                      />
-                    </div>
-                  </va-card>
-                </va-modal>
-              </div>
-            </div>
-            <va-data-table
-              class="tb"
-              :items="items"
-              :columns="columns"
-              :filter="filter"
-              :filter-method="customFilteringFn"
-              @filtered="filteredCount = $event.items.length"
-            />
-          </div>
-        </div>
-      </va-card-component>
-    </va-card>
-  </div>
-</template>
-
-<style>
-.c-2 {
-  margin-top: 10px;
-  margin-left: 60px;
-  margin-right: 60px;
-}
-
-.bar-1 {
-  display: grid;
-}
-
-.f-1 {
-  margin-top: 10px;
-  margin-right: 10px;
-}
-
-.tb {
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-
-.container {
-  margin-left: 10px;
-  margin-right: 10px;
-  margin-block: 10px;
-}
-</style>
