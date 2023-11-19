@@ -5,40 +5,32 @@
         <div class="flex flex-col md12">
           <div class="item">
             <va-card>
-                <va-card-title>lorem ipsum</va-card-title>
-                <va-card-content>
-                    asd
-                </va-card-content>
+              <va-card-title>lorem ipsum</va-card-title>
+              <va-card-content> asd </va-card-content>
             </va-card>
           </div>
         </div>
         <div class="flex flex-col md4">
           <div class="item">
             <va-card>
-                <va-card-title>lorem ipsum</va-card-title>
-                <va-card-content>
-                    asd
-                </va-card-content>
+              <va-card-title>lorem ipsum</va-card-title>
+              <va-card-content> asd </va-card-content>
             </va-card>
           </div>
         </div>
         <div class="flex flex-col md4">
           <div class="item">
             <va-card>
-                <va-card-title>lorem ipsum</va-card-title>
-                <va-card-content>
-                    asd
-                </va-card-content>
+              <va-card-title>lorem ipsum</va-card-title>
+              <va-card-content> asd </va-card-content>
             </va-card>
           </div>
         </div>
         <div class="flex flex-col md4">
           <div class="item">
             <va-card>
-                <va-card-title>lorem ipsum</va-card-title>
-                <va-card-content>
-                    asd
-                </va-card-content>
+              <va-card-title>lorem ipsum</va-card-title>
+              <va-card-content> asd </va-card-content>
             </va-card>
           </div>
         </div>

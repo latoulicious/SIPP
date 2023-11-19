@@ -3,7 +3,7 @@
     <va-button-dropdown
       class="absolute"
       label="User"
-      icon="face"
+      icon="person"
       icon-color="#ffffff"
       right-icon
       size="medium"
