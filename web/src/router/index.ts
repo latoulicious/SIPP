@@ -47,6 +47,11 @@ const router = createRouter({
           component: () => import("@/views/core/BankSoal.vue"),
         },
         {
+          path: "/users",
+          name: "users",
+          component: () => import("@/views/core/Users.vue"),
+        },
+        {
           path: "/settings",
           name: "settings",
           component: () => import("@/views/others/PageNotFound.vue"),
