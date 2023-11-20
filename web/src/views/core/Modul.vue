@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import testtable from "@/components/core/testtable.vue";
+import TableModul from "@/components/core/TableModul.vue";
 </script>
 
 <template>
-  <div class="c-2">
+  <div class="container">
     <va-card stripe stripe-color="danger">
       <va-card-title>Data Modul Ajar</va-card-title>
-      <va-card-component>
-        <testtable />
-      </va-card-component>
+      <va-card-content>
+        <TableModul />
+      </va-card-content>
     </va-card>
   </div>
 </template>
 
 <style>
-.c-2 {
+.container {
   margin-top: 10px;
   margin-left: 60px;
   margin-right: 60px;
