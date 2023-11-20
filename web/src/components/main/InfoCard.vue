@@ -1,10 +1,14 @@
 <template>
   <div class="container">
-    <va-card color="primary" gradient>
+    <va-card class="card-container">
       <div class="row">
-        <div class="flex flex-col md12">
+        <div class="flex flex-col md4">
           <div class="item">
             <va-card>
+              <va-image
+                :ratio="16 / 9"
+                src="https://opendoodles.s3-us-west-1.amazonaws.com/sprinting.gif"
+              />
               <va-card-title>lorem ipsum</va-card-title>
               <va-card-content> asd </va-card-content>
             </va-card>
@@ -13,6 +17,10 @@
         <div class="flex flex-col md4">
           <div class="item">
             <va-card>
+              <va-image
+                :ratio="16 / 9"
+                src="https://opendoodles.s3-us-west-1.amazonaws.com/selfie.png"
+              />
               <va-card-title>lorem ipsum</va-card-title>
               <va-card-content> asd </va-card-content>
             </va-card>
@@ -21,14 +29,10 @@
         <div class="flex flex-col md4">
           <div class="item">
             <va-card>
-              <va-card-title>lorem ipsum</va-card-title>
-              <va-card-content> asd </va-card-content>
-            </va-card>
-          </div>
-        </div>
-        <div class="flex flex-col md4">
-          <div class="item">
-            <va-card>
+              <va-image
+                :ratio="16 / 9"
+                src="https://opendoodles.s3-us-west-1.amazonaws.com/clumsy.png"
+              />
               <va-card-title>lorem ipsum</va-card-title>
               <va-card-content> asd </va-card-content>
             </va-card>
@@ -43,9 +47,10 @@
 @import "vuestic-ui/styles/grid";
 
 .item {
-  border: 10px solid;
-  border-color: black;
+  border: 1.5px dashed;
+  border-color: shadow black;
   text-align: center;
+  margin: 5px;
 }
 </style>
 
@@ -56,5 +61,9 @@
   margin-right: 60px;
   margin-bottom: 10px;
   margin-top: 10px;
+}
+
+.card-container {
+  border: shadow black;
 }
 </style>

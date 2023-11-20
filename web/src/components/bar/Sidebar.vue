@@ -4,7 +4,11 @@ const appStore = useAppStore();
 </script>
 
 <template>
-  <VaSidebar v-model="appStore.isSidebarVisible" color="#AFC1EE">
+  <VaSidebar
+    v-model="appStore.isSidebarVisible"
+    color="#AFC1EE"
+    class="custom-sidebar"
+  >
     <router-link to="/dashboard">
       <VaSidebarItem>
         <VaSidebarItemContent>
@@ -71,3 +75,10 @@ const appStore = useAppStore();
     </router-link>
   </VaSidebar>
 </template>
+
+<style scoped>
+.custom-sidebar {
+  height: 100%;
+  overflow-y: auto; /* Add this to enable scrolling if the content exceeds the sidebar height */
+}
+</style>

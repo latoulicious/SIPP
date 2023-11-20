@@ -45,6 +45,7 @@ export default defineComponent({
       editedItemId: null,
       editedItem: null,
       createdItem: { ...defaultItem },
+      showModal: false,
     };
   },
 
@@ -88,28 +89,32 @@ export default defineComponent({
 </script>
 
 <template>
-  <va-card class="c7" stripe stripe-color="danger">
+  <va-card class="container" stripe stripe-color="danger">
     <va-card-title>Manage Users</va-card-title>
     <va-card-content>
+      <div
+        class="header-container"
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        "
+      >
+        <va-input v-model="input" placeholder="Filter..."></va-input>
+        <va-button
+          @click="showModal = !showModal"
+          icon="add"
+          preset="secondary"
+          border-color="#FFFFFF"
+          >Add</va-button
+        >
+      </div>
       <va-data-table
         class="table-crud"
         :items="items"
         :columns="columns"
         striped
       >
-        <template #headerAppend>
-          <tr class="table-crud__slot">
-            <th v-for="key in Object.keys(createdItem)" :key="key" class="p-1">
-              <va-input v-model="createdItem[key]" :placeholder="key" />
-            </th>
-            <th class="p-1">
-              <va-button :disabled="!isNewData" block @click="addNewItem">
-                Add
-              </va-button>
-            </th>
-          </tr>
-        </template>
-
         <template #cell(actions)="{ rowIndex }">
           <va-button
             preset="plain"
@@ -125,21 +130,34 @@ export default defineComponent({
         </template>
       </va-data-table>
 
-      <va-modal
-        class="modal-crud"
-        :model-value="!!editedItem"
-        title="Edit item"
-        size="small"
-        @ok="editItem"
-        @cancel="resetEditedItem"
-      >
-        <va-input
-          v-for="key in Object.keys(editedItem)"
-          :key="key"
-          v-model="editedItem[key]"
-          class="my-6"
-          :label="key"
-        />
+      <va-modal v-model="showModal" blur size="large" fixed-layout>
+        <va-card :bordered="false" stripe>
+          <va-card-title>Add User</va-card-title>
+          <va-card-content>
+            <va-form
+              class="w-[300px]"
+              tag="form"
+              @submit.prevent="handleSubmit"
+            >
+              <va-input v-model="username" label="Username" />
+
+              <va-input
+                v-model="password"
+                class="mt-3"
+                type="password"
+                label="Password"
+              />
+
+              <va-select
+                v-model="value"
+                class="mt-3"
+                label="Role"
+                :options="options"
+                clearable
+              />
+            </va-form>
+          </va-card-content>
+        </va-card>
       </va-modal>
     </va-card-content>
   </va-card>
@@ -166,7 +184,7 @@ export default defineComponent({
   }
 }
 
-.c7 {
+.container {
   margin-left: 60px;
   margin-right: 60px;
   margin-bottom: 10px;

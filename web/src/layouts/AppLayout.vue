@@ -5,7 +5,7 @@ import Footer from "@/components/bar/Footer.vue";
 </script>
 
 <template>
-  <VaLayout style="height: 650px" :left="{ absolute: true }">
+  <VaLayout :left="{ absolute: true }">
     <template #top>
       <Navbar />
     </template>
