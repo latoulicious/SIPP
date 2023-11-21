@@ -134,7 +134,7 @@ export default defineComponent({
   </div>
   <va-modal v-model="showModal" blur size="large" fixed-layout>
     <va-card :bordered="false" stripe>
-      <va-card-title>Input Data Penilaian Ranah Pengetahuan</va-card-title>
+      <va-card-title>Input Data Asesmen</va-card-title>
       <va-card-content>
         <div>
           <div class="modal-container">
@@ -165,8 +165,8 @@ export default defineComponent({
             >
               <va-textarea
                 v-model="value"
-                label="Tujuan Pembelajaran"
-                placeholder="Deskripsi pencapaian tiga aspek kompetensi (pengetahuan, keterampilan, sikap) murid "
+                label="Asesmen Diagnostik Non-Kognitif"
+                placeholder="Sebuah proses mengumpulkan informasi mengenai karakter dan kondisi yang tidak berkaitan dengan kemampuan intelektual siswa. "
                 preset="bordered"
               />
             </div>
@@ -176,8 +176,8 @@ export default defineComponent({
             >
               <va-textarea
                 v-model="value"
-                label="Pemahaman Bermakna"
-                placeholder="Informasi tentang manfaat yang akan peserta didik peroleh setelah mengikuti proses pembelajaran"
+                label="Asesmen Diagnostik Kognitif"
+                placeholder="Sebuah Asesmen yang dilakukan guru pada awal dan akhir proses kegiatan belajar."
                 preset="bordered"
               />
             </div>
@@ -189,8 +189,8 @@ export default defineComponent({
             >
               <va-textarea
                 v-model="value"
-                label="Pertanyaan Pemantik"
-                placeholder="Pertanyaan yang bertujuan untuk memandu siswa mendapatkan pemahaman sesuai dengan tujuan pembelajaran"
+                label="Asesmen Formatif"
+                placeholder="Sebuah Asesmen yang bertujuan untuk memantau dan memperbaiki proses pembelajaran, serta mengevaluasi pencapaian tujuan pembelajaran."
                 preset="bordered"
               />
             </div>
@@ -200,8 +200,8 @@ export default defineComponent({
             >
               <va-textarea
                 v-model="value"
-                label="Kegiatan Pembelajaran"
-                placeholder="Suatu proses yang mengandung serangkaian kegiatan guru dan siswa atas dasar hubungan timbal balik yang berlangsung dalam situasi edukatif untuk mencapai tujuan tertentu."
+                label="Asesmen Sumatif"
+                placeholder="Sebuah Asesmen yang dilakukan untuk memastikan ketercapaian keseluruhan tujuan pembelajaran"
                 preset="bordered"
               />
             </div>
@@ -213,8 +213,8 @@ export default defineComponent({
             >
               <va-textarea
                 v-model="value"
-                label="Asesmen"
-                placeholder="Proses pengumpulan dan pengolahan informasi untuk mengetahui kebutuhan belajar, perkembangan, dan pencapaian hasil belajar peserta didik"
+                label="Pengayaan"
+                placeholder="Kegiatan pembelajaran yang diberikan pada peserta didik dengan capaian tinggi agar mereka dapat mengembangkan potensinya secara optimal."
                 preset="bordered"
               />
             </div>
@@ -224,53 +224,14 @@ export default defineComponent({
             >
               <va-textarea
                 v-model="value"
-                label="Pengayaan dan Remedial"
-                placeholder="Pengayaan adalah kegiatan pembelajaran yang diberikan pada peserta didik dengan capaian tinggi agar mereka dapat mengembangkan potensinya secara optimal. Remedial diberikan kepada peserta didik yang membutuhkan bimbingan untuk memahami materi atau pembelajaran mengulang."
-                preset="bordered"
-              />
-            </div>
-          </div>
-          <div class="txt flex justify-between">
-            <div
-              class="flex flex-col md6"
-              style="margin-right: 10px; width: 100%"
-            >
-              <va-textarea
-                v-model="value"
-                label="Refleksi"
-                placeholder="Kegiatan yang dilakukan dalam proses belajar mengajar dalam bentuk penilaian tertulis dan lisan oleh guru untuk siswa dan oleh siswa untuk guru untuk mengekspresikan kesan konstruksif, pesan, harapan, dan kritik terhadap proses pembelajaran"
-                preset="bordered"
-              />
-            </div>
-            <div
-              class="flex flex-col md6"
-              style="margin-left: 10px; width: 100%"
-            >
-              <va-textarea
-                v-model="value"
-                label="Glosarium"
-                placeholder="Kumpulan istilah-istilah dalam suatu bidang secara alfabetikal yang dilengkapi dengan definisi dan artinya"
-                preset="bordered"
-              />
-            </div>
-          </div>
-          <div>
-            <div
-              class="flex flex-col md12"
-              style="margin-right: 10px; width: 100%"
-            >
-              <va-textarea
-                v-model="value"
-                label="Daftar Pustaka"
-                placeholder="Sumber-sumber referensi yang digunakan dalam pengembangan modul ajar"
+                label="Remedial"
+                placeholder="Kegiatan yang diberikan kepada peserta didik yang membutuhkan bimbingan untuk memahami materi atau pembelajaran mengulang."
                 preset="bordered"
               />
             </div>
           </div>
           <va-card :bordered="false" stripe disabled>
-            <va-card-title
-              >Upload Data Penilaian Ranah Pengetahuan</va-card-title
-            >
+            <va-card-title>Upload Data Asesmen</va-card-title>
             <va-card-content>
               <va-file-upload
                 v-model="basic"

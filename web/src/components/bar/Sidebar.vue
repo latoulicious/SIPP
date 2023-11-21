@@ -49,6 +49,14 @@ const appStore = useAppStore();
         </VaSidebarItemContent>
       </VaSidebarItem>
     </router-link>
+    <router-link to="/asesmen">
+      <VaSidebarItem>
+        <VaSidebarItemContent>
+          <VaIcon name="assessment" />
+          <VaSidebarItemTitle>Asesmen</VaSidebarItemTitle>
+        </VaSidebarItemContent>
+      </VaSidebarItem>
+    </router-link>
     <router-link to="/soal">
       <VaSidebarItem>
         <VaSidebarItemContent>

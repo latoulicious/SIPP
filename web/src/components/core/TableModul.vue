@@ -10,43 +10,24 @@ export default defineComponent({
       const users = [
         {
           id: 1,
-          name: "Leanne Graham",
-          username: "Bret",
-          email: "Sincere@april.biz",
-          phone: "1-770-736-8031 x56442",
-          website: "hildegard.org",
+          nama_penyusun: "Leanne Graham",
+          mata_pelajaran: "Kimia",
+          kelas: "10",
+          tahun_ajaran: "Ganjil",
         },
         {
           id: 2,
-          name: "Ervin Howell",
-          username: "Antonette",
-          email: "Shanna@melissa.tv",
-          phone: "010-692-6593 x09125",
-          website: "anastasia.net",
+          nama_penyusun: "Ervin Howell",
+          mata_pelajaran: "Kimia",
+          kelas: "11",
+          tahun_ajaran: "Genap",
         },
         {
           id: 3,
-          name: "Clementine Bauch",
-          username: "Samantha",
-          email: "Nathan@yesenia.net",
-          phone: "1-463-123-4447",
-          website: "ramiro.info",
-        },
-        {
-          id: 4,
-          name: "Patricia Lebsack",
-          username: "Karianne",
-          email: "Julianne.OConner@kory.org",
-          phone: "493-170-9623 x156",
-          website: "kale.biz",
-        },
-        {
-          id: 5,
-          name: "Chelsey Dietrich",
-          username: "Kamren",
-          email: "Lucio_Hettinger@annie.ca",
-          phone: "(254)954-1289",
-          website: "demarco.info",
+          nama_penyusun: "Clementine Bauch",
+          mata_pelajaran: "Kimia",
+          kelas: "12",
+          tahun_ajaran: "Ganjil & Genap",
         },
         // Add more users if needed
       ];
@@ -69,12 +50,11 @@ export default defineComponent({
 
     const columns = [
       { key: "id", sortable: true },
-      { key: "username", sortable: true },
-      { key: "name", sortable: true },
-      { key: "email", sortable: true },
-      { key: "phone", sortable: true },
+      { key: "nama_penyusun", sortable: true },
+      { key: "mata_pelajaran", sortable: true },
+      { key: "kelas", sortable: true },
+      { key: "tahun_ajaran", sortable: true },
     ];
-
     const items = generateItems(50); // Adjust the count as needed
     const filtered = items.map((item) => item.id);
 
@@ -153,14 +133,14 @@ export default defineComponent({
   </div>
   <va-modal v-model="showModal" blur size="large" fixed-layout>
     <va-card :bordered="false" stripe>
-      <va-card-title>Input Data Alur Tujuan Pembelajaran</va-card-title>
+      <va-card-title>Input Data Modul Ajar</va-card-title>
       <va-card-content>
         <div>
           <div class="modal-container">
             <div>
               <va-input
                 v-model="value"
-                placeholder="Nama Penyusun ATP"
+                placeholder="Nama Penyusun"
                 label="Nama Penyusun"
                 preset="bordered"
                 style="width: 100%"
@@ -176,6 +156,43 @@ export default defineComponent({
                 style="width: 100%"
               />
             </div>
+            <div style="margin-top: 10px">
+              <va-input
+                v-model="value"
+                label="Sekolah"
+                placeholder="Nama Sekolah"
+                preset="bordered"
+                style="width: 100%"
+              />
+            </div>
+            <div style="margin-top: 10px">
+              <va-input
+                v-model="value"
+                label="Tahun Ajaran"
+                placeholder="Tahun Ajaran untuk Modul Ajar"
+                preset="bordered"
+                style="width: 100%"
+              />
+            </div>
+            <div style="margin-top: 10px">
+              <va-select
+                v-model="value"
+                :options="options"
+                label="Kelas"
+                placeholder="Tingkatan kelas yang sesuai dengan Modul Ajar"
+                preset="bordered"
+                style="width: 100%"
+              />
+            </div>
+            <div style="margin-top: 10px">
+              <va-input
+                v-model="value"
+                label="Alokasi Waktu"
+                placeholder="Jumlah waktu yang diperlukan untuk menyelesaikan modul ajar"
+                preset="bordered"
+                style="width: 100%"
+              />
+            </div>
           </div>
           <div class="txt flex justify-between">
             <div
@@ -184,7 +201,7 @@ export default defineComponent({
             >
               <va-textarea
                 v-model="value"
-                label="Judul Elemen"
+                label="Kompetensi Awal"
                 placeholder="Judul mengenai elemen pemahaman suatu mata pelajaran"
                 preset="bordered"
               />
@@ -195,7 +212,7 @@ export default defineComponent({
             >
               <va-textarea
                 v-model="value"
-                label="Keterangan Elemen"
+                label="profile Pelajar Pancasila"
                 placeholder="Menjelaskan inti dari judul elemen tersebut"
                 preset="bordered"
               />
@@ -208,7 +225,7 @@ export default defineComponent({
             >
               <va-textarea
                 v-model="value"
-                label="Keterangan Proses Mengamati"
+                label="Sarana Prasarana"
                 placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
                 preset="bordered"
               />
@@ -219,62 +236,27 @@ export default defineComponent({
             >
               <va-textarea
                 v-model="value"
-                label="Keterangan Proses Mempertanyakan"
+                label="Target Peserta Didik"
                 placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
                 preset="bordered"
               />
             </div>
           </div>
-          <div class="txt flex justify-between">
+          <div>
             <div
-              class="flex flex-col md6"
+              class="flex flex-col md12"
               style="margin-right: 10px; width: 100%"
             >
               <va-textarea
                 v-model="value"
-                label="Keterangan Proses Merencanakan"
-                placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
-                preset="bordered"
-              />
-            </div>
-            <div
-              class="flex flex-col md6"
-              style="margin-left: 10px; width: 100%"
-            >
-              <va-textarea
-                v-model="value"
-                label="Keterangan Proses Memproses"
-                placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
-                preset="bordered"
-              />
-            </div>
-          </div>
-          <div class="txt flex justify-between">
-            <div
-              class="flex flex-col md6"
-              style="margin-right: 10px; width: 100%"
-            >
-              <va-textarea
-                v-model="value"
-                label="Keterangan Proses Mengevaluasi"
-                placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajarann"
-                preset="bordered"
-              />
-            </div>
-            <div
-              class="flex flex-col md6"
-              style="margin-left: 10px; width: 100%"
-            >
-              <va-textarea
-                v-model="value"
-                label="Keterangan Proses Mengkomunikasikan"
+                label="Model Pembelajaran"
                 placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
                 preset="bordered"
               />
             </div>
           </div>
           <va-card :bordered="false" stripe disabled>
-            <va-card-title>Upload Data Capaian</va-card-title>
+            <va-card-title>Upload Data Modul Ajar</va-card-title>
             <va-card-content>
               <va-file-upload
                 v-model="basic"
