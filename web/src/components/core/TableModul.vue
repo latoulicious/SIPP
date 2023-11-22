@@ -214,7 +214,10 @@ export default defineComponent({
       <va-card-title>Input Data Modul Ajar</va-card-title>
       <va-card-content>
         <div>
-          <div class="modal-container">
+          <div
+            class="modal-container"
+            style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px"
+          >
             <div>
               <va-input
                 v-model="value"
@@ -224,30 +227,12 @@ export default defineComponent({
                 style="width: 100%"
               />
             </div>
-            <div style="margin-top: 10px">
+            <div>
               <va-select
                 v-model="value"
                 :options="options"
                 label="Mata Pelajaran"
                 placeholder="Pilih Mata Pelajaran"
-                preset="bordered"
-                style="width: 100%"
-              />
-            </div>
-            <div style="margin-top: 10px">
-              <va-input
-                v-model="value"
-                label="Sekolah"
-                placeholder="Nama Sekolah"
-                preset="bordered"
-                style="width: 100%"
-              />
-            </div>
-            <div style="margin-top: 10px">
-              <va-input
-                v-model="value"
-                label="Tahun Ajaran"
-                placeholder="Tahun Ajaran untuk Modul Ajar"
                 preset="bordered"
                 style="width: 100%"
               />
@@ -265,8 +250,26 @@ export default defineComponent({
             <div style="margin-top: 10px">
               <va-input
                 v-model="value"
+                label="Tahun Ajaran"
+                placeholder="Tahun Ajaran untuk Modul Ajar"
+                preset="bordered"
+                style="width: 100%"
+              />
+            </div>
+            <div style="margin-top: 10px">
+              <va-input
+                v-model="value"
                 label="Alokasi Waktu"
-                placeholder="Jumlah waktu yang diperlukan untuk menyelesaikan modul ajar"
+                placeholder="Waktu yang diperlukan untuk menguasai masing-masing kompetensi"
+                preset="bordered"
+                style="width: 100%"
+              />
+            </div>
+            <div style="margin-top: 10px">
+              <va-input
+                v-model="value"
+                label="Sekolah"
+                placeholder="Nama Sekolah"
                 preset="bordered"
                 style="width: 100%"
               />
@@ -372,7 +375,7 @@ export default defineComponent({
 
 <style scoped>
 .modal-container {
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
 
 .txt {

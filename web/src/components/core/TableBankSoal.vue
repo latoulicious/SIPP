@@ -74,6 +74,7 @@ export default defineComponent({
       showModal: false,
       input: "",
       onButtonClick,
+      isDataLoaded: false,
     };
   },
 
@@ -86,12 +87,81 @@ export default defineComponent({
   },
 
   methods: {
-    fetchData() {
+    async fetchData() {
       // Simulate a delay and then set loading to false
-      setTimeout(() => {
-        this.loading = false;
-      }, 600); // Adjust the delay value (in milliseconds) as needed
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      this.loading = false;
+      this.isDataLoaded = true; // Set the flag to indicate data is loaded
     },
+
+    async printTable() {
+      // Show loading spinner or any indication that the content is being loaded
+      this.loading = true;
+
+      // Wait for the data to be loaded
+      await this.fetchData();
+
+      // Hide loading spinner
+      this.loading = false;
+
+      // Check if data is loaded
+      if (this.isDataLoaded) {
+        const tableElement = document.querySelector(".table-container table"); // Adjust the selector based on your actual HTML structure
+        if (tableElement) {
+          // Clone the table to avoid modifying the original
+          const clonedTable = tableElement.cloneNode(true);
+
+          // Remove elements you don't want in the print version
+          const elementsToRemove = [
+            'input[type="checkbox"]',
+            ".pagination-container",
+          ];
+          elementsToRemove.forEach((selector) => {
+            const elements = clonedTable.querySelectorAll(selector);
+            elements.forEach((element) => element.remove());
+          });
+
+          const printWindow = window.open("", "_blank");
+          printWindow.document.open();
+          printWindow.document.write(`
+        <html>
+          <head>
+            <title>Print Table</title>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+              }
+              table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+              }
+              th, td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+              }
+              th {
+                background-color: #f2f2f2;
+              }
+            </style>
+          </head>
+          <body>
+            ${clonedTable.outerHTML}
+          </body>
+        </html>
+      `);
+          printWindow.document.close();
+          printWindow.print();
+        } else {
+          console.error("Table element not found. Unable to print.");
+        }
+      } else {
+        console.error("Data not loaded. Unable to print.");
+      }
+    },
+
+    // ... (your other methods)
   },
 
   watch: {
@@ -128,13 +198,14 @@ export default defineComponent({
       >
         <va-button @click="showModal = !showModal" icon="add">Add</va-button>
         <va-button @click="showModal = !showModal" icon="edit">Edit</va-button>
-        <va-button @click="showModal = !showModal" icon="print">Print</va-button>
+        <va-button @click="printTable" icon="print">Print</va-button>
         <va-button @click="onButtonClick" type="delete" icon="delete"
           >Delete</va-button
         >
       </va-button-group>
     </div>
     <va-data-table
+      ref="printTable"
       :items="items"
       :columns="columns"
       :striped="isTableStriped"
@@ -174,7 +245,7 @@ export default defineComponent({
             <div>
               <va-input
                 v-model="value"
-                placeholder="Nama Penyusun ATP"
+                placeholder="Nama Penyusun"
                 label="Nama Penyusun"
                 preset="bordered"
                 style="width: 100%"
@@ -212,7 +283,7 @@ export default defineComponent({
             </div>
           </div>
           <va-card :bordered="false" stripe disabled>
-            <va-card-title>Upload Data Capaian</va-card-title>
+            <va-card-title>Upload Data Bank Soal</va-card-title>
             <va-card-content>
               <va-file-upload
                 v-model="basic"

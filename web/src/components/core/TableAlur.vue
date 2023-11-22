@@ -137,7 +137,10 @@ export default defineComponent({
       <va-card-title>Input Data Alur Tujuan Pembelajaran</va-card-title>
       <va-card-content>
         <div>
-          <div class="modal-container">
+          <div
+            class="modal-container"
+            style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px"
+          >
             <div>
               <va-input
                 v-model="value"
@@ -147,7 +150,7 @@ export default defineComponent({
                 style="width: 100%"
               />
             </div>
-            <div style="margin-top: 10px">
+            <div>
               <va-select
                 v-model="value"
                 :options="options"
