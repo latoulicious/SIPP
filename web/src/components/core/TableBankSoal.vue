@@ -11,42 +11,23 @@ export default defineComponent({
         {
           id: 1,
           name: "Leanne Graham",
-          username: "Bret",
-          email: "Sincere@april.biz",
-          phone: "1-770-736-8031 x56442",
-          website: "hildegard.org",
+          mapel: "Kimia",
+          kelas: "10",
+          semester: "Ganjil",
         },
         {
           id: 2,
           name: "Ervin Howell",
-          username: "Antonette",
-          email: "Shanna@melissa.tv",
-          phone: "010-692-6593 x09125",
-          website: "anastasia.net",
+          mapel: "Kimia",
+          kelas: "11",
+          semester: "Genap",
         },
         {
           id: 3,
           name: "Clementine Bauch",
-          username: "Samantha",
-          email: "Nathan@yesenia.net",
-          phone: "1-463-123-4447",
-          website: "ramiro.info",
-        },
-        {
-          id: 4,
-          name: "Patricia Lebsack",
-          username: "Karianne",
-          email: "Julianne.OConner@kory.org",
-          phone: "493-170-9623 x156",
-          website: "kale.biz",
-        },
-        {
-          id: 5,
-          name: "Chelsey Dietrich",
-          username: "Kamren",
-          email: "Lucio_Hettinger@annie.ca",
-          phone: "(254)954-1289",
-          website: "demarco.info",
+          mapel: "Kimia",
+          kelas: "12",
+          semester: "Ganjil & Genap",
         },
         // Add more users if needed
       ];
@@ -69,10 +50,10 @@ export default defineComponent({
 
     const columns = [
       { key: "id", sortable: true },
-      { key: "username", sortable: true },
       { key: "name", sortable: true },
-      { key: "email", sortable: true },
-      { key: "phone", sortable: true },
+      { key: "mapel", sortable: true },
+      { key: "kelas", sortable: true },
+      { key: "semester", sortable: true },
     ];
 
     const items = generateItems(50); // Adjust the count as needed
@@ -81,7 +62,7 @@ export default defineComponent({
     return {
       items,
       columns,
-      perPage: 10,
+      perPage: 5,
       currentPage: 1,
       isTableStriped: true,
       animated: true,
@@ -134,162 +115,25 @@ export default defineComponent({
 </script>
 
 <template>
-  <div
-    class="header-container"
-    style="display: flex; justify-content: space-between; align-items: center"
-  >
-    <va-input v-model="input" placeholder="Filter..."></va-input>
-    <va-button-group
-      icon-color="#000000"
-      preset="secondary"
-      border-color="bordered"
-    >
-      <va-button @click="showModal = !showModal" icon="add">Add</va-button>
-      <va-button icon="edit">Edit</va-button>
-      <va-button @click="onButtonClick" type="delete" icon="delete"
-        >Delete</va-button
-      >
-    </va-button-group>
-  </div>
-  <va-modal v-model="showModal" blur size="large" fixed-layout>
-    <va-card :bordered="false" stripe>
-      <va-card-title>Input Data Alur Tujuan Pembelajaran</va-card-title>
-      <va-card-content>
-        <div>
-          <div class="modal-container">
-            <div>
-              <va-input
-                v-model="value"
-                placeholder="Nama Penyusun ATP"
-                label="Nama Penyusun"
-                preset="bordered"
-                style="width: 100%"
-              />
-            </div>
-            <div style="margin-top: 10px">
-              <va-select
-                v-model="value"
-                :options="options"
-                label="Mata Pelajaran"
-                placeholder="Pilih Mata Pelajaran"
-                preset="bordered"
-                style="width: 100%"
-              />
-            </div>
-          </div>
-          <div class="txt flex justify-between">
-            <div
-              class="flex flex-col md6"
-              style="margin-right: 10px; width: 100%"
-            >
-              <va-textarea
-                v-model="value"
-                label="Judul Elemen"
-                placeholder="Judul mengenai elemen pemahaman suatu mata pelajaran"
-                preset="bordered"
-              />
-            </div>
-            <div
-              class="flex flex-col md6"
-              style="margin-left: 10px; width: 100%"
-            >
-              <va-textarea
-                v-model="value"
-                label="Keterangan Elemen"
-                placeholder="Menjelaskan inti dari judul elemen tersebut"
-                preset="bordered"
-              />
-            </div>
-          </div>
-          <div class="txt flex justify-between">
-            <div
-              class="flex flex-col md6"
-              style="margin-right: 10px; width: 100%"
-            >
-              <va-textarea
-                v-model="value"
-                label="Keterangan Proses Mengamati"
-                placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
-                preset="bordered"
-              />
-            </div>
-            <div
-              class="flex flex-col md6"
-              style="margin-left: 10px; width: 100%"
-            >
-              <va-textarea
-                v-model="value"
-                label="Keterangan Proses Mempertanyakan"
-                placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
-                preset="bordered"
-              />
-            </div>
-          </div>
-          <div class="txt flex justify-between">
-            <div
-              class="flex flex-col md6"
-              style="margin-right: 10px; width: 100%"
-            >
-              <va-textarea
-                v-model="value"
-                label="Keterangan Proses Merencanakan"
-                placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
-                preset="bordered"
-              />
-            </div>
-            <div
-              class="flex flex-col md6"
-              style="margin-left: 10px; width: 100%"
-            >
-              <va-textarea
-                v-model="value"
-                label="Keterangan Proses Memproses"
-                placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
-                preset="bordered"
-              />
-            </div>
-          </div>
-          <div class="txt flex justify-between">
-            <div
-              class="flex flex-col md6"
-              style="margin-right: 10px; width: 100%"
-            >
-              <va-textarea
-                v-model="value"
-                label="Keterangan Proses Mengevaluasi"
-                placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajarann"
-                preset="bordered"
-              />
-            </div>
-            <div
-              class="flex flex-col md6"
-              style="margin-left: 10px; width: 100%"
-            >
-              <va-textarea
-                v-model="value"
-                label="Keterangan Proses Mengkomunikasikan"
-                placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
-                preset="bordered"
-              />
-            </div>
-          </div>
-          <va-card :bordered="false" stripe disabled>
-            <va-card-title>Upload Data Capaian</va-card-title>
-            <va-card-content>
-              <va-file-upload
-                v-model="basic"
-                dropzone
-                undo
-                undo-button-text="Restore"
-                file-types="doc,docs,rtf,xls,xlsx,ppt,pptx,pdf,txt"
-              />
-            </va-card-content>
-          </va-card>
-        </div>
-      </va-card-content>
-    </va-card>
-  </va-modal>
   <div class="table-container">
+    <div
+      class="header-container"
+      style="display: flex; justify-content: space-between; align-items: center"
+    >
+      <va-input v-model="input" placeholder="Filter..."></va-input>
+      <va-button-group
+        icon-color="#000000"
+        preset="secondary"
+        border-color="bordered"
+      >
+        <va-button @click="showModal = !showModal" icon="add">Add</va-button>
+        <va-button @click="showModal = !showModal" icon="edit">Edit</va-button>
+        <va-button @click="showModal = !showModal" icon="print">Print</va-button>
+        <va-button @click="onButtonClick" type="delete" icon="delete"
+          >Delete</va-button
+        >
+      </va-button-group>
+    </div>
     <va-data-table
       :items="items"
       :columns="columns"
@@ -317,11 +161,77 @@ export default defineComponent({
       </template>
     </va-data-table>
   </div>
+  <!-- Modal Content -->
+  <va-modal v-model="showModal" blur size="large" fixed-layout>
+    <va-card :bordered="false" stripe>
+      <va-card-title>Input Data Alur Tujuan Pembelajaran</va-card-title>
+      <va-card-content>
+        <div>
+          <div
+            class="modal-container"
+            style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px"
+          >
+            <div>
+              <va-input
+                v-model="value"
+                placeholder="Nama Penyusun ATP"
+                label="Nama Penyusun"
+                preset="bordered"
+                style="width: 100%"
+              />
+            </div>
+            <div>
+              <va-select
+                v-model="value"
+                :options="options"
+                label="Mata Pelajaran"
+                placeholder="Pilih Mata Pelajaran"
+                preset="bordered"
+                style="width: 100%"
+              />
+            </div>
+            <div>
+              <va-select
+                v-model="value"
+                :options="options"
+                label="Semester"
+                placeholder="Pilih Semester"
+                preset="bordered"
+                style="width: 100%"
+              />
+            </div>
+            <div>
+              <va-select
+                v-model="value"
+                :options="options"
+                label="Kelas"
+                placeholder="Pilih Kelas"
+                preset="bordered"
+                style="width: 100%"
+              />
+            </div>
+          </div>
+          <va-card :bordered="false" stripe disabled>
+            <va-card-title>Upload Data Capaian</va-card-title>
+            <va-card-content>
+              <va-file-upload
+                v-model="basic"
+                dropzone
+                undo
+                undo-button-text="Restore"
+                file-types="doc,docs,rtf,xls,xlsx,ppt,pptx,pdf,txt"
+              />
+            </va-card-content>
+          </va-card>
+        </div>
+      </va-card-content>
+    </va-card>
+  </va-modal>
 </template>
 
 <style>
 .table-container {
-  border: solid black;
+  border: shadow black;
 }
 
 .pagination-container {
@@ -341,16 +251,5 @@ export default defineComponent({
 <style scoped>
 .modal-container {
   margin-bottom: 10px;
-}
-
-.txt {
-  display: flex;
-  justify-content: space-between;
-}
-
-.va-textarea {
-  width: 100%;
-  box-sizing: border-box;
-  margin-bottom: 20px;
 }
 </style>

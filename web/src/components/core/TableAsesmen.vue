@@ -62,7 +62,7 @@ export default defineComponent({
     return {
       items,
       columns,
-      perPage: 10,
+      perPage: 3,
       currentPage: 1,
       isTableStriped: true,
       animated: true,
@@ -115,23 +115,195 @@ export default defineComponent({
 </script>
 
 <template>
-  <div
-    class="header-container"
-    style="display: flex; justify-content: space-between; align-items: center"
-  >
-    <va-input v-model="input" placeholder="Filter..."></va-input>
-    <va-button-group
-      icon-color="#000000"
-      preset="secondary"
-      border-color="bordered"
+  <!-- Data Table -->
+  <div class="table-container">
+    <va-card-title>Asesmen Non-Kognitif & Kognitif</va-card-title>
+    <div
+      class="header-container"
+      style="display: flex; justify-content: space-between; align-items: center"
     >
-      <va-button @click="showModal = !showModal" icon="add">Add</va-button>
-      <va-button icon="edit">Edit</va-button>
-      <va-button @click="onButtonClick" type="delete" icon="delete"
-        >Delete</va-button
+      <va-input v-model="input" placeholder="Filter..."></va-input>
+      <va-button-group
+        icon-color="#000000"
+        preset="secondary"
+        border-color="bordered"
       >
-    </va-button-group>
+        <va-button @click="showModal = !showModal" icon="add">Add</va-button>
+        <va-button icon="edit">Edit</va-button>
+        <va-button @click="onButtonClick" type="delete" icon="delete"
+          >Delete</va-button
+        >
+      </va-button-group>
+    </div>
+    <va-data-table
+      :items="items"
+      :columns="columns"
+      :striped="isTableStriped"
+      :current-page="currentPage"
+      :per-page="perPage"
+      selectable
+      :animated="animated"
+      :delay="500"
+      :loading="loading"
+    >
+      <template #bodyAppend>
+        <tr>
+          <td colspan="6">
+            <div class="flex justify-center mt-4">
+              <div class="pagination-container">
+                <va-pagination v-model="currentPage" :pages="pages" />
+              </div>
+            </div>
+          </td>
+        </tr>
+      </template>
+      <template #bodyCellCheckbox="{ value }">
+        <input type="checkbox" v-model="selectedRows" :value="value" />
+      </template>
+    </va-data-table>
   </div>
+  <br />
+  <div class="table-container">
+    <va-card-title>Asesmen Formatif & Sumantif</va-card-title>
+    <div
+      class="header-container"
+      style="display: flex; justify-content: space-between; align-items: center"
+    >
+      <va-input v-model="input" placeholder="Filter..."></va-input>
+      <va-button-group
+        icon-color="#000000"
+        preset="secondary"
+        border-color="bordered"
+      >
+        <va-button @click="showModal = !showModal" icon="add">Add</va-button>
+        <va-button icon="edit">Edit</va-button>
+        <va-button @click="onButtonClick" type="delete" icon="delete"
+          >Delete</va-button
+        >
+      </va-button-group>
+    </div>
+    <va-data-table
+      :items="items"
+      :columns="columns"
+      :striped="isTableStriped"
+      :current-page="currentPage"
+      :per-page="perPage"
+      selectable
+      :animated="animated"
+      :delay="500"
+      :loading="loading"
+    >
+      <template #bodyAppend>
+        <tr>
+          <td colspan="6">
+            <div class="flex justify-center mt-4">
+              <div class="pagination-container">
+                <va-pagination v-model="currentPage" :pages="pages" />
+              </div>
+            </div>
+          </td>
+        </tr>
+      </template>
+      <template #bodyCellCheckbox="{ value }">
+        <input type="checkbox" v-model="selectedRows" :value="value" />
+      </template>
+    </va-data-table>
+  </div>
+  <br />
+  <div class="table-container">
+    <va-card-title>Pengayaan</va-card-title>
+    <div
+      class="header-container"
+      style="display: flex; justify-content: space-between; align-items: center"
+    >
+      <va-input v-model="input" placeholder="Filter..."></va-input>
+      <va-button-group
+        icon-color="#000000"
+        preset="secondary"
+        border-color="bordered"
+      >
+        <va-button @click="showModal = !showModal" icon="add">Add</va-button>
+        <va-button icon="edit">Edit</va-button>
+        <va-button @click="onButtonClick" type="delete" icon="delete"
+          >Delete</va-button
+        >
+      </va-button-group>
+    </div>
+    <va-data-table
+      :items="items"
+      :columns="columns"
+      :striped="isTableStriped"
+      :current-page="currentPage"
+      :per-page="perPage"
+      selectable
+      :animated="animated"
+      :delay="500"
+      :loading="loading"
+    >
+      <template #bodyAppend>
+        <tr>
+          <td colspan="6">
+            <div class="flex justify-center mt-4">
+              <div class="pagination-container">
+                <va-pagination v-model="currentPage" :pages="pages" />
+              </div>
+            </div>
+          </td>
+        </tr>
+      </template>
+      <template #bodyCellCheckbox="{ value }">
+        <input type="checkbox" v-model="selectedRows" :value="value" />
+      </template>
+    </va-data-table>
+  </div>
+  <br />
+  <div class="table-container">
+    <va-card-title>Remedial</va-card-title>
+    <div
+      class="header-container"
+      style="display: flex; justify-content: space-between; align-items: center"
+    >
+      <va-input v-model="input" placeholder="Filter..."></va-input>
+      <va-button-group
+        icon-color="#000000"
+        preset="secondary"
+        border-color="bordered"
+      >
+        <va-button @click="showModal = !showModal" icon="add">Add</va-button>
+        <va-button icon="edit">Edit</va-button>
+        <va-button @click="onButtonClick" type="delete" icon="delete"
+          >Delete</va-button
+        >
+      </va-button-group>
+    </div>
+    <va-data-table
+      :items="items"
+      :columns="columns"
+      :striped="isTableStriped"
+      :current-page="currentPage"
+      :per-page="perPage"
+      selectable
+      :animated="animated"
+      :delay="500"
+      :loading="loading"
+    >
+      <template #bodyAppend>
+        <tr>
+          <td colspan="6">
+            <div class="flex justify-center mt-4">
+              <div class="pagination-container">
+                <va-pagination v-model="currentPage" :pages="pages" />
+              </div>
+            </div>
+          </td>
+        </tr>
+      </template>
+      <template #bodyCellCheckbox="{ value }">
+        <input type="checkbox" v-model="selectedRows" :value="value" />
+      </template>
+    </va-data-table>
+  </div>
+  <!-- Modal Content -->
   <va-modal v-model="showModal" blur size="large" fixed-layout>
     <va-card :bordered="false" stripe>
       <va-card-title>Input Data Asesmen</va-card-title>
@@ -246,41 +418,9 @@ export default defineComponent({
       </va-card-content>
     </va-card>
   </va-modal>
-  <div class="table-container">
-    <va-data-table
-      :items="items"
-      :columns="columns"
-      :striped="isTableStriped"
-      :current-page="currentPage"
-      :per-page="perPage"
-      selectable
-      :animated="animated"
-      :delay="500"
-      :loading="loading"
-    >
-      <template #bodyAppend>
-        <tr>
-          <td colspan="6">
-            <div class="flex justify-center mt-4">
-              <div class="pagination-container">
-                <va-pagination v-model="currentPage" :pages="pages" />
-              </div>
-            </div>
-          </td>
-        </tr>
-      </template>
-      <template #bodyCellCheckbox="{ value }">
-        <input type="checkbox" v-model="selectedRows" :value="value" />
-      </template>
-    </va-data-table>
-  </div>
 </template>
 
 <style>
-.table-container {
-  border: solid black;
-}
-
 .pagination-container {
   display: flex;
   justify-content: center;

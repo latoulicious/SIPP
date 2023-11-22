@@ -213,30 +213,6 @@ export default defineComponent({
             >
               <va-textarea
                 v-model="value"
-                label="Asesmen"
-                placeholder="Proses pengumpulan dan pengolahan informasi untuk mengetahui kebutuhan belajar, perkembangan, dan pencapaian hasil belajar peserta didik"
-                preset="bordered"
-              />
-            </div>
-            <div
-              class="flex flex-col md6"
-              style="margin-left: 10px; width: 100%"
-            >
-              <va-textarea
-                v-model="value"
-                label="Pengayaan dan Remedial"
-                placeholder="Pengayaan adalah kegiatan pembelajaran yang diberikan pada peserta didik dengan capaian tinggi agar mereka dapat mengembangkan potensinya secara optimal. Remedial diberikan kepada peserta didik yang membutuhkan bimbingan untuk memahami materi atau pembelajaran mengulang."
-                preset="bordered"
-              />
-            </div>
-          </div>
-          <div class="txt flex justify-between">
-            <div
-              class="flex flex-col md6"
-              style="margin-right: 10px; width: 100%"
-            >
-              <va-textarea
-                v-model="value"
                 label="Refleksi"
                 placeholder="Kegiatan yang dilakukan dalam proses belajar mengajar dalam bentuk penilaian tertulis dan lisan oleh guru untuk siswa dan oleh siswa untuk guru untuk mengekspresikan kesan konstruksif, pesan, harapan, dan kritik terhadap proses pembelajaran"
                 preset="bordered"
