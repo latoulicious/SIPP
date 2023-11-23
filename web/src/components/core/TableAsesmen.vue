@@ -55,6 +55,7 @@ export default defineComponent({
       { key: "kelas", sortable: false },
       { key: "tahun_ajaran", sortable: false },
     ];
+
     const items = generateItems(50); // Adjust the count as needed
     const filtered = items.map((item) => item.id);
 
@@ -116,7 +117,7 @@ export default defineComponent({
 <template>
   <!-- Data Table -->
   <div class="table-container">
-    <va-card-title>Informasi Umum</va-card-title>
+    <va-card-title>Asesmen Non-Kognitif & Kognitif</va-card-title>
     <div
       class="header-container"
       style="display: flex; justify-content: space-between; align-items: center"
@@ -163,7 +164,101 @@ export default defineComponent({
   </div>
   <br />
   <div class="table-container">
-    <va-card-title>Konten Modul</va-card-title>
+    <va-card-title>Asesmen Formatif & Sumantif</va-card-title>
+    <div
+      class="header-container"
+      style="display: flex; justify-content: space-between; align-items: center"
+    >
+      <va-input v-model="input" placeholder="Search"></va-input>
+      <va-button-group
+        icon-color="#000000"
+        preset="secondary"
+        border-color="bordered"
+      >
+        <va-button @click="showModal = !showModal" icon="add">Add</va-button>
+        <va-button icon="edit">Edit</va-button>
+        <va-button @click="onButtonClick" type="delete" icon="delete"
+          >Delete</va-button
+        >
+      </va-button-group>
+    </div>
+    <va-data-table
+      :items="items"
+      :columns="columns"
+      :striped="isTableStriped"
+      :current-page="currentPage"
+      :per-page="perPage"
+      selectable
+      :animated="animated"
+      :delay="500"
+      :loading="loading"
+    >
+      <template #bodyAppend>
+        <tr>
+          <td colspan="6">
+            <div class="flex justify-center mt-4">
+              <div class="pagination-container">
+                <va-pagination v-model="currentPage" :pages="pages" />
+              </div>
+            </div>
+          </td>
+        </tr>
+      </template>
+      <template #bodyCellCheckbox="{ value }">
+        <input type="checkbox" v-model="selectedRows" :value="value" />
+      </template>
+    </va-data-table>
+  </div>
+  <br />
+  <div class="table-container">
+    <va-card-title>Pengayaan</va-card-title>
+    <div
+      class="header-container"
+      style="display: flex; justify-content: space-between; align-items: center"
+    >
+      <va-input v-model="input" placeholder="Search"></va-input>
+      <va-button-group
+        icon-color="#000000"
+        preset="secondary"
+        border-color="bordered"
+      >
+        <va-button @click="showModal = !showModal" icon="add">Add</va-button>
+        <va-button icon="edit">Edit</va-button>
+        <va-button @click="onButtonClick" type="delete" icon="delete"
+          >Delete</va-button
+        >
+      </va-button-group>
+    </div>
+    <va-data-table
+      :items="items"
+      :columns="columns"
+      :striped="isTableStriped"
+      :current-page="currentPage"
+      :per-page="perPage"
+      selectable
+      :animated="animated"
+      :delay="500"
+      :loading="loading"
+    >
+      <template #bodyAppend>
+        <tr>
+          <td colspan="6">
+            <div class="flex justify-center mt-4">
+              <div class="pagination-container">
+                <va-pagination v-model="currentPage" :pages="pages" />
+              </div>
+            </div>
+          </td>
+        </tr>
+      </template>
+      <template #bodyCellCheckbox="{ value }">
+        <input type="checkbox" v-model="selectedRows" :value="value" />
+      </template>
+    </va-data-table>
+  </div>
+  <br />
+  <div class="table-container">
+    <va-card-title>Remedial</va-card-title>
     <div
       class="header-container"
       style="display: flex; justify-content: space-between; align-items: center"
@@ -211,13 +306,10 @@ export default defineComponent({
   <!-- Modal Content -->
   <va-modal v-model="showModal" blur size="large" fixed-layout>
     <va-card :bordered="false" stripe>
-      <va-card-title>Input Data Modul Ajar</va-card-title>
+      <va-card-title>Input Data Asesmen</va-card-title>
       <va-card-content>
         <div>
-          <div
-            class="modal-container"
-            style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px"
-          >
+          <div class="modal-container">
             <div>
               <va-input
                 v-model="value"
@@ -227,7 +319,7 @@ export default defineComponent({
                 style="width: 100%"
               />
             </div>
-            <div>
+            <div style="margin-top: 10px">
               <va-select
                 v-model="value"
                 :options="options"
@@ -237,43 +329,6 @@ export default defineComponent({
                 style="width: 100%"
               />
             </div>
-            <div style="margin-top: 10px">
-              <va-select
-                v-model="value"
-                :options="options"
-                label="Kelas"
-                placeholder="Tingkatan kelas yang sesuai dengan Modul Ajar"
-                preset="bordered"
-                style="width: 100%"
-              />
-            </div>
-            <div style="margin-top: 10px">
-              <va-input
-                v-model="value"
-                label="Tahun Ajaran"
-                placeholder="Tahun Ajaran untuk Modul Ajar"
-                preset="bordered"
-                style="width: 100%"
-              />
-            </div>
-            <div style="margin-top: 10px">
-              <va-input
-                v-model="value"
-                label="Alokasi Waktu"
-                placeholder="Waktu yang diperlukan untuk menguasai masing-masing kompetensi"
-                preset="bordered"
-                style="width: 100%"
-              />
-            </div>
-            <div style="margin-top: 10px">
-              <va-input
-                v-model="value"
-                label="Sekolah"
-                placeholder="Nama Sekolah"
-                preset="bordered"
-                style="width: 100%"
-              />
-            </div>
           </div>
           <div class="txt flex justify-between">
             <div
@@ -282,8 +337,8 @@ export default defineComponent({
             >
               <va-textarea
                 v-model="value"
-                label="Kompetensi Awal"
-                placeholder="Judul mengenai elemen pemahaman suatu mata pelajaran"
+                label="Asesmen Diagnostik Non-Kognitif"
+                placeholder="Sebuah proses mengumpulkan informasi mengenai karakter dan kondisi yang tidak berkaitan dengan kemampuan intelektual siswa. "
                 preset="bordered"
               />
             </div>
@@ -293,8 +348,8 @@ export default defineComponent({
             >
               <va-textarea
                 v-model="value"
-                label="profile Pelajar Pancasila"
-                placeholder="Menjelaskan inti dari judul elemen tersebut"
+                label="Asesmen Diagnostik Kognitif"
+                placeholder="Sebuah Asesmen yang dilakukan guru pada awal dan akhir proses kegiatan belajar."
                 preset="bordered"
               />
             </div>
@@ -306,8 +361,8 @@ export default defineComponent({
             >
               <va-textarea
                 v-model="value"
-                label="Sarana Prasarana"
-                placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
+                label="Asesmen Formatif"
+                placeholder="Sebuah Asesmen yang bertujuan untuk memantau dan memperbaiki proses pembelajaran, serta mengevaluasi pencapaian tujuan pembelajaran."
                 preset="bordered"
               />
             </div>
@@ -317,27 +372,38 @@ export default defineComponent({
             >
               <va-textarea
                 v-model="value"
-                label="Target Peserta Didik"
-                placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
+                label="Asesmen Sumatif"
+                placeholder="Sebuah Asesmen yang dilakukan untuk memastikan ketercapaian keseluruhan tujuan pembelajaran"
                 preset="bordered"
               />
             </div>
           </div>
-          <div>
+          <div class="txt flex justify-between">
             <div
-              class="flex flex-col md12"
+              class="flex flex-col md6"
               style="margin-right: 10px; width: 100%"
             >
               <va-textarea
                 v-model="value"
-                label="Model Pembelajaran"
-                placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
+                label="Pengayaan"
+                placeholder="Kegiatan pembelajaran yang diberikan pada peserta didik dengan capaian tinggi agar mereka dapat mengembangkan potensinya secara optimal."
+                preset="bordered"
+              />
+            </div>
+            <div
+              class="flex flex-col md6"
+              style="margin-left: 10px; width: 100%"
+            >
+              <va-textarea
+                v-model="value"
+                label="Remedial"
+                placeholder="Kegiatan yang diberikan kepada peserta didik yang membutuhkan bimbingan untuk memahami materi atau pembelajaran mengulang."
                 preset="bordered"
               />
             </div>
           </div>
           <va-card :bordered="false" stripe disabled>
-            <va-card-title>Upload Data Modul Ajar</va-card-title>
+            <va-card-title>Upload Data Asesmen</va-card-title>
             <va-card-content>
               <va-file-upload
                 v-model="basic"
@@ -355,10 +421,6 @@ export default defineComponent({
 </template>
 
 <style>
-.table-container {
-  border: solid black;
-}
-
 .pagination-container {
   display: flex;
   justify-content: center;
@@ -375,7 +437,7 @@ export default defineComponent({
 
 <style scoped>
 .modal-container {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .txt {

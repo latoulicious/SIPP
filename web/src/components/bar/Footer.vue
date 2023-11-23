@@ -26,6 +26,11 @@
 </template>
 
 <style lang="scss" scoped>
+.footer-wrapper {
+  flex-shrink: 0; /* Prevent the footer from shrinking when content grows */
+  margin-top: auto; /* Push the footer to the bottom of the container */
+}
+
 .a {
   padding-top: 0.3rem;
   padding-bottom: 0.5rem;

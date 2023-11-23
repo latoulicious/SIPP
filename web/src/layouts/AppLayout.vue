@@ -22,3 +22,15 @@ import Footer from "@/components/bar/Footer.vue";
     </template>
   </VaLayout>
 </template>
+
+<style lang="scss" scoped>
+.VaLayout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+#content {
+  flex: 1;
+}
+</style>

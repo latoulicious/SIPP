@@ -10,43 +10,24 @@ export default defineComponent({
       const users = [
         {
           id: 1,
-          name: "Leanne Graham",
-          username: "Bret",
-          email: "Sincere@april.biz",
-          phone: "1-770-736-8031 x56442",
-          website: "hildegard.org",
+          nama_penyusun: "Leanne Graham",
+          mata_pelajaran: "Kimia",
+          kelas: "10",
+          tahun_ajaran: "Ganjil",
         },
         {
           id: 2,
-          name: "Ervin Howell",
-          username: "Antonette",
-          email: "Shanna@melissa.tv",
-          phone: "010-692-6593 x09125",
-          website: "anastasia.net",
+          nama_penyusun: "Ervin Howell",
+          mata_pelajaran: "Kimia",
+          kelas: "11",
+          tahun_ajaran: "Genap",
         },
         {
           id: 3,
-          name: "Clementine Bauch",
-          username: "Samantha",
-          email: "Nathan@yesenia.net",
-          phone: "1-463-123-4447",
-          website: "ramiro.info",
-        },
-        {
-          id: 4,
-          name: "Patricia Lebsack",
-          username: "Karianne",
-          email: "Julianne.OConner@kory.org",
-          phone: "493-170-9623 x156",
-          website: "kale.biz",
-        },
-        {
-          id: 5,
-          name: "Chelsey Dietrich",
-          username: "Kamren",
-          email: "Lucio_Hettinger@annie.ca",
-          phone: "(254)954-1289",
-          website: "demarco.info",
+          nama_penyusun: "Clementine Bauch",
+          mata_pelajaran: "Kimia",
+          kelas: "12",
+          tahun_ajaran: "Ganjil & Genap",
         },
         // Add more users if needed
       ];
@@ -68,11 +49,11 @@ export default defineComponent({
     };
 
     const columns = [
-      { key: "id", sortable: true },
-      { key: "username", sortable: true },
-      { key: "name", sortable: true },
-      { key: "email", sortable: true },
-      { key: "phone", sortable: true },
+      { key: "id", sortable: false },
+      { key: "nama_penyusun", sortable: false },
+      { key: "mata_pelajaran", sortable: false },
+      { key: "kelas", sortable: false },
+      { key: "tahun_ajaran", sortable: false },
     ];
 
     const items = generateItems(50); // Adjust the count as needed
@@ -138,7 +119,7 @@ export default defineComponent({
     class="header-container"
     style="display: flex; justify-content: space-between; align-items: center"
   >
-    <va-input v-model="input" placeholder="Filter..."></va-input>
+    <va-input v-model="input" placeholder="Search"></va-input>
     <va-button-group
       icon-color="#000000"
       preset="secondary"
@@ -153,14 +134,14 @@ export default defineComponent({
   </div>
   <va-modal v-model="showModal" blur size="large" fixed-layout>
     <va-card :bordered="false" stripe>
-      <va-card-title>Input Data Alur Tujuan Pembelajaran</va-card-title>
+      <va-card-title>Input Data Penilaian Ranah Pengetahuan</va-card-title>
       <va-card-content>
         <div>
           <div class="modal-container">
             <div>
               <va-input
                 v-model="value"
-                placeholder="Nama Penyusun ATP"
+                placeholder="Nama Penyusun"
                 label="Nama Penyusun"
                 preset="bordered"
                 style="width: 100%"
@@ -184,8 +165,8 @@ export default defineComponent({
             >
               <va-textarea
                 v-model="value"
-                label="Judul Elemen"
-                placeholder="Judul mengenai elemen pemahaman suatu mata pelajaran"
+                label="Tujuan Pembelajaran"
+                placeholder="Deskripsi pencapaian tiga aspek kompetensi (pengetahuan, keterampilan, sikap) murid "
                 preset="bordered"
               />
             </div>
@@ -195,8 +176,8 @@ export default defineComponent({
             >
               <va-textarea
                 v-model="value"
-                label="Keterangan Elemen"
-                placeholder="Menjelaskan inti dari judul elemen tersebut"
+                label="Pemahaman Bermakna"
+                placeholder="Informasi tentang manfaat yang akan peserta didik peroleh setelah mengikuti proses pembelajaran"
                 preset="bordered"
               />
             </div>
@@ -208,8 +189,8 @@ export default defineComponent({
             >
               <va-textarea
                 v-model="value"
-                label="Keterangan Proses Mengamati"
-                placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
+                label="Pertanyaan Pemantik"
+                placeholder="Pertanyaan yang bertujuan untuk memandu siswa mendapatkan pemahaman sesuai dengan tujuan pembelajaran"
                 preset="bordered"
               />
             </div>
@@ -219,8 +200,8 @@ export default defineComponent({
             >
               <va-textarea
                 v-model="value"
-                label="Keterangan Proses Mempertanyakan"
-                placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
+                label="Kegiatan Pembelajaran"
+                placeholder="Suatu proses yang mengandung serangkaian kegiatan guru dan siswa atas dasar hubungan timbal balik yang berlangsung dalam situasi edukatif untuk mencapai tujuan tertentu."
                 preset="bordered"
               />
             </div>
@@ -232,8 +213,8 @@ export default defineComponent({
             >
               <va-textarea
                 v-model="value"
-                label="Keterangan Proses Merencanakan"
-                placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
+                label="Refleksi"
+                placeholder="Kegiatan yang dilakukan dalam proses belajar mengajar dalam bentuk penilaian tertulis dan lisan oleh guru untuk siswa dan oleh siswa untuk guru untuk mengekspresikan kesan konstruksif, pesan, harapan, dan kritik terhadap proses pembelajaran"
                 preset="bordered"
               />
             </div>
@@ -243,38 +224,29 @@ export default defineComponent({
             >
               <va-textarea
                 v-model="value"
-                label="Keterangan Proses Memproses"
-                placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
+                label="Glosarium"
+                placeholder="Kumpulan istilah-istilah dalam suatu bidang secara alfabetikal yang dilengkapi dengan definisi dan artinya"
                 preset="bordered"
               />
             </div>
           </div>
-          <div class="txt flex justify-between">
+          <div>
             <div
-              class="flex flex-col md6"
+              class="flex flex-col md12"
               style="margin-right: 10px; width: 100%"
             >
               <va-textarea
                 v-model="value"
-                label="Keterangan Proses Mengevaluasi"
-                placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajarann"
-                preset="bordered"
-              />
-            </div>
-            <div
-              class="flex flex-col md6"
-              style="margin-left: 10px; width: 100%"
-            >
-              <va-textarea
-                v-model="value"
-                label="Keterangan Proses Mengkomunikasikan"
-                placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
+                label="Daftar Pustaka"
+                placeholder="Sumber-sumber referensi yang digunakan dalam pengembangan modul ajar"
                 preset="bordered"
               />
             </div>
           </div>
           <va-card :bordered="false" stripe disabled>
-            <va-card-title>Upload Data Capaian</va-card-title>
+            <va-card-title
+              >Upload Data Penilaian Ranah Pengetahuan</va-card-title
+            >
             <va-card-content>
               <va-file-upload
                 v-model="basic"
