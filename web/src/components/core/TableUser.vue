@@ -33,9 +33,9 @@ export default defineComponent({
     ];
 
     const columns = [
-      { key: "name", sortable: true },
-      { key: "username", sortable: true },
-      { key: "email", sortable: true },
+      { key: "name", sortable: false },
+      { key: "username", sortable: false },
+      { key: "email", sortable: false },
       { key: "actions", width: 80 },
     ];
 

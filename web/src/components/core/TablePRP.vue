@@ -49,11 +49,11 @@ export default defineComponent({
     };
 
     const columns = [
-      { key: "id", sortable: true },
-      { key: "nama_penyusun", sortable: true },
-      { key: "mata_pelajaran", sortable: true },
-      { key: "kelas", sortable: true },
-      { key: "tahun_ajaran", sortable: true },
+      { key: "id", sortable: false },
+      { key: "nama_penyusun", sortable: false },
+      { key: "mata_pelajaran", sortable: false },
+      { key: "kelas", sortable: false },
+      { key: "tahun_ajaran", sortable: false },
     ];
 
     const items = generateItems(50); // Adjust the count as needed
