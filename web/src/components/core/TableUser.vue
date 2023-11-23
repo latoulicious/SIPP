@@ -2,40 +2,52 @@
 import { defineComponent } from "vue";
 
 const defaultItem = {
-  name: "",
   username: "",
-  email: "",
+  passowrd: "",
+  name: "",
+  mapel: "",
+  role: "",
 };
 
 export default defineComponent({
   data() {
     const items = [
       {
-        name: "Leanne Graham",
         username: "Bret",
-        email: "Sincere@april.biz",
+        password: "test123",
+        name: "Leanne Graham",
+        mapel: "Kimia",
+        role: "admin",
       },
       {
-        name: "Ervin Howell",
         username: "Antonette",
-        email: "Shanna@melissa.tv",
+        password: "test123",
+        name: "Ervin Howell",
+        mapel: "Sosiologi",
+        role: "guru",
       },
       {
-        name: "Clementine Bauch",
         username: "Samantha",
-        email: "Nathan@yesenia.net",
+        password: "test123",
+        name: "Clementine Bauch",
+        mapel: "Fisika",
+        role: "guru",
       },
       {
-        name: "Patricia Lebsack",
         username: "Karianne",
-        email: "Julianne.OConner@kory.org",
+        password: "test123",
+        name: "Patricia Lebsack",
+        mapel: "Ekonomi",
+        role: "guru",
       },
     ];
 
     const columns = [
-      { key: "name", sortable: false },
       { key: "username", sortable: false },
-      { key: "email", sortable: false },
+      { key: "password", sortable: false },
+      { key: "name", sortable: false },
+      { key: "mapel", sortable: false },
+      { key: "role", sortable: false },
       { key: "actions", width: 80 },
     ];
 
@@ -131,9 +143,10 @@ export default defineComponent({
     </va-data-table>
     <!-- Modal Content -->
     <va-modal
+      blur
       class="modal-crud"
       :model-value="!!editedItem"
-      title="Edit Item"
+      title="Edit User"
       size="small"
       @ok="editItem"
       @cancel="resetEditedItem"
@@ -147,9 +160,10 @@ export default defineComponent({
       />
     </va-modal>
     <va-modal
+      blur
       class="modal-crud"
       :model-value="showModal"
-      title="Add Item"
+      title="Add user"
       size="small"
       @ok="addNewItem"
       @cancel="resetCreatedItem"
@@ -169,5 +183,11 @@ export default defineComponent({
 .action-buttons {
   display: flex;
   gap: 8px; /* Adjust the gap to your preference */
+}
+
+.modal-crud {
+  .va-input {
+    display: block;
+  }
 }
 </style>
