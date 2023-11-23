@@ -122,7 +122,7 @@ export default defineComponent({
       class="header-container"
       style="display: flex; justify-content: space-between; align-items: center"
     >
-      <va-input v-model="input" placeholder="Filter..."></va-input>
+      <va-input v-model="input" placeholder="Search"></va-input>
       <va-button-group
         icon-color="#000000"
         preset="secondary"
@@ -169,7 +169,7 @@ export default defineComponent({
       class="header-container"
       style="display: flex; justify-content: space-between; align-items: center"
     >
-      <va-input v-model="input" placeholder="Filter..."></va-input>
+      <va-input v-model="input" placeholder="Search"></va-input>
       <va-button-group
         icon-color="#000000"
         preset="secondary"
@@ -216,7 +216,7 @@ export default defineComponent({
       class="header-container"
       style="display: flex; justify-content: space-between; align-items: center"
     >
-      <va-input v-model="input" placeholder="Filter..."></va-input>
+      <va-input v-model="input" placeholder="Search"></va-input>
       <va-button-group
         icon-color="#000000"
         preset="secondary"
@@ -263,7 +263,7 @@ export default defineComponent({
       class="header-container"
       style="display: flex; justify-content: space-between; align-items: center"
     >
-      <va-input v-model="input" placeholder="Filter..."></va-input>
+      <va-input v-model="input" placeholder="Search"></va-input>
       <va-button-group
         icon-color="#000000"
         preset="secondary"
