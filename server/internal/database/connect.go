@@ -6,36 +6,39 @@ import (
 	"strconv"
 
 	"github.com/latoulicious/SIPP/internal/config"
-	models "github.com/latoulicious/SIPP/internal/model/user"
+	"github.com/latoulicious/SIPP/internal/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 var DB *gorm.DB
 
-// ConnectDB connects to the database.
-//
-// It does not take any parameters.
-// It does not return any values.
-func ConnectDB() {
+func ConnectDB() error {
 	var err error
-	p := config.Config("DB_PORT")
+	p := config.GetEnv("DB_PORT")
 	port, err := strconv.ParseUint(p, 10, 32)
 
 	if err != nil {
-		log.Panic("Failed to parse database port env var")
+		log.Println("Failed to parse database port")
+		return err
 	}
 
-	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", config.Config("DB_HOST"), port, config.Config("DB_USER"), config.Config("DB_PASSWORD"), config.Config("DB_NAME"))
-
+	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", config.GetEnv("DB_HOST"), port, config.GetEnv("DB_USER"), config.GetEnv("DB_PASSWORD"), config.GetEnv("DB_NAME"))
 	DB, err = gorm.Open(postgres.Open(dsn))
 
 	if err != nil {
-		panic("Failed to connect to database!")
+		log.Println("Failed to connect to the database")
+		return err
 	}
 
-	fmt.Println("Connected to database!")
+	fmt.Println("Connection Opened to Database")
 
-	DB.AutoMigrate(&models.Users{})
+	// Auto Migrate Models
+	err = DB.AutoMigrate(&model.Users{})
+	if err != nil {
+		log.Println("Failed to auto migrate models:", err)
+		return err
+	}
 	fmt.Println("Database Migrated")
+	return nil
 }

@@ -3,17 +3,14 @@ module github.com/latoulicious/SIPP
 go 1.21.3
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gofiber/fiber/v2 v2.51.0
 	github.com/google/uuid v1.4.0
 	github.com/joho/godotenv v1.5.1
+	github.com/sirupsen/logrus v1.9.3
+	golang.org/x/crypto v0.14.0
 	gorm.io/driver/postgres v1.5.4
 	gorm.io/gorm v1.25.5
-
-	// Placeholder version for local packages
-    github.com/latoulicious/SIPP/internal/controller/user v0.0.0
-    github.com/latoulicious/SIPP/internal/model/user v0.0.0
-    github.com/latoulicious/SIPP/internal/handler/user v0.0.0
-
 
 )
 
@@ -32,7 +29,6 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.50.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
-	golang.org/x/crypto v0.14.0 // indirect
 	golang.org/x/sys v0.14.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
 )
