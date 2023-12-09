@@ -1,10 +1,11 @@
 import { createRouter, createWebHistory } from "vue-router";
 
+import AuthMiddleware from "@/router/auth.js";
 import AppLayout from "@/layouts/AppLayout.vue";
 import AuthLayout from "@/layouts/AuthLayout.vue";
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory("/"),
   routes: [
     {
       path: "/",
@@ -15,6 +16,7 @@ const router = createRouter({
           path: "/dashboard",
           name: "dashboard",
           component: () => import("@/views/Dashboard.vue"),
+          beforeEnter: AuthMiddleware,
         },
         {
           path: "/capaian",
@@ -52,9 +54,9 @@ const router = createRouter({
           component: () => import("@/views/core/BankSoal.vue"),
         },
         {
-          path: "/users",
-          name: "users",
-          component: () => import("@/views/core/Users.vue"),
+          path: "/user",
+          name: "user",
+          component: () => import("@/views/core/User.vue"),
         },
         {
           path: "/settings",

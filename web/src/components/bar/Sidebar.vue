@@ -73,7 +73,7 @@ const appStore = useAppStore();
         </VaSidebarItemContent>
       </VaSidebarItem>
     </router-link>
-    <router-link to="/users">
+    <router-link to="/user">
       <VaSidebarItem>
         <VaSidebarItemContent>
           <VaIcon name="people" />
