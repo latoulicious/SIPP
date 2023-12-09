@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
+	"github.com/latoulicious/SIPP/internal/controller"
 	"github.com/latoulicious/SIPP/internal/model"
 	"github.com/latoulicious/SIPP/internal/repository"
 	"github.com/sirupsen/logrus"
@@ -70,6 +71,9 @@ func (service *UserService) Authenticate(username, password string) (string, err
 	}
 
 	// Generate and return a JWT token here
-	token := generateJWT(username)
+	token, err := controller.GenerateJWT(username) // Updated import statement
+	if err != nil {
+		return "", err
+	}
 	return token, nil
 }

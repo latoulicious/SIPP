@@ -52,9 +52,9 @@ export default {
         });
 
         // Store the JWT token in localStorage or a secure storage method
-        const token = response.data.token;
+        const token = response.data.data; // Use response.data instead of response.data.data
 
-        // Corrected: Access localStorage directly without using `this`
+        // Access localStorage directly without using `this`
         localStorage.setItem("jwtToken", token);
 
         // Redirect the user to the dashboard or another protected route

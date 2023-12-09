@@ -1,5 +1,6 @@
 export default function (to, from, next) {
   const jwtToken = localStorage.getItem("jwtToken");
+  console.log("Retrieved token:", jwtToken);
 
   // Check if the user is authenticated (you might want to add more checks)
   if (!jwtToken) {

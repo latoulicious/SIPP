@@ -3,8 +3,8 @@ module github.com/latoulicious/SIPP
 go 1.21.3
 
 require (
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gofiber/fiber/v2 v2.51.0
+	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/uuid v1.4.0
 	github.com/joho/godotenv v1.5.1
 	github.com/sirupsen/logrus v1.9.3

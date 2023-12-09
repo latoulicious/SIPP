@@ -4,9 +4,10 @@ package middleware
 
 import (
 	"fmt"
+	"strings"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/latoulicious/SIPP/internal/config"
 )
 
@@ -16,6 +17,12 @@ func AuthMiddleware(c *fiber.Ctx) error {
 	if tokenString == "" {
 		fmt.Println("No token provided")
 		return c.Status(401).JSON(fiber.Map{"status": "error", "message": "Unauthorized", "data": nil})
+	}
+
+	// Check for the "Bearer " prefix
+	const prefix = "Bearer "
+	if strings.HasPrefix(tokenString, prefix) {
+		tokenString = tokenString[len(prefix):]
 	}
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {

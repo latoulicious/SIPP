@@ -4,13 +4,10 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"log"
-	"os"
 	"strings"
-	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/latoulicious/SIPP/internal/controller"
 	"github.com/latoulicious/SIPP/internal/repository"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
@@ -67,7 +64,10 @@ func (service *AuthService) Authenticate(username, password string) (string, err
 	logrus.Infof("Authentication successful for user: %s", username)
 
 	// Generate and return a JWT token here
-	token := generateJWT(username)
+	token, err := controller.GenerateJWT(username) // Updated import statement
+	if err != nil {
+		return "", err
+	}
 	return token, nil
 }
 
@@ -88,31 +88,4 @@ func comparePasswords(storedPassword, plainPassword string) bool {
 	}
 
 	return storedPassword == string(hashedPlainPassword)
-}
-
-func generateJWT(username string) string {
-	// Example JWT token generation using jwt-go
-	token := jwt.New(jwt.SigningMethodHS256)
-
-	// Set claims
-	claims := token.Claims.(jwt.MapClaims)
-	claims["username"] = username
-	claims["exp"] = time.Now().Add(time.Hour * 24).Unix() // Token expires in 24 hours
-
-	// Read the JWT secret key from an environment variable
-	secretKey := []byte(os.Getenv("JWT_SECRET")) // Replace with os.Getenv("YOUR_JWT_SECRET_KEY")
-
-	// Sign and get the complete encoded token as a string
-	tokenString, err := token.SignedString(secretKey)
-	if err != nil {
-		log.Println("Error generating JWT:", err)
-		return ""
-	}
-
-	// Log the generated token
-	log.Println("Generated JWT Token for user", username, ":", tokenString)
-
-	fmt.Println(tokenString)
-
-	return tokenString
 }

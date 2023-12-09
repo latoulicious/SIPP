@@ -14,7 +14,7 @@ export default defineComponent({
   data() {
     const columns = [
       { key: "username", sortable: false },
-      { key: "password", sortable: false },
+      // { key: "password", sortable: false }, //
       { key: "name", sortable: false },
       { key: "mapel", sortable: false },
       { key: "role", sortable: false },
@@ -59,9 +59,22 @@ export default defineComponent({
 
     async addNewItem() {
       try {
+        const jwtToken = localStorage.getItem("jwtToken");
+
+        if (!jwtToken) {
+          console.error("JWT token not available");
+          // Handle the case where the token is not available (e.g., redirect to login)
+          return;
+        }
+
         const response = await axios.post(
           "http://localhost:3000/api/users",
           this.createdItem,
+          {
+            headers: {
+              Authorization: `Bearer ${jwtToken}`,
+            },
+          },
         );
 
         // Assuming the API response is a single user object
@@ -84,6 +97,14 @@ export default defineComponent({
 
     async editItem() {
       try {
+        const jwtToken = localStorage.getItem("jwtToken");
+
+        if (!jwtToken) {
+          console.error("JWT token not available");
+          // Handle the case where the token is not available (e.g., redirect to login)
+          return;
+        }
+
         const editedData = {
           username: this.editedItem.username,
           password: this.editedItem.password,
@@ -95,6 +116,11 @@ export default defineComponent({
         const response = await axios.put(
           `http://localhost:3000/api/users/${this.editedItem.id}`,
           editedData,
+          {
+            headers: {
+              Authorization: `Bearer ${jwtToken}`,
+            },
+          },
         );
 
         // Update the item directly without using $set
@@ -116,7 +142,24 @@ export default defineComponent({
 
     async fetchData() {
       try {
-        const response = await axios.get("http://localhost:3000/api/users");
+        const jwtToken = localStorage.getItem("jwtToken");
+
+        if (!jwtToken) {
+          // Handle the case where the token is not available (e.g., redirect to login)
+          console.error("JWT token not available");
+          return;
+        }
+
+        console.log("Token:", jwtToken); // Log the token for debugging
+
+        const response = await this.$axios.get(
+          "http://localhost:3000/api/users",
+          {
+            headers: {
+              Authorization: `Bearer ${jwtToken}`,
+            },
+          },
+        );
 
         this.items = response.data.data.map((user) => ({
           username: user.Username,
@@ -124,13 +167,12 @@ export default defineComponent({
           name: user.Name,
           mapel: user.Mapel,
           role: user.Role,
-          id: user.ID, // Add this line to include the id in your items
+          id: user.ID,
         }));
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     },
-
     resetEditedItem() {
       this.editedItem = null;
       this.editedItemId = null;
@@ -209,6 +251,7 @@ export default defineComponent({
         v-model="editedItem[key]"
         class="my-6"
         :label="key"
+        :type="key === 'password' ? 'password' : 'text'"
       />
     </va-modal>
 
@@ -227,6 +270,7 @@ export default defineComponent({
         v-model="createdItem[key]"
         class="my-6"
         :label="key"
+        :type="key === 'password' ? 'password' : 'text'"
       />
     </va-modal>
   </div>
