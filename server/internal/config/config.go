@@ -7,14 +7,20 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// Config loads the value of the specified key from the .env file.
-//
-// Parameters:
-// - key: the key of the value to be retrieved from the .env file
-//
-// Return type:
-// - string: the value associated with the specified key
-func Config(key string) string {
+var JwtSecret string
+
+// LoadConfig loads the values from the .env file.
+func LoadConfig() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		fmt.Print("Error loading .env file")
+	}
+
+	JwtSecret = os.Getenv("JWT_SECRET")
+}
+
+// GetEnv retrieves the value of the specified key from the .env file.
+func GetEnv(key string) string {
 	err := godotenv.Load(".env")
 	if err != nil {
 		fmt.Print("Error loading .env file")

@@ -14,7 +14,7 @@
         <router-link to="/settings">Settings</router-link>
       </div>
       <div class="menu-item">
-        <router-link v-if="isLoggedIn" to="/logout">Logout</router-link>
+        <router-link v-if="isLoggedIn" to="/login">Logout</router-link>
         <router-link v-else to="/login">Login</router-link>
       </div>
     </va-button-dropdown>
@@ -25,7 +25,7 @@
 export default {
   data() {
     return {
-      isLoggedIn: false, // Set this to true if the user is logged in
+      isLoggedIn: true, // Set this to true if the user is logged in
       username: "", // Set the username when the user is logged in
     };
   },

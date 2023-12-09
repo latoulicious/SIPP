@@ -1,4 +1,4 @@
-// models/users.go
+// internal/model/users.go
 
 package model
 
@@ -9,7 +9,7 @@ import (
 
 type Users struct {
 	gorm.Model
-	ID       uuid.UUID `gorm:"type:uuid"`
+	ID       uuid.UUID `gorm:"type:uuid;primary_key"`
 	Username string
 	Password string
 	Name     string
