@@ -3,6 +3,7 @@
 package router
 
 import (
+	"github.com/casbin/casbin/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -14,7 +15,7 @@ import (
 	"github.com/latoulicious/SIPP/internal/service"
 )
 
-func SetupRoutes(app *fiber.App) {
+func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	app.Use(cors.New())
 
 	api := app.Group("/api", logger.New())
@@ -27,9 +28,10 @@ func SetupRoutes(app *fiber.App) {
 	// Use UserService for AuthHandler
 	authHandler := handler.NewAuthHandler(userService) // Change this line
 
-	// User routes with authentication middleware
+	// User routes with authentication and RBAC middleware
 	userRoutes := api.Group("/users")
-	userRoutes.Use(middleware.AuthMiddleware)
+	userRoutes.Use(middleware.AuthMiddleware(e, userRepository))
+	userRoutes.Use(middleware.RBACMiddleware(e, userRepository)) // Keep the second argument
 	userRoutes.Get("/", userHandler.GetUsers)
 	userRoutes.Get("/:id", userHandler.GetUser)
 	userRoutes.Post("/", userHandler.CreateUser)

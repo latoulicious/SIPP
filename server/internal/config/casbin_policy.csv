@@ -1,0 +1,11 @@
+# File: config/casbin_policy.csv
+
+# Define roles
+g, Admin, Admin
+g, Guru, Guru
+
+# Define permissions for roles
+p, Admin, /api/users, GET
+p, Admin, /api/users, POST
+p, Guru, /api/users, GET
+
