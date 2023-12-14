@@ -32,7 +32,13 @@ func RBACMiddleware(e *casbin.Enforcer, userRepository *repository.UserRepositor
 			return c.Status(401).JSON(fiber.Map{"status": "error", "message": "Invalid user", "data": nil})
 		}
 
-		// Check RBAC using Casbin
+		// Debugging statements
+		fmt.Println("RBAC Check - User ID:", userIDStr)
+		fmt.Println("RBAC Check - User Role:", user.Role)
+		fmt.Println("RBAC Check - Path:", c.Path())
+		fmt.Println("RBAC Check - Method:", c.Method())
+
+		// Use the actual path of the request in the enforcement check
 		if ok, err := e.Enforce(user.Role, c.Path(), c.Method()); !ok {
 			fmt.Println("RBAC Check Failed:", err)
 			return c.Status(403).JSON(fiber.Map{"status": "error", "message": "Forbidden", "data": nil})

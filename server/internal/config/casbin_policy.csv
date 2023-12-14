@@ -7,5 +7,5 @@ g, Guru, Guru
 # Define permissions for roles
 p, Admin, /api/users, GET
 p, Admin, /api/users, POST
-p, Guru, /api/users, GET
-
+p, Admin, /api/users/:id, PUT
+p, Admin, /api/users/:id, DELETE
