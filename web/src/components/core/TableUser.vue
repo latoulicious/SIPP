@@ -45,9 +45,23 @@ export default defineComponent({
   methods: {
     async deleteItemById(id) {
       try {
-        // Use the correct ID when making the DELETE request
+        const jwtToken = localStorage.getItem("jwtToken");
+
+        if (!jwtToken) {
+          console.error("JWT token not available");
+          // Handle the case where the token is not available (e.g., redirect to login)
+          return;
+        }
+
+        // Add headers with the authentication token
+        const headers = {
+          Authorization: `Bearer ${jwtToken}`,
+        };
+
+        // Make the DELETE request with headers
         await axios.delete(
           `http://localhost:3000/api/users/${this.items[id].id}`,
+          { headers },
         );
 
         // Remove the item from the array

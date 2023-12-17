@@ -1,3 +1,5 @@
+// database/connect.go
+
 package database
 
 import (
@@ -12,6 +14,7 @@ import (
 )
 
 var DB *gorm.DB
+var DSN string // change from 'dsn' to 'DSN' to avoid shadowing
 
 func ConnectDB() error {
 	var err error
@@ -23,8 +26,10 @@ func ConnectDB() error {
 		return err
 	}
 
-	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", config.GetEnv("DB_HOST"), port, config.GetEnv("DB_USER"), config.GetEnv("DB_PASSWORD"), config.GetEnv("DB_NAME"))
-	DB, err = gorm.Open(postgres.Open(dsn))
+	DSN = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", config.GetEnv("DB_HOST"), port, config.GetEnv("DB_USER"), config.GetEnv("DB_PASSWORD"), config.GetEnv("DB_NAME"))
+	fmt.Println("Connecting to Database with DSN:", DSN)
+
+	DB, err = gorm.Open(postgres.Open(DSN))
 
 	if err != nil {
 		log.Println("Failed to connect to the database")

@@ -4,12 +4,12 @@ package service
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/latoulicious/SIPP/internal/controller"
 	"github.com/latoulicious/SIPP/internal/model"
 	"github.com/latoulicious/SIPP/internal/repository"
-	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -49,29 +49,48 @@ func (service *UserService) DeleteUser(userID uuid.UUID) error {
 	return service.UserRepository.DeleteUser(userID)
 }
 
+// FetchUserName retrieves the user's name based on the username
+func (service *UserService) FetchUserName(username string) (string, error) {
+	user, err := service.UserRepository.FindByUsername(username)
+	if err != nil {
+		return "", err
+	}
+	if user == nil {
+		return "", errors.New("user not found")
+	}
+	return user.Name, nil
+}
+
 // Authenticate validates user credentials and returns a JWT token
-func (service *UserService) Authenticate(username, password string) (string, error) {
+func (service *UserService) Authenticate(username, password, name string) (string, error) {
 	// Assume userRepo is a repository for user data
 	user, err := service.UserRepository.FindByUsername(username)
 	if err != nil {
-		logrus.Errorf("Error retrieving user from the database: %v", err)
+		fmt.Printf("Error retrieving user from the database: %v", err)
 		return "", err
 	}
 
 	// Check if the user exists
 	if user == nil {
-		logrus.Infof("User not found: %s", username)
+		fmt.Printf("User not found: %s", username)
 		return "", errors.New("authentication failed")
 	}
 
 	// Check if the provided password matches the stored hashed password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		logrus.Infof("Authentication failed for user: %s", username)
+		fmt.Printf("Authentication failed for user: %s", username)
 		return "", errors.New("authentication failed")
 	}
 
+	// Fetch the user's full name after successful authentication
+	name, err = service.FetchUserName(username) // Remove ":="
+	if err != nil {
+		// Handle error fetching user's full name
+		return "", err
+	}
+
 	// Generate and return a JWT token here
-	token, err := controller.GenerateJWT(username) // Updated import statement
+	token, err := controller.GenerateJWT(username, name) // Updated import statement
 	if err != nil {
 		return "", err
 	}

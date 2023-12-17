@@ -8,11 +8,9 @@
       <template #center>
         <va-navbar-item>
           <div class="center-content">
-            <p>
-              <a href="https://github.com/latoulicious/SIPP">
-                <img src="@/assets/github.svg" alt="GitHub" class="logo" />
-              </a>
-            </p>
+            <a href="https://github.com/latoulicious/SIPP">
+              <img src="@/assets/github.svg" alt="GitHub" class="logo" />
+            </a>
             <p>&copy; latoulicious &bull; 2023</p>
           </div>
         </va-navbar-item>
@@ -25,10 +23,11 @@
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .footer-wrapper {
-  flex-shrink: 0; /* Prevent the footer from shrinking when content grows */
-  margin-top: auto; /* Push the footer to the bottom of the container */
+  position: fixed;
+  bottom: 0;
+  width: 100%;
 }
 
 .a {
@@ -43,7 +42,7 @@
   height: 20px;
   max-height: 20px;
   width: auto;
-  margin: 0; /* Remove any default margin */
+  margin: 0;
 }
 
 .va-navbar-item {
@@ -53,14 +52,13 @@
 
 .center-content {
   display: flex;
-  flex-direction: column; /* Align items in a column */
+  flex-direction: column;
   align-items: center;
 }
 
-/* If you want to center the placeholder elements in the #left and #right sections */
 .placeholder {
-  width: 18px; /* Adjust the width as needed */
-  height: 18px; /* Adjust the height as needed */
+  width: 18px;
+  height: 18px;
 }
 
 .placeholder2 {
@@ -72,5 +70,11 @@
 #left {
   display: flex;
   align-items: center;
+}
+
+/* Adjust the margin to fine-tune centering */
+.center-content {
+  margin-left: 35px;
+  margin-right: auto;
 }
 </style>

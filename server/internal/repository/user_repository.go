@@ -3,6 +3,8 @@
 package repository
 
 import (
+	"fmt"
+
 	"github.com/google/uuid"
 	"github.com/latoulicious/SIPP/internal/model"
 	"golang.org/x/crypto/bcrypt"
@@ -28,8 +30,14 @@ func (repository *UserRepository) GetUsers() ([]model.Users, error) {
 func (repository *UserRepository) GetUserByID(userID uuid.UUID) (*model.Users, error) {
 	var user model.Users
 	if err := repository.DB.First(&user, "id = ?", userID).Error; err != nil {
+		// Log an error if user retrieval fails
+		fmt.Printf("Error fetching user by ID %s: %s\n", userID.String(), err.Error())
 		return nil, err
 	}
+
+	// Log successful user retrieval
+	fmt.Printf("User fetched by ID %s: %+v\n", userID.String(), user)
+
 	return &user, nil
 }
 
