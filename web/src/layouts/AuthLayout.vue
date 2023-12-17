@@ -3,7 +3,7 @@
     <va-card class="auth-card" stripe="primary">
       <div class="content">
         <div class="logo-container">
-          <img src="@/assets/login.png" alt="Logo" class="logo" />
+          <img src="@/assets/login.png" alt="Logo" class="logo-login" />
         </div>
         <div class="form-container">
           <div class="tabs"></div>
@@ -50,7 +50,7 @@ export default {
   margin-bottom: 10px;
 }
 
-.logo {
+.logo-login {
   transform: scale(0.85); /* Adjust the scale factor as needed */
 }
 
