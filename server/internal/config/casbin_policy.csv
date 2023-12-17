@@ -9,3 +9,4 @@ p, Admin, /api/users, GET
 p, Admin, /api/users, POST
 p, Admin, /api/users/:id, PUT
 p, Admin, /api/users/:id, DELETE
+p, Admin, /api/get-user-role, GET

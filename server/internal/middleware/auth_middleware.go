@@ -49,6 +49,7 @@ func AuthMiddleware(e *casbin.Enforcer, userRepository *repository.UserRepositor
 
 		// Add user information to the context
 		c.Locals("user_id", user.ID.String())
+		c.Locals("user_role", user.Role) // Set the user's role in the context
 
 		// Set claims
 		claims["role"] = user.Role // Include the user's role in the claims

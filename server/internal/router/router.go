@@ -48,4 +48,16 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	app.Get("/api/get-jwt-secret", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"jwtSecret": config.JwtSecret})
 	})
+
+	// Add a new route to get the user's role based on the JWT token
+	app.Get("/api/get-user-role", middleware.AuthMiddleware(e, userRepository), func(c *fiber.Ctx) error {
+		// Retrieve the user's role from the context (set by AuthMiddleware)
+		userRole, ok := c.Locals("user_role").(string)
+		if !ok {
+			return c.Status(500).JSON(fiber.Map{"error": "Failed to retrieve user role"})
+		}
+
+		return c.JSON(fiber.Map{"role": userRole})
+	})
+
 }

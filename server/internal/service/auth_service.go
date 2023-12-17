@@ -25,7 +25,7 @@ func NewAuthService(userRepo *repository.UserRepository) *AuthService {
 }
 
 // Authenticate validates user credentials and returns a JWT token
-func (service *AuthService) Authenticate(username, password string) (string, error) {
+func (service *AuthService) Authenticate(username, password, name string) (string, error) {
 	// Log the start of the authentication process
 	fmt.Printf("Authenticating user: %s", username)
 
@@ -64,7 +64,7 @@ func (service *AuthService) Authenticate(username, password string) (string, err
 	fmt.Printf("Authentication successful for user: %s", username)
 
 	// Generate and return a JWT token here
-	token, err := controller.GenerateJWT(username) // Updated import statement
+	token, err := controller.GenerateJWT(username, name) // Updated import statement
 	if err != nil {
 		return "", err
 	}

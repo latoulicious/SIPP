@@ -17,7 +17,7 @@ var (
 )
 
 // GenerateJWT generates a new JWT token for the specified username
-func GenerateJWT(username string) (string, error) {
+func GenerateJWT(username, name string) (string, error) {
 	tokenLock.Lock()
 	defer tokenLock.Unlock()
 
@@ -32,6 +32,7 @@ func GenerateJWT(username string) (string, error) {
 	// Set claims
 	claims := token.Claims.(jwt.MapClaims)
 	claims["username"] = username
+	claims["name"] = name
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix() // Token expires in 24 hours
 
 	// Read the JWT secret key from an environment variable

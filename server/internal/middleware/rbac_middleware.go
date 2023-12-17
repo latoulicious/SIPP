@@ -11,9 +11,16 @@ import (
 	"github.com/latoulicious/SIPP/internal/repository"
 )
 
+// Exclude the /api/get-user-role endpoint from RBAC checks
+var excludePaths = []string{"/api/get-user-role"}
+
 // RBACMiddleware is a middleware function to check RBAC on protected endpoints
 func RBACMiddleware(e *casbin.Enforcer, userRepository *repository.UserRepository) fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		if c.Path() == "/api/get-user-role" {
+			return c.Next()
+		}
+
 		userIDStr, ok := c.Locals("user_id").(string)
 		if !ok {
 			return c.Status(401).JSON(fiber.Map{"status": "error", "message": "User ID not found in context", "data": nil})
