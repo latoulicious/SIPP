@@ -1,11 +1,14 @@
 <template>
   <CorePageLayout>
     <div class="centered-container">
-      <div class="not-found-container">
-        <img class="not-found" src="@/assets/404.svg" alt="404" />
-        <h1>
+      <div class="unauthorized-container">
+        <img class="unauthorized" src="@/assets/401.png" alt="404" />
+        <p class="text">
+          Sorry, you don't have permission to access this page
+          <br />
+          <br />
           <a href="/">Go home?</a>
-        </h1>
+        </p>
       </div>
     </div>
   </CorePageLayout>
@@ -13,7 +16,7 @@
 
 <script>
 export default {
-  name: "NotFound",
+  name: "Unauthorized",
 };
 </script>
 
@@ -27,20 +30,20 @@ export default {
   margin: 0 auto; /* Center the container horizontally */
 }
 
-.not-found-container {
+.unauthorized-container {
   text-align: center;
   margin-bottom: auto;
   margin-top: 20px;
 }
 
-h1 {
+.text {
   font-family: fantasy;
   font-size: 2em;
-  margin-bottom: 20px; /* Adjusted margin for better spacing */
   margin-top: 20px;
 }
 
-.not-found {
+.unauthorized {
+  width: 65%; /* Adjusted to scale the image proportionally */
   margin-bottom: 20px; /* Adjusted margin for better spacing */
   margin-top: 20px;
 }
