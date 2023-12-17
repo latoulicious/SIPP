@@ -8,11 +8,9 @@
       <template #center>
         <va-navbar-item>
           <div class="center-content">
-            <p>
-              <a href="https://github.com/latoulicious/SIPP">
-                <img src="@/assets/github.svg" alt="GitHub" class="logo" />
-              </a>
-            </p>
+            <a href="https://github.com/latoulicious/SIPP">
+              <img src="@/assets/github.svg" alt="GitHub" class="logo" />
+            </a>
             <p>&copy; latoulicious &bull; 2023</p>
           </div>
         </va-navbar-item>
@@ -72,5 +70,11 @@
 #left {
   display: flex;
   align-items: center;
+}
+
+/* Adjust the margin to fine-tune centering */
+.center-content {
+  margin-left: 35px;
+  margin-right: auto;
 }
 </style>

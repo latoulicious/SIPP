@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useAppStore } from "@/stores/index";
-
 import Dropdown from "@/components/main/Dropdown.vue";
 
 const appStore = useAppStore();
@@ -23,7 +22,7 @@ const toggleSidebar = () => {
       </template>
       <template #center>
         <va-navbar-item>
-          <p>
+          <p class="logo-container">
             <img src="@/assets/logo.png" alt="Logo" class="logo" />
           </p>
         </va-navbar-item>
@@ -49,6 +48,20 @@ const toggleSidebar = () => {
   max-height: 100px;
   width: auto;
   margin: 0; /* Remove any default margin */
+}
+
+.logo-container {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Set a minimum height for VaNavbar */
+.va-navbar {
+  min-height: 70px; /* Adjust this value as needed */
 }
 
 .va-navbar-item {
