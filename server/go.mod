@@ -7,7 +7,7 @@ require (
 	github.com/casbin/xorm-adapter/v2 v2.5.1
 	github.com/gofiber/fiber/v2 v2.51.0
 	github.com/golang-jwt/jwt/v4 v4.5.0
-	github.com/google/uuid v1.4.0
+	github.com/google/uuid v1.5.0
 	github.com/joho/godotenv v1.5.1
 	golang.org/x/crypto v0.14.0
 	gorm.io/driver/postgres v1.5.4
