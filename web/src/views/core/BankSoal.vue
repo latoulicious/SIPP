@@ -3,20 +3,12 @@ import TableBankSoal from "@/components/core/TableBankSoal.vue";
 </script>
 
 <template>
-  <div class="container">
+  <CorePageLayout>
     <va-card stripe stripe-color="danger">
       <va-card-title>Data Bank Soal</va-card-title>
       <va-card-content>
         <TableBankSoal />
       </va-card-content>
     </va-card>
-  </div>
+  </CorePageLayout>
 </template>
-
-<style>
-.container {
-  margin-top: 10px;
-  margin-left: 60px;
-  margin-right: 60px;
-}
-</style>

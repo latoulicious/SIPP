@@ -3,20 +3,12 @@ import TableAsesmen from "@/components/core/TableAsesmen.vue";
 </script>
 
 <template>
-  <div class="container">
+  <CorePageLayout>
     <va-card stripe stripe-color="danger">
       <va-card-title>Data Asesmen</va-card-title>
       <va-card-content>
         <TableAsesmen />
       </va-card-content>
     </va-card>
-  </div>
+  </CorePageLayout>
 </template>
-
-<style>
-.container {
-  margin-top: 10px;
-  margin-left: 60px;
-  margin-right: 60px;
-}
-</style>

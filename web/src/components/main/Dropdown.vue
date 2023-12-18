@@ -10,12 +10,13 @@
       preset="plain"
       color="#ffffff"
     >
-      <div class="menu-item">
-        <router-link to="/settings">Settings</router-link>
+      <div class="menu-item" v-if="isLoggedIn">
+        <router-link :to="getSettingsLink()">Settings</router-link>
       </div>
       <div class="menu-item">
-        <router-link v-if="isLoggedIn" to="/login">Logout</router-link>
-        <router-link v-else to="/login">Login</router-link>
+        <router-link :to="getLogoutLink()">{{
+          isLoggedIn ? "Logout" : "Login"
+        }}</router-link>
       </div>
     </va-button-dropdown>
   </div>
@@ -25,9 +26,35 @@
 export default {
   data() {
     return {
-      isLoggedIn: true, // Set this to true if the user is logged in
-      username: "", // Set the username when the user is logged in
+      isLoggedIn: false,
+      username: "",
     };
+  },
+  mounted() {
+    // Fetch user information from the JWT payload
+    const payload = this.decodeJWT();
+    if (payload) {
+      this.isLoggedIn = true;
+      this.username = payload.name;
+    }
+  },
+  methods: {
+    decodeJWT() {
+      // Decode the JWT to access the payload
+      const token = localStorage.getItem("jwtToken"); // Replace with your actual JWT key
+      if (token) {
+        const [, payloadBase64] = token.split(".");
+        const payload = JSON.parse(atob(payloadBase64));
+        return payload;
+      }
+      return null;
+    },
+    getSettingsLink() {
+      return this.isLoggedIn ? "/settings" : "#"; // Replace with the correct route path or name
+    },
+    getLogoutLink() {
+      return this.isLoggedIn ? "/login" : "/login"; // Replace with the correct route path or name
+    },
   },
 };
 </script>

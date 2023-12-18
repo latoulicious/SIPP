@@ -26,6 +26,7 @@ func (handler *AuthHandler) LoginHandler(c *fiber.Ctx) error {
 	var request struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
+		Name     string `json:"name"`
 	}
 
 	if err := c.BodyParser(&request); err != nil {
@@ -36,8 +37,8 @@ func (handler *AuthHandler) LoginHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	token, err := handler.UserService.Authenticate(request.Username, request.Password)
-
+	// Authenticate the user
+	token, err := handler.UserService.Authenticate(request.Username, request.Password, request.Name)
 	if err != nil {
 		return c.Status(401).JSON(fiber.Map{"status": "error", "message": "Authentication failed", "data": nil})
 	}
