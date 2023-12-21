@@ -54,6 +54,7 @@ export default defineComponent({
       { key: "mata_pelajaran", sortable: false },
       { key: "kelas", sortable: false },
       { key: "kodetp", sortable: false },
+      { key: "actions", width: 80 },
     ];
 
     const items = generateItems(50); // Adjust the count as needed
@@ -257,7 +258,7 @@ export default defineComponent({
     </va-card>
   </va-modal>
   <div class="table-container">
-    <va-data-table
+    <vaDataTable
       :items="items"
       :columns="columns"
       :striped="isTableStriped"
@@ -268,6 +269,21 @@ export default defineComponent({
       :delay="500"
       :loading="loading"
     >
+      <template #cell(actions)>
+        <div class="action-buttons">
+          <va-button preset="plain" icon="remove_red_eye" @click="" />
+          <va-button
+            preset="plain"
+            icon="edit"
+            @click="openModalToEditItemById(rowIndex)"
+          />
+          <va-button
+            preset="plain"
+            icon="delete"
+            @click="deleteItemById(rowIndex)"
+          />
+        </div>
+      </template>
       <template #bodyAppend>
         <tr>
           <td colspan="6">
@@ -282,7 +298,7 @@ export default defineComponent({
       <template #bodyCellCheckbox="{ value }">
         <input type="checkbox" v-model="selectedRows" :value="value" />
       </template>
-    </va-data-table>
+    </vaDataTable>
   </div>
 </template>
 
@@ -308,6 +324,11 @@ export default defineComponent({
 <style scoped>
 .modal-container {
   margin-bottom: 10px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px; /* Adjust the gap to your preference */
 }
 
 .txt {

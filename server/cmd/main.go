@@ -94,7 +94,7 @@ func initCasbin() (*casbin.Enforcer, error) {
 	a := fileadapter.NewAdapter("./internal/config/casbin_policy.csv")
 
 	// Log information about model and adapter
-	fmt.Println("Casbin model and policy adapter initialized successfully")
+	log.Println("Casbin model and policy adapter initialized successfully")
 
 	// Create a Casbin enforcer with the model and adapter
 	e, err := casbin.NewEnforcer(m, a)
@@ -105,7 +105,7 @@ func initCasbin() (*casbin.Enforcer, error) {
 	// Enable logging for debugging purposes
 	e.EnableLog(true)
 
-	fmt.Println("Casbin enforcer initialized successfully")
+	log.Println("Casbin enforcer initialized successfully")
 
 	// After initializing Casbin enforcer
 	err = e.LoadPolicy()
@@ -113,7 +113,7 @@ func initCasbin() (*casbin.Enforcer, error) {
 		return nil, fmt.Errorf("error loading Casbin policies: %v", err)
 	}
 
-	fmt.Println("Casbin policies loaded successfully")
+	log.Println("Casbin policies loaded successfully")
 
 	return e, nil
 }

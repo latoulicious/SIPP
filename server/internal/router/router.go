@@ -24,14 +24,17 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	userRepository := repository.NewUserRepository(database.DB)
 	userService := service.NewUserService(userRepository)
 	userHandler := handler.NewUserHandler(userService)
+	capaianRepository := repository.NewCapaianRepository(database.DB) // Assuming you have capaianRepository
+	capaianService := service.NewCapaianService(capaianRepository)
+	capaianHandler := handler.NewCapaianHandler(capaianService)
 
 	// Use UserService for AuthHandler
-	authHandler := handler.NewAuthHandler(userService) // Change this line
+	authHandler := handler.NewAuthHandler(userService)
 
 	// User routes with authentication and RBAC middleware
 	userRoutes := api.Group("/users")
 	userRoutes.Use(middleware.AuthMiddleware(e, userRepository))
-	userRoutes.Use(middleware.RBACMiddleware(e, userRepository)) // Keep the second argument
+	userRoutes.Use(middleware.RBACMiddleware(e, userRepository))
 	userRoutes.Get("/", userHandler.GetUsers)
 	userRoutes.Get("/:id", userHandler.GetUser)
 	userRoutes.Post("/", userHandler.CreateUser)
@@ -40,9 +43,15 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 
 	// Authentication routes
 	authRoutes := api.Group("/auth")
-	authRoutes.Post("/login", authHandler.LoginHandler) // Assuming you have a login handler
+	authRoutes.Post("/login", authHandler.LoginHandler)
 
-	// More authentication routes can be added here if needed
+	// Capaian routes
+	capaianRoutes := api.Group("/capaian")
+	capaianRoutes.Get("/", capaianHandler.GetCapaian)
+	capaianRoutes.Get("/:id", capaianHandler.GetCapaianByID)
+	capaianRoutes.Post("/", capaianHandler.CreateCapaian)
+	capaianRoutes.Put("/:id", capaianHandler.UpdateCapaian)
+	capaianRoutes.Delete("/:id", capaianHandler.DeleteCapaian)
 
 	// Add a new route in router/router.go
 	app.Get("/api/get-jwt-secret", func(c *fiber.Ctx) error {
@@ -59,5 +68,4 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 
 		return c.JSON(fiber.Map{"role": userRole})
 	})
-
 }

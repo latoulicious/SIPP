@@ -3,7 +3,7 @@
 package middleware
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/casbin/casbin/v2"
 	"github.com/gofiber/fiber/v2"
@@ -35,19 +35,19 @@ func RBACMiddleware(e *casbin.Enforcer, userRepository *repository.UserRepositor
 		// Fetch the user by user ID
 		user, err := userRepository.GetUserByID(userID)
 		if err != nil {
-			fmt.Println("Error fetching user:", err)
+			log.Println("Error fetching user:", err)
 			return c.Status(401).JSON(fiber.Map{"status": "error", "message": "Invalid user", "data": nil})
 		}
 
 		// Debugging statements
-		fmt.Println("RBAC Check - User ID:", userIDStr)
-		fmt.Println("RBAC Check - User Role:", user.Role)
-		fmt.Println("RBAC Check - Path:", c.Path())
-		fmt.Println("RBAC Check - Method:", c.Method())
+		log.Println("RBAC Check - User ID:", userIDStr)
+		log.Println("RBAC Check - User Role:", user.Role)
+		log.Println("RBAC Check - Path:", c.Path())
+		log.Println("RBAC Check - Method:", c.Method())
 
 		// Use the actual path of the request in the enforcement check
 		if ok, err := e.Enforce(user.Role, c.Path(), c.Method()); !ok {
-			fmt.Println("RBAC Check Failed:", err)
+			log.Println("RBAC Check Failed:", err)
 			return c.Status(403).JSON(fiber.Map{"status": "error", "message": "Forbidden", "data": nil})
 		}
 

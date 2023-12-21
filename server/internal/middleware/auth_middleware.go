@@ -3,7 +3,7 @@
 package middleware
 
 import (
-	"fmt"
+	"log"
 	"strings"
 
 	"github.com/casbin/casbin/v2"
@@ -18,7 +18,7 @@ func AuthMiddleware(e *casbin.Enforcer, userRepository *repository.UserRepositor
 	return func(c *fiber.Ctx) error {
 		tokenString := c.Get("Authorization")
 		if tokenString == "" {
-			fmt.Println("No token provided")
+			log.Println("No token provided")
 			return c.Status(401).JSON(fiber.Map{"status": "error", "message": "Unauthorized", "data": nil})
 		}
 
@@ -32,33 +32,33 @@ func AuthMiddleware(e *casbin.Enforcer, userRepository *repository.UserRepositor
 			return []byte(config.JwtSecret), nil
 		})
 		if err != nil || !token.Valid {
-			fmt.Println("Invalid token:", err)
+			log.Println("Invalid token:", err)
 			return c.Status(401).JSON(fiber.Map{"status": "error", "message": "Invalid token", "data": nil})
 		}
 
 		// Extract claims and user information as needed
 		claims := token.Claims.(jwt.MapClaims)
-		username := claims["username"].(string)
+		log.Println("Decoded Claims in AuthMiddleware:", claims)
+		username, okUsername := claims["username"].(string)
+		role, okRole := claims["role"].(string)
 
-		// Fetch the user by username
-		user, err := userRepository.FindByUsername(username)
-		if err != nil {
-			fmt.Println("Error fetching user:", err)
-			return c.Status(401).JSON(fiber.Map{"status": "error", "message": "Invalid credentials", "data": nil})
+		// Check if username and role are present in claims
+		if !okUsername || !okRole {
+			return c.Status(401).JSON(fiber.Map{"status": "error", "message": "Invalid token claims", "data": nil})
 		}
 
-		// Add user information to the context
-		c.Locals("user_id", user.ID.String())
-		c.Locals("user_role", user.Role) // Set the user's role in the context
+		log.Println("Username in AuthMiddleware:", username)
+		log.Println("Role in AuthMiddleware:", role)
 
-		// Set claims
-		claims["role"] = user.Role // Include the user's role in the claims
+		// Add user information to the context
+		c.Locals("user_id", username) // Assuming username can serve as user_id
+		c.Locals("user_role", role)   // Set the user's role in the context
 
 		// Log user information for debugging
-		fmt.Println("User ID:", user.ID.String())
+		log.Println("User ID:", username)
+		log.Println("User Role:", role)
 
 		// Proceed to RBAC check middleware
 		return RBACMiddleware(e, userRepository)(c)
-
 	}
 }

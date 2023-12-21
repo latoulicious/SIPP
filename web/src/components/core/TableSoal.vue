@@ -204,7 +204,7 @@ export default defineComponent({
         >
       </va-button-group>
     </div>
-    <va-data-table
+    <vaDataTable
       ref="printTable"
       :items="items"
       :columns="columns"
@@ -230,7 +230,7 @@ export default defineComponent({
       <template #bodyCellCheckbox="{ value }">
         <input type="checkbox" v-model="selectedRows" :value="value" />
       </template>
-    </va-data-table>
+    </vaDataTable>
   </div>
   <!-- Modal Content -->
   <va-modal v-model="showModal" blur size="large" fixed-layout>

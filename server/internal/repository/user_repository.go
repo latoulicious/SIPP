@@ -3,7 +3,7 @@
 package repository
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/google/uuid"
 	"github.com/latoulicious/SIPP/internal/model"
@@ -31,12 +31,12 @@ func (repository *UserRepository) GetUserByID(userID uuid.UUID) (*model.Users, e
 	var user model.Users
 	if err := repository.DB.First(&user, "id = ?", userID).Error; err != nil {
 		// Log an error if user retrieval fails
-		fmt.Printf("Error fetching user by ID %s: %s\n", userID.String(), err.Error())
+		log.Printf("Error fetching user by ID %s: %s\n", userID.String(), err.Error())
 		return nil, err
 	}
 
 	// Log successful user retrieval
-	fmt.Printf("User fetched by ID %s: %+v\n", userID.String(), user)
+	log.Printf("User fetched by ID %s: %+v\n", userID.String(), user)
 
 	return &user, nil
 }
@@ -63,8 +63,13 @@ func (repository *UserRepository) DeleteUser(userID uuid.UUID) error {
 func (repository *UserRepository) FindByUsername(username string) (*model.Users, error) {
 	var user model.Users
 	if err := repository.DB.First(&user, "username = ?", username).Error; err != nil {
+		log.Printf("Error fetching user by username %s: %s\n", username, err.Error())
 		return nil, err
 	}
+
+	// Log successful user retrieval
+	log.Printf("User fetched by username %s: %+v\n", username, user)
+
 	return &user, nil
 }
 

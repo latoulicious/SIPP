@@ -4,7 +4,6 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"strings"
 
@@ -25,46 +24,46 @@ func NewAuthService(userRepo *repository.UserRepository) *AuthService {
 }
 
 // Authenticate validates user credentials and returns a JWT token
-func (service *AuthService) Authenticate(username, password, name string) (string, error) {
+func (service *AuthService) Authenticate(username, password, name, role string) (string, error) {
 	// Log the start of the authentication process
-	fmt.Printf("Authenticating user: %s", username)
+	log.Printf("Authenticating user: %s", username)
 
 	// Assume userRepo is a repository for user data
 	user, err := service.UserRepo.FindByUsername(username)
 	if err != nil {
-		fmt.Printf("Error retrieving user from the database: %v", err)
+		log.Printf("Error retrieving user from the database: %v", err)
 		return "", err
 	}
 
 	// Log user information for debugging purposes
-	fmt.Printf("User retrieved from the database: %+v", user)
+	log.Printf("User retrieved from the database: %+v", user)
 
 	// Check if the user exists
 	if user == nil {
 		// Log user not found
-		fmt.Printf("User not found: %s", username)
+		log.Printf("User not found: %s", username)
 		return "", errors.New("authentication failed")
 	}
 
 	// Log the stored password for debugging purposes
-	fmt.Printf("Stored password: %s", user.Password)
+	log.Printf("Stored password: %s", user.Password)
 
 	// Log the provided password for debugging purposes
-	fmt.Printf("Provided password: %s", password)
+	log.Printf("Provided password: %s", password)
 
 	// Check if the provided password matches the stored hashed password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
 		// Passwords don't match
 		// Log authentication failure
-		fmt.Printf("Authentication failed for user: %s", username)
+		log.Printf("Authentication failed for user: %s", username)
 		return "", errors.New("authentication failed")
 	}
 
 	// Log successful authentication
-	fmt.Printf("Authentication successful for user: %s", username)
+	log.Printf("Authentication successful for user: %s", username)
 
 	// Generate and return a JWT token here
-	token, err := controller.GenerateJWT(username, name) // Updated import statement
+	token, err := controller.GenerateJWT(username, name, role) // Updated import statement
 	if err != nil {
 		return "", err
 	}

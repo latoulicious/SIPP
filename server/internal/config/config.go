@@ -1,7 +1,7 @@
 package config
 
 import (
-	"fmt"
+	"log"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -13,7 +13,7 @@ var JwtSecret string
 func LoadConfig() {
 	err := godotenv.Load(".env")
 	if err != nil {
-		fmt.Print("Error loading .env file")
+		log.Print("Error loading .env file")
 	}
 
 	JwtSecret = os.Getenv("JWT_SECRET")
@@ -23,7 +23,7 @@ func LoadConfig() {
 func GetEnv(key string) string {
 	err := godotenv.Load(".env")
 	if err != nil {
-		fmt.Print("Error loading .env file")
+		log.Print("Error loading .env file")
 	}
 
 	return os.Getenv(key)

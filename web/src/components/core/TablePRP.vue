@@ -262,7 +262,7 @@ export default defineComponent({
     </va-card>
   </va-modal>
   <div class="table-container">
-    <va-data-table
+    <vaDataTable
       :items="items"
       :columns="columns"
       :striped="isTableStriped"
@@ -287,7 +287,7 @@ export default defineComponent({
       <template #bodyCellCheckbox="{ value }">
         <input type="checkbox" v-model="selectedRows" :value="value" />
       </template>
-    </va-data-table>
+    </vaDataTable>
   </div>
 </template>
 

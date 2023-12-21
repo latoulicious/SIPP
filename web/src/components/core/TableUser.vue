@@ -14,7 +14,6 @@ export default defineComponent({
   data() {
     const columns = [
       { key: "username", sortable: false },
-      // { key: "password", sortable: false }, //
       { key: "name", sortable: false },
       { key: "mapel", sortable: false },
       { key: "role", sortable: false },
@@ -236,6 +235,11 @@ export default defineComponent({
     <va-data-table :items="items" :columns="columns" striped>
       <template #cell(actions)="{ rowIndex }">
         <div class="action-buttons">
+          <!-- <va-button
+            preset="plain"
+            icon="remove_red_eye"
+            @click="deleteItemById(rowIndex)"
+          /> -->
           <va-button
             preset="plain"
             icon="edit"

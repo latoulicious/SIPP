@@ -13,6 +13,7 @@ type Users struct {
 	Username string
 	Password string
 	Name     string
-	Mapel    string
+	NIP      string `gorm:"column:NIP"` // Specify the column name here
+	Golongan string
 	Role     string
 }
