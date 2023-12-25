@@ -3,7 +3,7 @@ module github.com/latoulicious/SIPP
 go 1.21.3
 
 require (
-	github.com/casbin/casbin/v2 v2.79.0
+	github.com/casbin/casbin/v2 v2.80.0
 	github.com/casbin/xorm-adapter/v2 v2.5.1
 	github.com/gofiber/fiber/v2 v2.51.0
 	github.com/golang-jwt/jwt/v4 v4.5.0
