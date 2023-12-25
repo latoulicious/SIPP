@@ -13,6 +13,9 @@
       <div class="menu-item" v-if="isLoggedIn">
         <router-link :to="getSettingsLink()">Settings</router-link>
       </div>
+      <div class="menu-item" v-if="isLoggedIn">
+        <router-link :to="getUpdatePasswordLink()">Change Password</router-link>
+      </div>
       <div class="menu-item">
         <router-link :to="getLogoutLink()">{{
           isLoggedIn ? "Logout" : "Login"
@@ -51,6 +54,9 @@ export default {
     },
     getSettingsLink() {
       return this.isLoggedIn ? "/settings" : "#"; // Replace with the correct route path or name
+    },
+    getUpdatePasswordLink() {
+      return this.isLoggedIn ? "/change-password" : "#"; // Replace with the correct route path or name
     },
     getLogoutLink() {
       return this.isLoggedIn ? "/login" : "/login"; // Replace with the correct route path or name

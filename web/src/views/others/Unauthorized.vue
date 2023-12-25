@@ -2,12 +2,12 @@
   <CorePageLayout>
     <div class="centered-container">
       <div class="unauthorized-container">
-        <img class="unauthorized" src="@/assets/401.png" alt="404" />
+        <img class="unauthorized" src="@/assets/401.png" alt="401" />
         <p class="text">
           Sorry, you don't have permission to access this page
           <br />
           <br />
-          <a href="/">Go home?</a>
+          <a href="/">Home</a>
         </p>
       </div>
     </div>
@@ -38,12 +38,12 @@ export default {
 
 .text {
   font-family: fantasy;
-  font-size: 2em;
+  font-size: 1em;
   margin-top: 20px;
 }
 
 .unauthorized {
-  width: 65%; /* Adjusted to scale the image proportionally */
+  width: 60%; /* Adjusted to scale the image proportionally */
   margin-bottom: 20px; /* Adjusted margin for better spacing */
   margin-top: 20px;
 }
