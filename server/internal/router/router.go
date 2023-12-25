@@ -32,7 +32,7 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	authHandler := handler.NewAuthHandler(userService)
 
 	// User routes with authentication and RBAC middleware
-	userRoutes := api.Group("/users")
+	userRoutes := api.Group("/user")
 	userRoutes.Use(middleware.AuthMiddleware(e, userRepository))
 	userRoutes.Use(middleware.RBACMiddleware(e, userRepository))
 	userRoutes.Get("/", userHandler.GetUsers)
@@ -40,6 +40,9 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	userRoutes.Post("/", userHandler.CreateUser)
 	userRoutes.Put("/:id", userHandler.UpdateUser)
 	userRoutes.Delete("/:id", userHandler.DeleteUser)
+
+	// Add the new route for password change
+	userRoutes.Post("/:id/change-password", userHandler.ChangePassword)
 
 	// Authentication routes
 	authRoutes := api.Group("/auth")
@@ -58,14 +61,4 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 		return c.JSON(fiber.Map{"jwtSecret": config.JwtSecret})
 	})
 
-	// Add a new route to get the user's role based on the JWT token
-	app.Get("/api/get-user-role", middleware.AuthMiddleware(e, userRepository), func(c *fiber.Ctx) error {
-		// Retrieve the user's role from the context (set by AuthMiddleware)
-		userRole, ok := c.Locals("user_role").(string)
-		if !ok {
-			return c.Status(500).JSON(fiber.Map{"error": "Failed to retrieve user role"})
-		}
-
-		return c.JSON(fiber.Map{"role": userRole})
-	})
 }

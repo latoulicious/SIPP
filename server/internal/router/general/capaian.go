@@ -1,4 +1,4 @@
-package capaianRoutes
+package general
 
 import (
 	"github.com/gofiber/fiber/v2"

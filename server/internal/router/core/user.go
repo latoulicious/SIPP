@@ -1,6 +1,4 @@
-// router/user/user.go
-
-package userRoutes
+package core
 
 import (
 	"github.com/gofiber/fiber/v2"
