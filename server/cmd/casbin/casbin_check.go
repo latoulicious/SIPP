@@ -25,8 +25,8 @@ func main() {
 
 	// Debug logs for each request.
 	sub := "Admin"
-	obj := "/api/users/3cdf4f82-85e3-4429-a5de-37c8950942e9"
-	act := "PUT"
+	obj := "/api/user/c1d20a96-317d-42b2-8a7c-74f94607378d"
+	act := "GET"
 
 	log.Printf("Request: %s, %s, %s ---> ", sub, obj, act)
 	result, err := e.Enforce(sub, obj, act)

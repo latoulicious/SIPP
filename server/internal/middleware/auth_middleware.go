@@ -4,6 +4,7 @@ package middleware
 
 import (
 	"log"
+	"os"
 	"strings"
 
 	"github.com/casbin/casbin/v2"
@@ -38,25 +39,24 @@ func AuthMiddleware(e *casbin.Enforcer, userRepository *repository.UserRepositor
 
 		// Extract claims and user information as needed
 		claims := token.Claims.(jwt.MapClaims)
-		log.Println("Decoded Claims in AuthMiddleware:", claims)
 		username, okUsername := claims["username"].(string)
 		role, okRole := claims["role"].(string)
+		userID, okUserID := claims["user_id"].(string) // Extract user_id from claims
 
-		// Check if username and role are present in claims
-		if !okUsername || !okRole {
+		// Check if username, role, and user_id are present in claims
+		if !okUsername || !okRole || !okUserID {
 			return c.Status(401).JSON(fiber.Map{"status": "error", "message": "Invalid token claims", "data": nil})
 		}
 
-		log.Println("Username in AuthMiddleware:", username)
-		log.Println("Role in AuthMiddleware:", role)
+		if os.Getenv("ENVIRONMENT") == "development" {
+			log.Println("Username in AuthMiddleware:", username)
+			log.Println("Role in AuthMiddleware:", role)
+			log.Println("User ID in AuthMiddleware:", userID) // Log user_id for debugging
+		}
 
 		// Add user information to the context
-		c.Locals("user_id", username) // Assuming username can serve as user_id
-		c.Locals("user_role", role)   // Set the user's role in the context
-
-		// Log user information for debugging
-		log.Println("User ID:", username)
-		log.Println("User Role:", role)
+		c.Locals("user_id", userID) // Set the user's ID in the context
+		c.Locals("user_role", role) // Set the user's role in the context
 
 		// Proceed to RBAC check middleware
 		return RBACMiddleware(e, userRepository)(c)

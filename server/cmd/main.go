@@ -5,6 +5,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/model"
@@ -26,19 +27,21 @@ func main() {
 	// Load configuration from .env file
 	config.LoadConfig()
 
-	// If JWT_SECRET is not set, generate a new JWT secret key
-	if config.JwtSecret == "" {
-		// Generate the JWT secret key
-		secretKey, err := util.GenerateJWTSecretKey()
-		if err != nil {
-			log.Fatal("Error generating JWT secret key:", err)
+	if os.Getenv("ENVIRONMENT") == "development" {
+		// If JWT_SECRET is not set, generate a new JWT secret key
+		if config.JwtSecret == "" {
+			// Generate the JWT secret key
+			secretKey, err := util.GenerateJWTSecretKey()
+			if err != nil {
+				log.Fatal("Error generating JWT secret key:", err)
+			}
+
+			// Print or log the generated JWT secret key
+			log.Println("Generated JWT Secret Key:", secretKey)
+
+			// Set the generated JWT secret key in the configuration
+			config.JwtSecret = secretKey
 		}
-
-		// Print or log the generated JWT secret key
-		log.Println("Generated JWT Secret Key:", secretKey)
-
-		// Set the generated JWT secret key in the configuration
-		config.JwtSecret = secretKey
 	}
 
 	// Initialize Fiber app
@@ -103,7 +106,7 @@ func initCasbin() (*casbin.Enforcer, error) {
 	}
 
 	// Enable logging for debugging purposes
-	e.EnableLog(true)
+	e.EnableLog(false)
 
 	log.Println("Casbin enforcer initialized successfully")
 

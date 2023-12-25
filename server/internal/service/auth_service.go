@@ -51,8 +51,8 @@ func (service *AuthService) Authenticate(username, password, name, role string) 
 	// Log the provided password for debugging purposes
 	log.Printf("Provided password: %s", password)
 
-	// Check if the provided password matches the stored hashed password
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+	// Check if the provided password matches the stored password
+	if !comparePasswords(user.Password, password) {
 		// Passwords don't match
 		// Log authentication failure
 		log.Printf("Authentication failed for user: %s", username)
@@ -63,7 +63,7 @@ func (service *AuthService) Authenticate(username, password, name, role string) 
 	log.Printf("Authentication successful for user: %s", username)
 
 	// Generate and return a JWT token here
-	token, err := controller.GenerateJWT(username, name, role) // Updated import statement
+	token, err := controller.GenerateJWT(user.ID.String(), username, name, role) // Updated import statement
 	if err != nil {
 		return "", err
 	}

@@ -103,3 +103,25 @@ func (handler *UserHandler) DeleteUser(c *fiber.Ctx) error {
 	// Return success message
 	return c.JSON(fiber.Map{"status": "success", "message": "Deleted User"})
 }
+
+func (handler *UserHandler) ChangePassword(c *fiber.Ctx) error {
+	userID, err := uuid.Parse(c.Params("id"))
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Invalid UUID", "data": nil})
+	}
+
+	var requestBody struct {
+		NewPassword string `json:"newPassword"`
+	}
+
+	if err := c.BodyParser(&requestBody); err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Invalid request body", "data": nil})
+	}
+
+	err = handler.UserService.ChangePassword(userID, requestBody.NewPassword)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Could not change password", "data": err})
+	}
+
+	return c.JSON(fiber.Map{"status": "success", "message": "Password changed successfully", "data": nil})
+}

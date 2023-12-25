@@ -17,7 +17,7 @@ var (
 )
 
 // GenerateJWT generates a new JWT token for the specified username
-func GenerateJWT(username, name, role string) (string, error) {
+func GenerateJWT(userID, username, name, role string) (string, error) {
 	tokenLock.Lock()
 	defer tokenLock.Unlock()
 
@@ -29,16 +29,13 @@ func GenerateJWT(username, name, role string) (string, error) {
 	// Example JWT token generation using jwt-go
 	token := jwt.New(jwt.SigningMethodHS256)
 
-	log.Println("Role received in GenerateJWT:", role)
-
 	// Set claims
 	claims := token.Claims.(jwt.MapClaims)
+	claims["user_id"] = userID // Include the user's ID in the claims
 	claims["username"] = username
 	claims["name"] = name
 	claims["role"] = role                                 // Include the user's role in the claims
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix() // Token expires in 24 hours
-
-	log.Println("Claims set in GenerateJWT:", claims)
 
 	// Read the JWT secret key from an environment variable
 	secretKey := []byte(os.Getenv("JWT_SECRET")) // Replace with os.Getenv("YOUR_JWT_SECRET_KEY")
@@ -50,8 +47,10 @@ func GenerateJWT(username, name, role string) (string, error) {
 		return "", err
 	}
 
-	// Log the generated token
-	log.Println("Generated JWT Token for user", username, ":", tokenString)
+	// Log the generated token only in development environment
+	if os.Getenv("ENVIRONMENT") == "development" {
+		log.Println("Generated JWT Token for user", username, ":", tokenString)
+	}
 
 	// Store the generated token in the map
 	tokenMap[username] = tokenString

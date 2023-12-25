@@ -92,9 +92,13 @@ func (service *UserService) Authenticate(username, password string) (string, err
 	role := user.Role // Fetch the user's role from the user object
 
 	// Generate and return a JWT token here
-	token, err := controller.GenerateJWT(username, name, role) // Ensure that the correct "role" is passed
+	token, err := controller.GenerateJWT(user.ID.String(), username, name, role) // Ensure that the correct "role" is passed
 	if err != nil {
 		return "", err
 	}
 	return token, nil
+}
+
+func (service *UserService) ChangePassword(userID uuid.UUID, newPassword string) error {
+	return service.UserRepository.ChangePassword(userID, newPassword)
 }
