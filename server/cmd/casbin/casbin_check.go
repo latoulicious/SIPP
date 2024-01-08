@@ -25,7 +25,7 @@ func main() {
 
 	// Debug logs for each request.
 	sub := "Admin"
-	obj := "/api/user/c1d20a96-317d-42b2-8a7c-74f94607378d"
+	obj := "/api/kelas"
 	act := "GET"
 
 	log.Printf("Request: %s, %s, %s ---> ", sub, obj, act)
