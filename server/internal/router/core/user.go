@@ -12,14 +12,14 @@ func SetupUserRoutes(router fiber.Router) {
 		return c.SendString("GET /user")
 	})
 
-	user.Post("/", func(c *fiber.Ctx) error {
-		// Your logic here
-		return c.SendString("POST /user")
-	})
-
 	user.Get("/:id", func(c *fiber.Ctx) error {
 		// Your logic here
 		return c.SendString("GET /user/:id")
+	})
+
+	user.Post("/", func(c *fiber.Ctx) error {
+		// Your logic here
+		return c.SendString("POST /user")
 	})
 
 	user.Put("/:id", func(c *fiber.Ctx) error {

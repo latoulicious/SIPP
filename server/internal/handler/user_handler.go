@@ -27,7 +27,7 @@ func (handler *UserHandler) GetUsers(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Users retrieved successfully", "data": users})
 }
 
-func (handler *UserHandler) GetUser(c *fiber.Ctx) error {
+func (handler *UserHandler) GetUserByID(c *fiber.Ctx) error {
 	userID, err := uuid.Parse(c.Params("id"))
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Invalid UUID", "data": nil})

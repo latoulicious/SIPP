@@ -24,19 +24,30 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	userRepository := repository.NewUserRepository(database.DB)
 	userService := service.NewUserService(userRepository)
 	userHandler := handler.NewUserHandler(userService)
-	capaianRepository := repository.NewCapaianRepository(database.DB) // Assuming you have capaianRepository
+	mapelRepository := repository.NewMapelRepository(database.DB)
+	mapelService := service.NewMapelService(mapelRepository)
+	mapelHandler := handler.NewMapelHandler(mapelService)
+	kelasRepository := repository.NewKelasRepository(database.DB)
+	kelasService := service.NewKelasService(kelasRepository)
+	kelasHandler := handler.NewKelasHandler(kelasService)
+	tahunRepository := repository.NewTahunRepository(database.DB)
+	tahunService := service.NewTahunService(tahunRepository)
+	tahunHandler := handler.NewTahunHandler(tahunService)
+	capaianRepository := repository.NewCapaianRepository(database.DB)
 	capaianService := service.NewCapaianService(capaianRepository)
 	capaianHandler := handler.NewCapaianHandler(capaianService)
 
 	// Use UserService for AuthHandler
 	authHandler := handler.NewAuthHandler(userService)
 
+	// Core routess
+
 	// User routes with authentication and RBAC middleware
 	userRoutes := api.Group("/user")
 	userRoutes.Use(middleware.AuthMiddleware(e, userRepository))
 	userRoutes.Use(middleware.RBACMiddleware(e, userRepository))
 	userRoutes.Get("/", userHandler.GetUsers)
-	userRoutes.Get("/:id", userHandler.GetUser)
+	userRoutes.Get("/:id", userHandler.GetUserByID)
 	userRoutes.Post("/", userHandler.CreateUser)
 	userRoutes.Put("/:id", userHandler.UpdateUser)
 	userRoutes.Delete("/:id", userHandler.DeleteUser)
@@ -48,6 +59,32 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	authRoutes := api.Group("/auth")
 	authRoutes.Post("/login", authHandler.LoginHandler)
 
+	// Mapel routes
+	mapelRoutes := api.Group("/mapel")
+	mapelRoutes.Get("/", mapelHandler.GetMapel)
+	mapelRoutes.Get("/:id", mapelHandler.GetMapelByID)
+	mapelRoutes.Post("/", mapelHandler.CreateMapel)
+	mapelRoutes.Put("/:id", mapelHandler.UpdateMapel)
+	mapelRoutes.Delete("/:id", mapelHandler.DeleteMapel)
+
+	// Kelas routes
+	kelasRoutes := api.Group("/kelas")
+	kelasRoutes.Get("/", kelasHandler.GetKelas)
+	kelasRoutes.Get("/:id", kelasHandler.GetKelasByID)
+	kelasRoutes.Post("/", kelasHandler.CreateKelas)
+	kelasRoutes.Put("/:id", kelasHandler.UpdateKelas)
+	kelasRoutes.Delete("/:id", kelasHandler.DeleteKelas)
+
+	// Tahun routes
+	tahunRoutes := api.Group("/tahun")
+	tahunRoutes.Get("/", tahunHandler.GetTahun)
+	tahunRoutes.Get("/:id", tahunHandler.GetTahunByID)
+	tahunRoutes.Post("/", tahunHandler.CreateTahun)
+	tahunRoutes.Put("/:id", tahunHandler.UpdateTahun)
+	tahunRoutes.Delete("/:id", tahunHandler.DeleteTahun)
+
+	// General usage routes
+
 	// Capaian routes
 	capaianRoutes := api.Group("/capaian")
 	capaianRoutes.Get("/", capaianHandler.GetCapaian)
@@ -56,7 +93,7 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	capaianRoutes.Put("/:id", capaianHandler.UpdateCapaian)
 	capaianRoutes.Delete("/:id", capaianHandler.DeleteCapaian)
 
-	// Add a new route in router/router.go
+	// misc routes
 	app.Get("/api/get-jwt-secret", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"jwtSecret": config.JwtSecret})
 	})

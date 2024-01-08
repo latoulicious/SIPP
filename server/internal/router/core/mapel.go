@@ -12,14 +12,14 @@ func SetupMapelRoutes(router fiber.Router) {
 		return c.SendString("GET /mapel")
 	})
 
-	mapel.Post("/", func(c *fiber.Ctx) error {
-
-		return c.SendString("POST /mapel")
-	})
-
 	mapel.Get("/:id", func(c *fiber.Ctx) error {
 
 		return c.SendString("GET /mapel/:id")
+	})
+
+	mapel.Post("/", func(c *fiber.Ctx) error {
+
+		return c.SendString("POST /mapel")
 	})
 
 	mapel.Put("/:id", func(c *fiber.Ctx) error {

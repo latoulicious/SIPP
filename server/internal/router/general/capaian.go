@@ -12,14 +12,14 @@ func SetupCapaianRoutes(router fiber.Router) {
 		return c.SendString("GET /capaian")
 	})
 
-	capaian.Post("/", func(c *fiber.Ctx) error {
-		// Your logic here
-		return c.SendString("POST /capaian")
-	})
-
 	capaian.Get("/:id", func(c *fiber.Ctx) error {
 		// Your logic here
 		return c.SendString("GET /capaian/:id")
+	})
+
+	capaian.Post("/", func(c *fiber.Ctx) error {
+		// Your logic here
+		return c.SendString("POST /capaian")
 	})
 
 	capaian.Put("/:id", func(c *fiber.Ctx) error {

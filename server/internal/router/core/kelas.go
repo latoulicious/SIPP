@@ -12,14 +12,14 @@ func SetupKelasRoutes(router fiber.Router) {
 		return c.SendString("GET /kelas")
 	})
 
-	kelas.Post("/", func(c *fiber.Ctx) error {
-
-		return c.SendString("POST /kelas")
-	})
-
 	kelas.Get("/:id", func(c *fiber.Ctx) error {
 
 		return c.SendString("GET /kelas/:id")
+	})
+
+	kelas.Post("/", func(c *fiber.Ctx) error {
+
+		return c.SendString("POST /kelas")
 	})
 
 	kelas.Put("/:id", func(c *fiber.Ctx) error {

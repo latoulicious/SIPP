@@ -12,14 +12,14 @@ func SetupTahunRoutes(router fiber.Router) {
 		return c.SendString("GET /tahun")
 	})
 
-	tahun.Post("/", func(c *fiber.Ctx) error {
-
-		return c.SendString("POST /tahun")
-	})
-
 	tahun.Get("/:id", func(c *fiber.Ctx) error {
 
 		return c.SendString("GET /tahun/:id")
+	})
+
+	tahun.Post("/", func(c *fiber.Ctx) error {
+
+		return c.SendString("POST /tahun")
 	})
 
 	tahun.Put("/:id", func(c *fiber.Ctx) error {
