@@ -3,9 +3,9 @@
     <div class="centered-container">
       <div class="not-found-container">
         <img class="not-found" src="@/assets/404.svg" alt="404" />
-        <h1>
-          <a href="/">Go home?</a>
-        </h1>
+        <p class="text">
+          <a href="/">Home</a>
+        </p>
       </div>
     </div>
   </CorePageLayout>
@@ -33,14 +33,14 @@ export default {
   margin-top: 20px;
 }
 
-h1 {
+.text {
   font-family: fantasy;
-  font-size: 2em;
-  margin-bottom: 20px; /* Adjusted margin for better spacing */
+  font-size: 1em;
   margin-top: 20px;
 }
 
 .not-found {
+  width: 60%;
   margin-bottom: 20px; /* Adjusted margin for better spacing */
   margin-top: 20px;
 }

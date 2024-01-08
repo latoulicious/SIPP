@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/casbin/casbin/v2"
@@ -19,21 +18,21 @@ func main() {
 
 	// Log the loaded policies.
 	policies := e.GetPolicy()
-	fmt.Println("Loaded Policies:")
+	log.Println("Loaded Policies:")
 	for _, p := range policies {
-		fmt.Printf("%v : %v\n", p[0], p[1:])
+		log.Printf("%v : %v\n", p[0], p[1:])
 	}
 
 	// Debug logs for each request.
 	sub := "Admin"
-	obj := "/api/users/3cdf4f82-85e3-4429-a5de-37c8950942e9"
-	act := "PUT"
+	obj := "/api/kelas"
+	act := "GET"
 
-	fmt.Printf("Request: %s, %s, %s ---> ", sub, obj, act)
+	log.Printf("Request: %s, %s, %s ---> ", sub, obj, act)
 	result, err := e.Enforce(sub, obj, act)
 	if err != nil {
-		fmt.Printf("Casbin Enforce Failed: %v\n", err)
+		log.Printf("Casbin Enforce Failed: %v\n", err)
 	} else {
-		fmt.Printf("Casbin Enforce Result: %v\n", result)
+		log.Printf("Casbin Enforce Result: %v\n", result)
 	}
 }

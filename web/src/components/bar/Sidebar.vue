@@ -1,19 +1,34 @@
 <script setup lang="ts">
 import { useAppStore } from "@/stores/index";
-import { useUserRoleStore } from "@/stores/userRoleStore";
 import { onMounted, computed } from "vue";
 
 const appStore = useAppStore();
-const userRoleStore = useUserRoleStore();
 
-onMounted(async () => {
-  // Fetch user role when the component is mounted
-  await userRoleStore.fetchUserRole();
+const showManagement = computed(() => {
+  const jwtToken = localStorage.getItem("jwtToken");
+  if (!jwtToken) {
+    return false;
+  }
+
+  const decodedToken = decodeJwt(jwtToken);
+  return decodedToken && decodedToken.role === "Admin";
 });
 
-const showManageUsers = computed(
-  () => !userRoleStore.loading && userRoleStore.role === "Admin",
-);
+onMounted(() => {
+  // You might perform other setup actions here if needed
+});
+
+// Function to decode JWT token
+function decodeJwt(jwtToken: string) {
+  try {
+    const [, payloadBase64] = jwtToken.split(".");
+    const payload = JSON.parse(atob(payloadBase64));
+    return payload;
+  } catch (error) {
+    console.error("Error decoding JWT:", error);
+    return null;
+  }
+}
 </script>
 
 <template>
@@ -57,7 +72,7 @@ const showManageUsers = computed(
     <router-link to="/penilaian">
       <VaSidebarItem>
         <VaSidebarItemContent>
-          <VaIcon name="assignment" />
+          <VaIcon name="folder_shared" />
           <VaSidebarItemTitle>Penilaian Ranah Pengetahuan</VaSidebarItemTitle>
         </VaSidebarItemContent>
       </VaSidebarItem>
@@ -86,14 +101,56 @@ const showManageUsers = computed(
         </VaSidebarItemContent>
       </VaSidebarItem>
     </router-link>
-    <router-link v-show="showManageUsers" to="/user">
-      <VaSidebarItem>
-        <VaSidebarItemContent>
-          <VaIcon name="people" />
-          <VaSidebarItemTitle>Manage Users</VaSidebarItemTitle>
-        </VaSidebarItemContent>
-      </VaSidebarItem>
-    </router-link>
+    <VaAccordion>
+      <VaCollapse v-show="showManagement">
+        <template #header="{ value: isCollapsed }">
+          <VaSidebarItem>
+            <VaSidebarItemContent>
+              <VaIcon name="settings" />
+              <VaSidebarItemTitle>Management</VaSidebarItemTitle>
+              <VaSpacer />
+              <VaIcon :name="isCollapsed ? 'va-arrow-up' : 'va-arrow-down'" />
+            </VaSidebarItemContent>
+          </VaSidebarItem>
+        </template>
+        <template #body>
+          <VaSidebarItem>
+            <router-link v-show="showManagement" to="/notfound">
+              <VaSidebarItem>
+                <VaSidebarItemContent>
+                  <VaIcon name="business" />
+                  <VaSidebarItemTitle>Kelas</VaSidebarItemTitle>
+                </VaSidebarItemContent>
+              </VaSidebarItem>
+            </router-link>
+            <router-link v-show="showManagement" to="/notfound">
+              <VaSidebarItem>
+                <VaSidebarItemContent>
+                  <VaIcon name="library_books" />
+                  <VaSidebarItemTitle>Mata Pelajaran</VaSidebarItemTitle>
+                </VaSidebarItemContent>
+              </VaSidebarItem>
+            </router-link>
+            <router-link v-show="showManagement" to="/notfound">
+              <VaSidebarItem>
+                <VaSidebarItemContent>
+                  <VaIcon name="date_range" />
+                  <VaSidebarItemTitle>Tahun Ajaran</VaSidebarItemTitle>
+                </VaSidebarItemContent>
+              </VaSidebarItem>
+            </router-link>
+            <router-link v-show="showManagement" to="/user">
+              <VaSidebarItem>
+                <VaSidebarItemContent>
+                  <VaIcon name="people" />
+                  <VaSidebarItemTitle>Users</VaSidebarItemTitle>
+                </VaSidebarItemContent>
+              </VaSidebarItem>
+            </router-link>
+          </VaSidebarItem>
+        </template>
+      </VaCollapse>
+    </VaAccordion>
   </VaSidebar>
 </template>
 
@@ -102,14 +159,30 @@ const showManageUsers = computed(
   height: 100%;
   display: flex;
   flex-direction: column;
-  overflow-y: auto; /* Add this to enable scrolling if the content exceeds the sidebar height */
+  overflow-y: auto; /* Enable scrolling if the content exceeds the sidebar height */
 }
 
 .custom-sidebar .VaSidebarItems {
   flex-grow: 1;
 }
 
-.custom-sidebar .VaScrollbar {
-  display: none;
+.custom-sidebar::-webkit-scrollbar {
+  width: 12px; /* Width of the scrollbar */
+}
+
+.custom-sidebar::-webkit-scrollbar-thumb {
+  background-color: #4a90e2; /* Color of the scrollbar thumb */
+  border-radius: 6px; /* Border radius of the thumb */
+}
+
+.custom-sidebar::-webkit-scrollbar-track {
+  background-color: #d3d3d3; /* Color of the scrollbar track */
+  border-radius: 6px; /* Border radius of the track */
+}
+
+/* Hide the default scrollbar on Firefox */
+.custom-sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: #4a90e2 #d3d3d3;
 }
 </style>

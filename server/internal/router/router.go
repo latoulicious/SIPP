@@ -24,40 +24,78 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	userRepository := repository.NewUserRepository(database.DB)
 	userService := service.NewUserService(userRepository)
 	userHandler := handler.NewUserHandler(userService)
+	mapelRepository := repository.NewMapelRepository(database.DB)
+	mapelService := service.NewMapelService(mapelRepository)
+	mapelHandler := handler.NewMapelHandler(mapelService)
+	kelasRepository := repository.NewKelasRepository(database.DB)
+	kelasService := service.NewKelasService(kelasRepository)
+	kelasHandler := handler.NewKelasHandler(kelasService)
+	tahunRepository := repository.NewTahunRepository(database.DB)
+	tahunService := service.NewTahunService(tahunRepository)
+	tahunHandler := handler.NewTahunHandler(tahunService)
+	capaianRepository := repository.NewCapaianRepository(database.DB)
+	capaianService := service.NewCapaianService(capaianRepository)
+	capaianHandler := handler.NewCapaianHandler(capaianService)
 
 	// Use UserService for AuthHandler
-	authHandler := handler.NewAuthHandler(userService) // Change this line
+	authHandler := handler.NewAuthHandler(userService)
+
+	// Core routess
 
 	// User routes with authentication and RBAC middleware
-	userRoutes := api.Group("/users")
+	userRoutes := api.Group("/user")
 	userRoutes.Use(middleware.AuthMiddleware(e, userRepository))
-	userRoutes.Use(middleware.RBACMiddleware(e, userRepository)) // Keep the second argument
+	userRoutes.Use(middleware.RBACMiddleware(e, userRepository))
 	userRoutes.Get("/", userHandler.GetUsers)
-	userRoutes.Get("/:id", userHandler.GetUser)
+	userRoutes.Get("/:id", userHandler.GetUserByID)
 	userRoutes.Post("/", userHandler.CreateUser)
 	userRoutes.Put("/:id", userHandler.UpdateUser)
 	userRoutes.Delete("/:id", userHandler.DeleteUser)
 
+	// Add the new route for password change
+	userRoutes.Post("/:id/change-password", userHandler.ChangePassword)
+
 	// Authentication routes
 	authRoutes := api.Group("/auth")
-	authRoutes.Post("/login", authHandler.LoginHandler) // Assuming you have a login handler
+	authRoutes.Post("/login", authHandler.LoginHandler)
 
-	// More authentication routes can be added here if needed
+	// Mapel routes
+	mapelRoutes := api.Group("/mapel")
+	mapelRoutes.Get("/", mapelHandler.GetMapel)
+	mapelRoutes.Get("/:id", mapelHandler.GetMapelByID)
+	mapelRoutes.Post("/", mapelHandler.CreateMapel)
+	mapelRoutes.Put("/:id", mapelHandler.UpdateMapel)
+	mapelRoutes.Delete("/:id", mapelHandler.DeleteMapel)
 
-	// Add a new route in router/router.go
+	// Kelas routes
+	kelasRoutes := api.Group("/kelas")
+	kelasRoutes.Get("/", kelasHandler.GetKelas)
+	kelasRoutes.Get("/:id", kelasHandler.GetKelasByID)
+	kelasRoutes.Post("/", kelasHandler.CreateKelas)
+	kelasRoutes.Put("/:id", kelasHandler.UpdateKelas)
+	kelasRoutes.Delete("/:id", kelasHandler.DeleteKelas)
+
+	// Tahun routes
+	tahunRoutes := api.Group("/tahun")
+	tahunRoutes.Get("/", tahunHandler.GetTahun)
+	tahunRoutes.Get("/:id", tahunHandler.GetTahunByID)
+	tahunRoutes.Post("/", tahunHandler.CreateTahun)
+	tahunRoutes.Put("/:id", tahunHandler.UpdateTahun)
+	tahunRoutes.Delete("/:id", tahunHandler.DeleteTahun)
+
+	// General usage routes
+
+	// Capaian routes
+	capaianRoutes := api.Group("/capaian")
+	capaianRoutes.Get("/", capaianHandler.GetCapaian)
+	capaianRoutes.Get("/:id", capaianHandler.GetCapaianByID)
+	capaianRoutes.Post("/", capaianHandler.CreateCapaian)
+	capaianRoutes.Put("/:id", capaianHandler.UpdateCapaian)
+	capaianRoutes.Delete("/:id", capaianHandler.DeleteCapaian)
+
+	// misc routes
 	app.Get("/api/get-jwt-secret", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"jwtSecret": config.JwtSecret})
-	})
-
-	// Add a new route to get the user's role based on the JWT token
-	app.Get("/api/get-user-role", middleware.AuthMiddleware(e, userRepository), func(c *fiber.Ctx) error {
-		// Retrieve the user's role from the context (set by AuthMiddleware)
-		userRole, ok := c.Locals("user_role").(string)
-		if !ok {
-			return c.Status(500).JSON(fiber.Map{"error": "Failed to retrieve user role"})
-		}
-
-		return c.JSON(fiber.Map{"role": userRole})
 	})
 
 }

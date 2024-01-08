@@ -3,7 +3,8 @@
 package repository
 
 import (
-	"fmt"
+	"log"
+	"os"
 
 	"github.com/google/uuid"
 	"github.com/latoulicious/SIPP/internal/model"
@@ -31,13 +32,14 @@ func (repository *UserRepository) GetUserByID(userID uuid.UUID) (*model.Users, e
 	var user model.Users
 	if err := repository.DB.First(&user, "id = ?", userID).Error; err != nil {
 		// Log an error if user retrieval fails
-		fmt.Printf("Error fetching user by ID %s: %s\n", userID.String(), err.Error())
+		log.Printf("Error fetching user by ID %s: %s\n", userID.String(), err.Error())
 		return nil, err
 	}
 
 	// Log successful user retrieval
-	fmt.Printf("User fetched by ID %s: %+v\n", userID.String(), user)
-
+	if os.Getenv("ENVIRONMENT") == "development" {
+		log.Printf("User fetched by ID %s: Name: %s\n Role: %s", userID.String(), user.Name, user.Role)
+	}
 	return &user, nil
 }
 
@@ -63,6 +65,7 @@ func (repository *UserRepository) DeleteUser(userID uuid.UUID) error {
 func (repository *UserRepository) FindByUsername(username string) (*model.Users, error) {
 	var user model.Users
 	if err := repository.DB.First(&user, "username = ?", username).Error; err != nil {
+		log.Printf("Error fetching user by username %s: %s\n", username, err.Error())
 		return nil, err
 	}
 	return &user, nil
@@ -75,4 +78,19 @@ func HashPassword(password string) (string, error) {
 		return "", err
 	}
 	return string(hashedPassword), nil
+}
+
+func (repository *UserRepository) ChangePassword(userID uuid.UUID, newPassword string) error {
+	user, err := repository.GetUserByID(userID)
+	if err != nil {
+		return err
+	}
+
+	hashedPassword, err := HashPassword(newPassword)
+	if err != nil {
+		return err
+	}
+
+	user.Password = hashedPassword
+	return repository.DB.Save(user).Error
 }

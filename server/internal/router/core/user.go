@@ -1,6 +1,4 @@
-// router/user/user.go
-
-package userRoutes
+package core
 
 import (
 	"github.com/gofiber/fiber/v2"
@@ -8,11 +6,6 @@ import (
 
 func SetupUserRoutes(router fiber.Router) {
 	user := router.Group("/user")
-
-	user.Post("/", func(c *fiber.Ctx) error {
-		// Your logic here
-		return c.SendString("POST /user")
-	})
 
 	user.Get("/", func(c *fiber.Ctx) error {
 		// Your logic here
@@ -22,6 +15,11 @@ func SetupUserRoutes(router fiber.Router) {
 	user.Get("/:id", func(c *fiber.Ctx) error {
 		// Your logic here
 		return c.SendString("GET /user/:id")
+	})
+
+	user.Post("/", func(c *fiber.Ctx) error {
+		// Your logic here
+		return c.SendString("POST /user")
 	})
 
 	user.Put("/:id", func(c *fiber.Ctx) error {

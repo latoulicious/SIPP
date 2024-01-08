@@ -5,6 +5,7 @@ package database
 import (
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 
 	"github.com/latoulicious/SIPP/internal/config"
@@ -26,8 +27,10 @@ func ConnectDB() error {
 		return err
 	}
 
-	DSN = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", config.GetEnv("DB_HOST"), port, config.GetEnv("DB_USER"), config.GetEnv("DB_PASSWORD"), config.GetEnv("DB_NAME"))
-	fmt.Println("Connecting to Database with DSN:", DSN)
+	if os.Getenv("ENVIRONMENT") == "development" {
+		DSN = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", config.GetEnv("DB_HOST"), port, config.GetEnv("DB_USER"), config.GetEnv("DB_PASSWORD"), config.GetEnv("DB_NAME"))
+		log.Println("Connecting to Database with DSN:", DSN)
+	}
 
 	DB, err = gorm.Open(postgres.Open(DSN))
 
@@ -36,14 +39,25 @@ func ConnectDB() error {
 		return err
 	}
 
-	fmt.Println("Connection Opened to Database")
+	log.Println("Connection Opened to Database")
 
 	// Auto Migrate Models
-	err = DB.AutoMigrate(&model.Users{})
+	err = DB.AutoMigrate(
+		&model.Users{},
+		&model.TahunAjar{},
+		&model.Mapel{},
+		&model.Kelas{},
+		&model.Capaian{},
+		&model.AlurTP{},
+		&model.ModulAjar{},
+		&model.Prp{},
+		&model.Soal{},
+		&model.BankSoal{},
+	)
 	if err != nil {
 		log.Println("Failed to auto migrate models:", err)
 		return err
 	}
-	fmt.Println("Database Migrated")
+	log.Println("Database Migrated")
 	return nil
 }

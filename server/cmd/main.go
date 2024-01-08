@@ -5,6 +5,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/model"
@@ -26,19 +27,21 @@ func main() {
 	// Load configuration from .env file
 	config.LoadConfig()
 
-	// If JWT_SECRET is not set, generate a new JWT secret key
-	if config.JwtSecret == "" {
-		// Generate the JWT secret key
-		secretKey, err := util.GenerateJWTSecretKey()
-		if err != nil {
-			log.Fatal("Error generating JWT secret key:", err)
+	if os.Getenv("ENVIRONMENT") == "development" {
+		// If JWT_SECRET is not set, generate a new JWT secret key
+		if config.JwtSecret == "" {
+			// Generate the JWT secret key
+			secretKey, err := util.GenerateJWTSecretKey()
+			if err != nil {
+				log.Fatal("Error generating JWT secret key:", err)
+			}
+
+			// Print or log the generated JWT secret key
+			log.Println("Generated JWT Secret Key:", secretKey)
+
+			// Set the generated JWT secret key in the configuration
+			config.JwtSecret = secretKey
 		}
-
-		// Print or log the generated JWT secret key
-		log.Println("Generated JWT Secret Key:", secretKey)
-
-		// Set the generated JWT secret key in the configuration
-		config.JwtSecret = secretKey
 	}
 
 	// Initialize Fiber app
@@ -94,7 +97,7 @@ func initCasbin() (*casbin.Enforcer, error) {
 	a := fileadapter.NewAdapter("./internal/config/casbin_policy.csv")
 
 	// Log information about model and adapter
-	fmt.Println("Casbin model and policy adapter initialized successfully")
+	log.Println("Casbin model and policy adapter initialized successfully")
 
 	// Create a Casbin enforcer with the model and adapter
 	e, err := casbin.NewEnforcer(m, a)
@@ -103,9 +106,9 @@ func initCasbin() (*casbin.Enforcer, error) {
 	}
 
 	// Enable logging for debugging purposes
-	e.EnableLog(true)
+	e.EnableLog(false)
 
-	fmt.Println("Casbin enforcer initialized successfully")
+	log.Println("Casbin enforcer initialized successfully")
 
 	// After initializing Casbin enforcer
 	err = e.LoadPolicy()
@@ -113,7 +116,7 @@ func initCasbin() (*casbin.Enforcer, error) {
 		return nil, fmt.Errorf("error loading Casbin policies: %v", err)
 	}
 
-	fmt.Println("Casbin policies loaded successfully")
+	log.Println("Casbin policies loaded successfully")
 
 	return e, nil
 }
