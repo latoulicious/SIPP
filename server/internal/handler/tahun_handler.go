@@ -23,7 +23,7 @@ func (handler *TahunHandler) GetTahun(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting users", "data": err})
 	}
 
-	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Users retrieved successfully", "data": tahun})
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Tahun retrieved successfully", "data": tahun})
 }
 
 func (handler *TahunHandler) GetTahunByID(c *fiber.Ctx) error {
