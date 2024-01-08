@@ -1,9 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-import AuthMiddleware from "@/router/auth.js";
+import requireAuth from "@/router/auth.js";
 import AppLayout from "@/layouts/AppLayout.vue";
 import AuthLayout from "@/layouts/AuthLayout.vue";
-import { useUserRoleStore } from "@/stores/userRoleStore";
 
 const router = createRouter({
   history: createWebHistory("/"),
@@ -17,7 +16,7 @@ const router = createRouter({
           path: "/dashboard",
           name: "dashboard",
           component: () => import("@/views/Dashboard.vue"),
-          beforeEnter: AuthMiddleware,
+          beforeEnter: requireAuth,
         },
         {
           path: "/capaian",
@@ -54,29 +53,38 @@ const router = createRouter({
           name: "banksoal",
           component: () => import("@/views/core/BankSoal.vue"),
         },
+        // Protected Routes
+        {
+          path: "/kelas",
+          name: "kelas",
+          component: () => import("@/views/others/PageNotFound.vue"),
+          beforeEnter: requireAuth,
+        },
+        {
+          path: "/mapel",
+          name: "mapel",
+          component: () => import("@/views/others/PageNotFound.vue"),
+          beforeEnter: requireAuth,
+        },
+        {
+          path: "/tahun",
+          name: "tahun",
+          component: () => import("@/views/others/PageNotFound.vue"),
+          beforeEnter: requireAuth,
+        },
         {
           path: "/user",
           name: "user",
           component: () => import("@/views/core/User.vue"),
-          beforeEnter: async (to, from, next) => {
-            const userRoleStore = useUserRoleStore();
-
-            // Fetch user role if it's not loaded yet
-            if (userRoleStore.loading) {
-              await userRoleStore.fetchUserRole();
-            }
-
-            // Example: Check if the user has the 'Admin' role
-            const isAdmin = userRoleStore.role === "Admin";
-
-            if (isAdmin) {
-              next(); // Allow access for Admin users
-            } else {
-              // Redirect to 503 error page for non-Admin users
-              next("/unauthorized");
-            }
-          },
+          beforeEnter: requireAuth,
         },
+        {
+          path: "/change-password",
+          name: "change-password",
+          component: () => import("@/views/auth/ChangePassword.vue"),
+          beforeEnter: requireAuth,
+        },
+        // Misc Routes
         {
           path: "/settings",
           name: "settings",

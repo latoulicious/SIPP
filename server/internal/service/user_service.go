@@ -62,7 +62,7 @@ func (service *UserService) FetchUserName(username string) (string, error) {
 }
 
 // Authenticate validates user credentials and returns a JWT token
-func (service *UserService) Authenticate(username, password, name string) (string, error) {
+func (service *UserService) Authenticate(username, password string) (string, error) {
 	// Assume userRepo is a repository for user data
 	user, err := service.UserRepository.FindByUsername(username)
 	if err != nil {
@@ -82,17 +82,23 @@ func (service *UserService) Authenticate(username, password, name string) (strin
 		return "", errors.New("authentication failed")
 	}
 
-	// Fetch the user's full name after successful authentication
-	name, err = service.FetchUserName(username) // Remove ":="
+	// Fetch the user's full name and role after successful authentication
+	name, err := service.FetchUserName(username)
 	if err != nil {
 		// Handle error fetching user's full name
 		return "", err
 	}
 
+	role := user.Role // Fetch the user's role from the user object
+
 	// Generate and return a JWT token here
-	token, err := controller.GenerateJWT(username, name) // Updated import statement
+	token, err := controller.GenerateJWT(user.ID.String(), username, name, role) // Ensure that the correct "role" is passed
 	if err != nil {
 		return "", err
 	}
 	return token, nil
+}
+
+func (service *UserService) ChangePassword(userID uuid.UUID, newPassword string) error {
+	return service.UserRepository.ChangePassword(userID, newPassword)
 }

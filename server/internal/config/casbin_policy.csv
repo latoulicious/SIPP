@@ -5,8 +5,25 @@ g, Admin, Admin
 g, Guru, Guru
 
 # Define permissions for roles
-p, Admin, /api/users, GET
-p, Admin, /api/users, POST
-p, Admin, /api/users/:id, PUT
-p, Admin, /api/users/:id, DELETE
-p, Admin, /api/get-user-role, GET
+p, Admin, /api/user, GET
+p, Admin, /api/user, POST
+p, Admin, /api/user/:id, PUT
+p, Admin, /api/user/:id, DELETE
+p, Admin, /api/mapel, GET
+p, Admin, /api/mapel, POST
+p, Admin, /api/mapel/:id, PUT
+p, Admin, /api/mapel/:id, DELETE
+p, Admin, /api/kelas, GET
+p, Admin, /api/kelas, POST
+p, Admin, /api/kelas/:id, PUT
+p, Admin, /api/kelas/:id, DELETE
+p, Admin, /api/tahun, GET
+p, Admin, /api/tahun, POST
+p, Admin, /api/tahun/:id, PUT
+p, Admin, /api/tahun/:id, DELETE
+
+
+# Bypass all permissions for changing password
+
+p, _, /api/user/:id/change-password, GET
+p, _, /api/user/:id/change-password, POST

@@ -1,44 +1,11 @@
 <script>
 import { defineComponent } from "vue";
 import { useModal } from "vuestic-ui";
+import axios from "axios";
 
 export default defineComponent({
   data() {
     const { confirm } = useModal();
-
-    const generateItems = (count) => {
-      const users = [
-        {
-          id: 1,
-          nama_penyusun: "Leanne Graham",
-          mata_pelajaran: "Kimia",
-          kelas: "10",
-          tahun_ajaran: "Ganjil",
-        },
-        {
-          id: 2,
-          nama_penyusun: "Ervin Howell",
-          mata_pelajaran: "Kimia",
-          kelas: "11",
-          tahun_ajaran: "Genap",
-        },
-        {
-          id: 3,
-          nama_penyusun: "Clementine Bauch",
-          mata_pelajaran: "Kimia",
-          kelas: "12",
-          tahun_ajaran: "Ganjil , Genap",
-        },
-        // Add more users if needed
-      ];
-
-      // Generate user Array
-      return new Array(count).fill(null).map((_, idx) => {
-        const user = { ...users[idx % users.length] };
-        user.id = idx + 1;
-        return user;
-      });
-    };
 
     const onButtonClick = () => {
       confirm({
@@ -49,19 +16,31 @@ export default defineComponent({
     };
 
     const columns = [
-      { key: "id", sortable: false },
-      { key: "nama_penyusun", sortable: false },
-      { key: "mata_pelajaran", sortable: false },
-      { key: "kelas", sortable: false },
-      { key: "tahun_ajaran", sortable: false },
+      { key: "Name", sortable: false },
+      { key: "Mapel", sortable: false },
+      { key: "Kelas", sortable: false },
+      { key: "Tahun", sortable: false },
+      { key: "actions", width: 80 },
     ];
 
-    const items = generateItems(50); // Adjust the count as needed
-    const filtered = items.map((item) => item.id);
-
     return {
-      items,
+      items: [],
+      createdItem: {
+        name: "",
+        mapel: "",
+        kelas: null,
+        tahun: "",
+        judul_elemen: "",
+        ket_elemen: "",
+        ket_proses_mengamati: "",
+        ket_proses_mempertanyakan: "",
+        ket_proses_merencanakan: "",
+        ket_proses_memproses: "",
+        ket_proses_mengevaluasi: "",
+        ket_proses_mengkomunikasikan: "",
+      },
       columns,
+      options: ["10", "11", "12"],
       perPage: 10,
       currentPage: 1,
       isTableStriped: true,
@@ -69,8 +48,6 @@ export default defineComponent({
       selectedRows: [],
       rowEventType: "",
       rowId: "",
-      filtered,
-      loading: true,
       showModal: false,
       input: "",
       onButtonClick,
@@ -79,36 +56,99 @@ export default defineComponent({
 
   computed: {
     pages() {
-      return this.perPage && this.perPage !== 0
-        ? Math.ceil(this.filtered.length / this.perPage)
-        : this.filtered.length;
+      return this.items &&
+        this.items.length &&
+        this.perPage &&
+        this.perPage !== 0
+        ? Math.ceil(this.items.length / this.perPage)
+        : this.items
+          ? this.items.length
+          : 0;
     },
   },
 
   methods: {
-    fetchData() {
-      // Simulate a delay and then set loading to false
-      setTimeout(() => {
+    async fetchData() {
+      try {
+        const response = await axios.get("http://localhost:3000/api/capaian");
+
+        // Check if response.data.data is an array
+        if (Array.isArray(response.data.data)) {
+          this.items = response.data.data;
+        } else {
+          console.error(
+            "Response data.data is not an array:",
+            response.data.data,
+          );
+        }
+
         this.loading = false;
-      }, 600); // Adjust the delay value (in milliseconds) as needed
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        this.loading = false;
+      }
     },
-  },
 
-  watch: {
-    currentPage(newPage, oldPage) {
-      // Watch for changes in currentPage and update loading state
-      if (newPage !== oldPage) {
-        this.loading = true;
+    async addNewItem() {
+      try {
+        // Prepare the payload to send to the backend
+        const payload = {
+          ...this.createdItem,
+          Kelas: parseInt(this.createdItem.kelas), // Convert to integer if needed
+          Tahun: parseInt(this.createdItem.tahun), // Convert to integer if needed
+        };
 
-        // Simulate fetching data and set loading to false after a delay
+        console.log("Payload:", payload);
+
+        const response = await axios.post(
+          "http://localhost:3000/api/capaian",
+          payload,
+        );
+
+        console.log("Response:", response.data);
+
+        // Assuming the server returns the newly created item
+        const newItem = response.data.data;
+
+        // Add the new item to the items array
+        this.items.push(newItem);
+
+        // Reset the createdItem for the next input
+        this.resetCreatedItem();
+
         this.fetchData();
+      } catch (error) {
+        console.error("Error adding new item:", error);
+      }
+    },
+    resetCreatedItem() {
+      // Reset the createdItem to its initial state
+      this.createdItem = {
+        name: "",
+        mapel: "",
+        kelas: null,
+        tahun: "",
+        judul_elemen: "",
+        ket_elemen: "",
+        ket_proses_mengamati: "",
+        ket_proses_mempertanyakan: "",
+        ket_proses_merencanakan: "",
+        ket_proses_memproses: "",
+        ket_proses_mengevaluasi: "",
+        ket_proses_mengkomunikasikan: "",
+      };
+    },
+
+    toggleAddModal() {
+      this.showModal = !this.showModal;
+      if (!this.showModal) {
+        this.addNewItem();
+        this.resetCreatedItem();
       }
     },
   },
 
   mounted() {
-    // Initial data fetching
-    this.loading = true;
     this.fetchData();
   },
 });
@@ -125,14 +165,10 @@ export default defineComponent({
       preset="secondary"
       border-color="bordered"
     >
-      <va-button @click="showModal = !showModal" icon="add">Add</va-button>
-      <va-button icon="edit">Edit</va-button>
-      <va-button @click="onButtonClick" type="delete" icon="delete"
-        >Delete</va-button
-      >
+      <va-button @click="toggleAddModal" icon="add">Add</va-button>
     </va-button-group>
   </div>
-  <va-modal v-model="showModal" blur size="large" fixed-layout>
+  <va-modal v-model="showModal" blur size="large" fixed-layout @ok="addNewItem">
     <va-card :bordered="false" stripe>
       <va-card-title>Input Data Capaian Pembelajaran</va-card-title>
       <va-card-content>
@@ -140,7 +176,7 @@ export default defineComponent({
           <div class="modal-container">
             <div>
               <va-input
-                v-model="value"
+                v-model="createdItem.name"
                 placeholder="Nama Penyusun Capaian Pembelajaran"
                 label="Nama Penyusun"
                 preset="bordered"
@@ -148,11 +184,29 @@ export default defineComponent({
               />
             </div>
             <div style="margin-top: 10px">
-              <va-select
-                v-model="value"
-                :options="options"
+              <va-input
+                v-model="createdItem.mapel"
                 label="Mata Pelajaran"
-                placeholder="Pilih Mata Pelajaran"
+                placeholder="Mata Pelajaran"
+                preset="bordered"
+                style="width: 100%"
+              />
+            </div>
+            <div style="margin-top: 10px">
+              <va-select
+                v-model.number="createdItem.kelas"
+                :options="options"
+                label="Kelas"
+                placeholder="Pilih Kelas"
+                preset="bordered"
+                style="width: 100%"
+              />
+            </div>
+            <div style="margin-top: 10px">
+              <va-input
+                v-model.number="createdItem.tahun"
+                label="Tahun Ajaran"
+                placeholder="Tahun Ajar"
                 preset="bordered"
                 style="width: 100%"
               />
@@ -164,7 +218,7 @@ export default defineComponent({
               style="margin-right: 10px; width: 100%"
             >
               <va-textarea
-                v-model="value"
+                v-model="createdItem.judul_elemen"
                 label="Judul Elemen"
                 placeholder="Judul mengenai elemen pemahaman suatu mata pelajaran"
                 preset="bordered"
@@ -175,7 +229,7 @@ export default defineComponent({
               style="margin-left: 10px; width: 100%"
             >
               <va-textarea
-                v-model="value"
+                v-model="createdItem.ket_elemen"
                 label="Keterangan Elemen"
                 placeholder="Menjelaskan inti dari judul elemen tersebut"
                 preset="bordered"
@@ -188,7 +242,7 @@ export default defineComponent({
               style="margin-right: 10px; width: 100%"
             >
               <va-textarea
-                v-model="value"
+                v-model="createdItem.ket_proses_mengamati"
                 label="Keterangan Proses Mengamati"
                 placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
                 preset="bordered"
@@ -199,7 +253,7 @@ export default defineComponent({
               style="margin-left: 10px; width: 100%"
             >
               <va-textarea
-                v-model="value"
+                v-model="createdItem.ket_proses_mempertanyakan"
                 label="Keterangan Proses Mempertanyakan"
                 placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
                 preset="bordered"
@@ -212,7 +266,7 @@ export default defineComponent({
               style="margin-right: 10px; width: 100%"
             >
               <va-textarea
-                v-model="value"
+                v-model="createdItem.ket_proses_merencanakan"
                 label="Keterangan Proses Merencanakan"
                 placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
                 preset="bordered"
@@ -223,7 +277,7 @@ export default defineComponent({
               style="margin-left: 10px; width: 100%"
             >
               <va-textarea
-                v-model="value"
+                v-model="createdItem.ket_proses_memproses"
                 label="Keterangan Proses Memproses"
                 placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
                 preset="bordered"
@@ -236,7 +290,7 @@ export default defineComponent({
               style="margin-right: 10px; width: 100%"
             >
               <va-textarea
-                v-model="value"
+                v-model="createdItem.ket_proses_mengevaluasi"
                 label="Keterangan Proses Mengevaluasi"
                 placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajarann"
                 preset="bordered"
@@ -247,7 +301,7 @@ export default defineComponent({
               style="margin-left: 10px; width: 100%"
             >
               <va-textarea
-                v-model="value"
+                v-model="createdItem.ket_proses_mengkomunikasikan"
                 label="Keterangan Proses Mengkomunikasikan"
                 placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
                 preset="bordered"
@@ -271,7 +325,7 @@ export default defineComponent({
     </va-card>
   </va-modal>
   <div class="table-container">
-    <va-data-table
+    <vaDataTable
       :items="items"
       :columns="columns"
       :striped="isTableStriped"
@@ -280,8 +334,22 @@ export default defineComponent({
       selectable
       :animated="animated"
       :delay="500"
-      :loading="loading"
     >
+      <template #cell(actions)>
+        <div class="action-buttons">
+          <va-button preset="plain" icon="remove_red_eye" @click="" />
+          <va-button
+            preset="plain"
+            icon="edit"
+            @click="openModalToEditItemById(rowIndex)"
+          />
+          <va-button
+            preset="plain"
+            icon="delete"
+            @click="deleteItemById(rowIndex)"
+          />
+        </div>
+      </template>
       <template #bodyAppend>
         <tr>
           <td colspan="6">
@@ -296,13 +364,19 @@ export default defineComponent({
       <template #bodyCellCheckbox="{ value }">
         <input type="checkbox" v-model="selectedRows" :value="value" />
       </template>
-    </va-data-table>
+    </vaDataTable>
   </div>
 </template>
 
 <style>
 .table-container {
   border: solid black;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  /* Adjust the gap to your preference */
 }
 
 .pagination-container {
