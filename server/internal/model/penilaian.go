@@ -5,7 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type Prp struct {
+type Penilaian struct {
 	gorm.Model
 	ID                  uuid.UUID `gorm:"type:uuid;primary_key"`
 	AsesemenNonKognitif string

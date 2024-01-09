@@ -50,7 +50,7 @@ func ConnectDB() error {
 		&model.Capaian{},
 		&model.AlurTP{},
 		&model.ModulAjar{},
-		&model.Prp{},
+		&model.Penilaian{},
 		&model.Soal{},
 		&model.BankSoal{},
 	)
