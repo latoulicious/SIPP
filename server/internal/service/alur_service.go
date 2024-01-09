@@ -11,7 +11,9 @@ type AlurService struct {
 }
 
 func NewAlurService(alurRepository *repository.AlurRepository) *AlurService {
-	return &AlurService{AlurRepository: alurRepository}
+	return &AlurService{
+		AlurRepository: alurRepository,
+	}
 }
 
 func (service *AlurService) GetAlur() ([]model.AlurTP, error) {
