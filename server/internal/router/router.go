@@ -20,7 +20,9 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 
 	api := app.Group("/api", logger.New())
 
-	// Initialize repositories and services
+	// Initialize services , repositories and handlers
+
+	// Core Usage
 	userRepository := repository.NewUserRepository(database.DB)
 	userService := service.NewUserService(userRepository)
 	userHandler := handler.NewUserHandler(userService)
@@ -33,14 +35,34 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	tahunRepository := repository.NewTahunRepository(database.DB)
 	tahunService := service.NewTahunService(tahunRepository)
 	tahunHandler := handler.NewTahunHandler(tahunService)
+
+	// General Usage
 	capaianRepository := repository.NewCapaianRepository(database.DB)
 	capaianService := service.NewCapaianService(capaianRepository)
 	capaianHandler := handler.NewCapaianHandler(capaianService)
+	alurRepository := repository.NewAlurRepository(database.DB)
+	alurService := service.NewAlurService(alurRepository)
+	alurHandler := handler.NewAlurHandler(alurService)
+	modulRepository := repository.NewModulRepository(database.DB)
+	modulService := service.NewModulService(modulRepository)
+	modulHandler := handler.NewModulHandler(modulService)
+	penilaianRepository := repository.NewPenilaianRepository(database.DB)
+	penilaianService := service.NewPenilaianService(penilaianRepository)
+	penilaianHandler := handler.NewPenilaianHandler(penilaianService)
+	soalRepository := repository.NewSoalRepository(database.DB)
+	soalService := service.NewSoalService(soalRepository)
+	soalHandler := handler.NewSoalHandler(soalService)
+	itemRepository := repository.NewItemRepository(database.DB)
+	itemService := service.NewItemService(itemRepository)
+	itemHandler := handler.NewItemHandler(itemService)
+	bankRepository := repository.NewBankRepository(database.DB)
+	bankService := service.NewBankService(bankRepository)
+	bankHandler := handler.NewBankHandler(bankService)
 
 	// Use UserService for AuthHandler
 	authHandler := handler.NewAuthHandler(userService)
 
-	// Core routess
+	// Core Usage routes
 
 	// User routes with authentication and RBAC middleware
 	userRoutes := api.Group("/user")
@@ -92,6 +114,54 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	capaianRoutes.Post("/", capaianHandler.CreateCapaian)
 	capaianRoutes.Put("/:id", capaianHandler.UpdateCapaian)
 	capaianRoutes.Delete("/:id", capaianHandler.DeleteCapaian)
+
+	// Alur routes
+	alurRoutes := api.Group("/alur")
+	alurRoutes.Get("/", alurHandler.GetAlur)
+	alurRoutes.Get("/:id", alurHandler.GetAlurByID)
+	alurRoutes.Post("/", alurHandler.CreateAlur)
+	alurRoutes.Put("/:id", alurHandler.UpdateAlur)
+	alurRoutes.Delete("/:id", alurHandler.DeleteAlur)
+
+	// Modul routes
+	modulRoutes := api.Group("/modul")
+	modulRoutes.Get("/", modulHandler.GetModul)
+	modulRoutes.Get("/:id", modulHandler.GetModulByID)
+	modulRoutes.Post("/", modulHandler.CreateModul)
+	modulRoutes.Put("/:id", modulHandler.UpdateModul)
+	modulRoutes.Delete("/:id", modulHandler.DeleteModul)
+
+	// Penilaian routes
+	penilaianRoutes := api.Group("/penilaian")
+	penilaianRoutes.Get("/", penilaianHandler.GetPenilaian)
+	penilaianRoutes.Get("/:id", penilaianHandler.GetPenilaianByID)
+	penilaianRoutes.Post("/", penilaianHandler.CreatePenilaian)
+	penilaianRoutes.Put("/:id", penilaianHandler.UpdatePenilaian)
+	penilaianRoutes.Delete("/:id", penilaianHandler.DeletePenilaian)
+
+	// Soal routes
+	soalRoutes := api.Group("/soal")
+	soalRoutes.Get("/", soalHandler.GetSoal)
+	soalRoutes.Get("/:id", soalHandler.GetSoalByID)
+	soalRoutes.Post("/", soalHandler.CreateSoal)
+	soalRoutes.Put("/:id", soalHandler.UpdateSoal)
+	soalRoutes.Delete("/:id", soalHandler.DeleteSoal)
+
+	// ItemSoal routes
+	itemRoutes := api.Group("/item")
+	itemRoutes.Get("/", itemHandler.GetItem)
+	itemRoutes.Get("/:id", itemHandler.GetItemByID)
+	itemRoutes.Post("/", itemHandler.CreateItem)
+	itemRoutes.Put("/:id", itemHandler.UpdateItem)
+	itemRoutes.Delete("/:id", itemHandler.DeleteItem)
+
+	// BankSoal routes
+	bankRoutes := api.Group("/bank")
+	bankRoutes.Get("/", bankHandler.GetBank)
+	bankRoutes.Get("/:id", bankHandler.GetBankByID)
+	bankRoutes.Post("/", bankHandler.CreateBank)
+	bankRoutes.Put("/:id", bankHandler.UpdateBank)
+	bankRoutes.Delete("/:id", bankHandler.DeleteBank)
 
 	// misc routes
 	app.Get("/api/get-jwt-secret", func(c *fiber.Ctx) error {
