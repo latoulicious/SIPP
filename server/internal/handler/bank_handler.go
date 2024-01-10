@@ -10,17 +10,17 @@ import (
 )
 
 type BankHandler struct {
-	bankService *service.BankService
+	BankService *service.BankService
 }
 
 func NewBankHandler(bankService *service.BankService) *BankHandler {
 	return &BankHandler{
-		bankService: bankService,
+		BankService: bankService,
 	}
 }
 
 func (handler *BankHandler) GetBank(c *fiber.Ctx) error {
-	bank, err := handler.bankService.GetBank()
+	bank, err := handler.BankService.GetBank()
 
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting bank", "data": err})
@@ -35,7 +35,7 @@ func (handler *BankHandler) GetBankByID(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Invalid UUID", "data": nil})
 	}
 
-	bank, err := handler.bankService.GetBankByID(bankID)
+	bank, err := handler.BankService.GetBankByID(bankID)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting bank", "data": err})
 	}
@@ -56,7 +56,7 @@ func (handler *BankHandler) CreateBank(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Review your input", "data": err})
 	}
 
-	err = handler.bankService.CreateBank(&bank)
+	err = handler.BankService.CreateBank(&bank)
 	if err != nil {
 		// Log creation error for debugging purposes
 		log.Printf("Error creating bank: %v\n", err)
@@ -73,7 +73,7 @@ func (handler *BankHandler) UpdateBank(c *fiber.Ctx) error {
 	}
 
 	// Retrieve the existing Bank by ID
-	bank, err := handler.bankService.GetBankByID(bankID)
+	bank, err := handler.BankService.GetBankByID(bankID)
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Bank not found", "data": nil})
 	}
@@ -85,7 +85,7 @@ func (handler *BankHandler) UpdateBank(c *fiber.Ctx) error {
 	}
 
 	// Update the Bank in the database
-	err = handler.bankService.UpdateBank(bank)
+	err = handler.BankService.UpdateBank(bank)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Couldn't update bank", "data": err})
 	}
@@ -101,7 +101,7 @@ func (handler *BankHandler) DeleteBank(c *fiber.Ctx) error {
 	}
 
 	// Delete the Bank from the database
-	err = handler.bankService.DeleteBank(bankID)
+	err = handler.BankService.DeleteBank(bankID)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Couldn't delete bank", "data": err})
 	}

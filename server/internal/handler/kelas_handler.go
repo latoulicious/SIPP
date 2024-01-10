@@ -21,7 +21,7 @@ func (handler *KelasHandler) GetKelas(c *fiber.Ctx) error {
 	kelas, err := handler.KelasService.GetKelas()
 
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting users", "data": err})
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting kelas", "data": err})
 	}
 
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Kelas retrieved successfully", "data": kelas})

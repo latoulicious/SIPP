@@ -28,12 +28,12 @@ func (repository *MapelRepository) GetMapel() ([]model.Mapel, error) {
 func (repository *MapelRepository) GetMapelByID(mapelID uuid.UUID) (*model.Mapel, error) {
 	var mapel model.Mapel
 	if err := repository.DB.First(&mapel, "id = ?", mapelID).Error; err != nil {
-		// Log an error if user retrieval fails
+		// Log an error if mapel retrieval fails
 		log.Printf("Error fetching mapel by ID %s: %s\n", mapelID.String(), err.Error())
 		return nil, err
 	}
 
-	// Log successful user retrieval
+	// Log successful mapel retrieval
 	if os.Getenv("ENVIRONMENT") == "development" {
 		log.Printf("Mapel fetched by ID %s:", mapelID.String())
 	}

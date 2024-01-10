@@ -7,29 +7,37 @@ import (
 )
 
 type MapelService struct {
-	mapelRepository *repository.MapelRepository
+	MapelRepository *repository.MapelRepository
 }
 
+// NewMapelService creates a new instance of MapelService
 func NewMapelService(mapelRepository *repository.MapelRepository) *MapelService {
-	return &MapelService{mapelRepository: mapelRepository}
+	return &MapelService{
+		MapelRepository: mapelRepository,
+	}
 }
 
+// GetMapel retrieves a list of mapel
 func (service *MapelService) GetMapel() ([]model.Mapel, error) {
-	return service.mapelRepository.GetMapel()
+	return service.MapelRepository.GetMapel()
 }
 
+// GetMapelByID retrieves a mapel by ID
 func (service *MapelService) GetMapelByID(id uuid.UUID) (*model.Mapel, error) {
-	return service.mapelRepository.GetMapelByID(id)
+	return service.MapelRepository.GetMapelByID(id)
 }
 
+// CreateMapel creates a new mapel
 func (service *MapelService) CreateMapel(mapel *model.Mapel) error {
-	return service.mapelRepository.CreateMapel(mapel)
+	return service.MapelRepository.CreateMapel(mapel)
 }
 
+// UpdateMapel updates an existing mapel
 func (service *MapelService) UpdateMapel(id uuid.UUID, mapel *model.Mapel) error {
-	return service.mapelRepository.UpdateMapel(id, mapel)
+	return service.MapelRepository.UpdateMapel(id, mapel)
 }
 
+// DeleteMapel deletes a mapel by ID
 func (service *MapelService) DeleteMapel(id uuid.UUID) error {
-	return service.mapelRepository.DeleteMapel(id)
+	return service.MapelRepository.DeleteMapel(id)
 }

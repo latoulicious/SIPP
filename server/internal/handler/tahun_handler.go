@@ -20,7 +20,7 @@ func NewTahunHandler(tahunService *service.TahunService) *TahunHandler {
 func (handler *TahunHandler) GetTahun(c *fiber.Ctx) error {
 	tahun, err := handler.TahunService.GetTahun()
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting users", "data": err})
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting tahun", "data": err})
 	}
 
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Tahun retrieved successfully", "data": tahun})

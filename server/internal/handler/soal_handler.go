@@ -10,17 +10,17 @@ import (
 )
 
 type SoalHandler struct {
-	soalService *service.SoalService
+	SoalService *service.SoalService
 }
 
 func NewSoalHandler(soalService *service.SoalService) *SoalHandler {
 	return &SoalHandler{
-		soalService: soalService,
+		SoalService: soalService,
 	}
 }
 
 func (handler *SoalHandler) GetSoal(c *fiber.Ctx) error {
-	soal, err := handler.soalService.GetSoal()
+	soal, err := handler.SoalService.GetSoal()
 
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting soal", "data": err})
@@ -35,7 +35,7 @@ func (handler *SoalHandler) GetSoalByID(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Invalid UUID", "data": nil})
 	}
 
-	soal, err := handler.soalService.GetSoalByID(soalID)
+	soal, err := handler.SoalService.GetSoalByID(soalID)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting soal", "data": err})
 	}
@@ -56,7 +56,7 @@ func (handler *SoalHandler) CreateSoal(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Review your input", "data": err})
 	}
 
-	err = handler.soalService.CreateSoal(soal)
+	err = handler.SoalService.CreateSoal(soal)
 	if err != nil {
 		// Log creation error for debugging purposes
 		log.Printf("Error creating soal: %v\n", err)
@@ -73,7 +73,7 @@ func (handler *SoalHandler) UpdateSoal(c *fiber.Ctx) error {
 	}
 
 	// Retrieve the existing Soal by ID
-	soal, err := handler.soalService.GetSoalByID(soalID)
+	soal, err := handler.SoalService.GetSoalByID(soalID)
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Soal not found", "data": nil})
 	}
@@ -85,7 +85,7 @@ func (handler *SoalHandler) UpdateSoal(c *fiber.Ctx) error {
 	}
 
 	// Update the Soal in the database
-	err = handler.soalService.UpdateSoal(soal)
+	err = handler.SoalService.UpdateSoal(soal)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Couldn't update soal", "data": err})
 	}
@@ -101,7 +101,7 @@ func (handler *SoalHandler) DeleteSoal(c *fiber.Ctx) error {
 	}
 
 	// Delete the Soal from the database
-	err = handler.soalService.DeleteSoal(soalID)
+	err = handler.SoalService.DeleteSoal(soalID)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Couldn't delete soal", "data": err})
 	}

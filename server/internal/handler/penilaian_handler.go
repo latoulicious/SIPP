@@ -14,7 +14,9 @@ type PenilaianHandler struct {
 }
 
 func NewPenilaianHandler(penilaianService *service.PenilaianService) *PenilaianHandler {
-	return &PenilaianHandler{PenilaianService: penilaianService}
+	return &PenilaianHandler{
+		PenilaianService: penilaianService,
+	}
 }
 
 func (handler *PenilaianHandler) GetPenilaian(c *fiber.Ctx) error {
