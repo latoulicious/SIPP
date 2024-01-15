@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import TableAsesmen from "@/components/core/TableAsesmen.vue";
+import TablePenilaian from "@/components/core/TablePenilaian.vue";
 </script>
 
 <template>
   <CorePageLayout>
     <va-card stripe stripe-color="danger">
-      <va-card-title>Data Asesmen</va-card-title>
+      <va-card-title>Data Penilaian Ranah Pengetahuan</va-card-title>
       <va-card-content>
-        <TableAsesmen />
+        <TablePenilaian />
       </va-card-content>
     </va-card>
   </CorePageLayout>

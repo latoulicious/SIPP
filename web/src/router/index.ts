@@ -34,9 +34,9 @@ const router = createRouter({
           component: () => import("@/views/core/Modul.vue"),
         },
         {
-          path: "/asesmen",
-          name: "asesmen",
-          component: () => import("@/views/core/Asesmen.vue"),
+          path: "/penilaian",
+          name: "penilaian",
+          component: () => import("@/views/core/Penilaian.vue"),
         },
         {
           path: "/soal",

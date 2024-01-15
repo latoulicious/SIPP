@@ -69,11 +69,11 @@ function decodeJwt(jwtToken: string) {
         </VaSidebarItemContent>
       </VaSidebarItem>
     </router-link>
-    <router-link to="/asesmen">
+    <router-link to="/penilaian">
       <VaSidebarItem>
         <VaSidebarItemContent>
-          <VaIcon name="assignment" />
-          <VaSidebarItemTitle>Asesmen</VaSidebarItemTitle>
+          <VaIcon name="assessment" />
+          <VaSidebarItemTitle>Penilaian Ranah Pengetahuan</VaSidebarItemTitle>
         </VaSidebarItemContent>
       </VaSidebarItem>
     </router-link>
