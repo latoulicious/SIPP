@@ -107,7 +107,7 @@ function decodeJwt(jwtToken: string) {
         </template>
         <template #body>
           <VaSidebarItem>
-            <router-link v-show="showManagement" to="/notfound">
+            <router-link v-show="showManagement" to="/kelas">
               <VaSidebarItem>
                 <VaSidebarItemContent>
                   <VaIcon name="business" />
@@ -115,7 +115,7 @@ function decodeJwt(jwtToken: string) {
                 </VaSidebarItemContent>
               </VaSidebarItem>
             </router-link>
-            <router-link v-show="showManagement" to="/notfound">
+            <router-link v-show="showManagement" to="/mapel">
               <VaSidebarItem>
                 <VaSidebarItemContent>
                   <VaIcon name="library_books" />
@@ -123,7 +123,7 @@ function decodeJwt(jwtToken: string) {
                 </VaSidebarItemContent>
               </VaSidebarItem>
             </router-link>
-            <router-link v-show="showManagement" to="/notfound">
+            <router-link v-show="showManagement" to="/tahun">
               <VaSidebarItem>
                 <VaSidebarItemContent>
                   <VaIcon name="date_range" />

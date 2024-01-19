@@ -52,19 +52,19 @@ const router = createRouter({
         {
           path: "/kelas",
           name: "kelas",
-          component: () => import("@/views/others/PageNotFound.vue"),
+          component: () => import("@/views/core/Kelas.vue"),
           beforeEnter: requireAuth,
         },
         {
           path: "/mapel",
           name: "mapel",
-          component: () => import("@/views/others/PageNotFound.vue"),
+          component: () => import("@/views/core/Mapel.vue"),
           beforeEnter: requireAuth,
         },
         {
           path: "/tahun",
           name: "tahun",
-          component: () => import("@/views/others/PageNotFound.vue"),
+          component: () => import("@/views/core/Tahun.vue"),
           beforeEnter: requireAuth,
         },
         {
