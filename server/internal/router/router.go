@@ -161,6 +161,13 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	bankRoutes.Put("/:id", bankHandler.UpdateBank)
 	bankRoutes.Delete("/:id", bankHandler.DeleteBank)
 
+	// Public Route
+	publicRoutes := api.Group("/public")
+	publicRoutes.Get("/user", userHandler.GetAllUsersPublic)
+	publicRoutes.Get("/tahun", tahunHandler.GetTahunPublic)
+	publicRoutes.Get("/kelas", kelasHandler.GetKelasPublic)
+	publicRoutes.Get("/mapel", mapelHandler.GetMapelPublic)
+
 	// misc routes
 	app.Get("/api/get-jwt-secret", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"jwtSecret": config.JwtSecret})

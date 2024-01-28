@@ -32,6 +32,12 @@ func (service *UserService) GetUserByID(userID uuid.UUID) (*model.Users, error) 
 	return service.UserRepository.GetUserByID(userID)
 }
 
+// GetAllUsers retrieves all users
+func (service *UserService) GetUsersPublic() ([]model.Users, error) {
+	// Implement logic to fetch all users without requiring JWT authentication
+	return service.UserRepository.GetUsersPublic()
+}
+
 // CreateUser creates a new user
 func (service *UserService) CreateUser(user *model.Users) error {
 	return service.UserRepository.CreateUser(user)

@@ -40,6 +40,15 @@ func (repository *KelasRepository) GetKelasByID(kelasID uuid.UUID) (*model.Kelas
 	return &kelas, nil
 }
 
+func (repository *KelasRepository) GetKelasPublic() ([]model.Kelas, error) {
+	// Implement logic to fetch all kelas without requiring JWT authentication
+	var kelas []model.Kelas
+	if err := repository.DB.Find(&kelas).Error; err != nil {
+		return nil, err
+	}
+	return kelas, nil
+}
+
 func (repository *KelasRepository) CreateKelas(kelas *model.Kelas) error {
 	return repository.DB.Create(kelas).Error
 }

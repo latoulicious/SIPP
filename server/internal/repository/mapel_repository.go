@@ -40,6 +40,15 @@ func (repository *MapelRepository) GetMapelByID(mapelID uuid.UUID) (*model.Mapel
 	return &mapel, nil
 }
 
+func (repository *MapelRepository) GetMapelPublic() ([]model.Mapel, error) {
+	// Implement logic to fetch all mapel without requiring JWT authentication
+	var mapel []model.Mapel
+	if err := repository.DB.Find(&mapel).Error; err != nil {
+		return nil, err
+	}
+	return mapel, nil
+}
+
 func (repository *MapelRepository) CreateMapel(mapel *model.Mapel) error {
 	return repository.DB.Create(mapel).Error
 }

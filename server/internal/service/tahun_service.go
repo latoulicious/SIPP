@@ -27,6 +27,12 @@ func (service *TahunService) GetTahunByID(tahunID uuid.UUID) (*model.TahunAjar, 
 	return service.TahunRepository.GetTahunByID(tahunID)
 }
 
+// GetTahun Public Endpoint
+func (service *TahunService) GetTahunPublic() ([]model.TahunAjar, error) {
+	// Implement logic to fetch all tahun without requiring JWT authentication
+	return service.TahunRepository.GetTahunPublic()
+}
+
 // CreateTahun creates a new tahun
 func (service *TahunService) CreateTahun(tahun *model.TahunAjar) error {
 	return service.TahunRepository.CreateTahun(tahun)

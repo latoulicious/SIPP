@@ -40,6 +40,15 @@ func (repository *TahunRepository) GetTahunByID(tahunID uuid.UUID) (*model.Tahun
 	return &tahun, nil
 }
 
+func (repository *TahunRepository) GetTahunPublic() ([]model.TahunAjar, error) {
+	// Implement logic to fetch all tahun without requiring JWT authentication
+	var tahun []model.TahunAjar
+	if err := repository.DB.Find(&tahun).Error; err != nil {
+		return nil, err
+	}
+	return tahun, nil
+}
+
 func (repository *TahunRepository) CreateTahun(tahun *model.TahunAjar) error {
 	return repository.DB.Create(tahun).Error
 }

@@ -44,10 +44,12 @@ func (handler *CapaianHandler) GetCapaianByID(c *fiber.Ctx) error {
 }
 
 func (handler *CapaianHandler) CreateCapaian(c *fiber.Ctx) error {
+
 	capaian := new(model.Capaian)
 
 	// Log request body for debugging purposes
 	log.Printf("Request Body: %+v\n", capaian)
+	log.Printf("Received Capaian object: %+v\n", capaian)
 
 	err := c.BodyParser(capaian)
 	if err != nil {

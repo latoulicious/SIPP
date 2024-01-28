@@ -27,6 +27,12 @@ func (service *MapelService) GetMapelByID(id uuid.UUID) (*model.Mapel, error) {
 	return service.MapelRepository.GetMapelByID(id)
 }
 
+// Public Endpoint
+func (service *MapelService) GetMapelPublic() ([]model.Mapel, error) {
+	// Implement logic to fetch all mapel without requiring JWT authentication
+	return service.MapelRepository.GetMapelPublic()
+}
+
 // CreateMapel creates a new mapel
 func (service *MapelService) CreateMapel(mapel *model.Mapel) error {
 	return service.MapelRepository.CreateMapel(mapel)

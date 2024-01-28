@@ -37,7 +37,8 @@ func (service *CapaianService) UpdateCapaian(capaian *model.Capaian) error {
 	return service.CapaianRepository.UpdateCapaian(capaian)
 }
 
-// DeleteCapaian deletes an capaian by ID
+// DeleteCapaian deletes a capaian by ID
 func (service *CapaianService) DeleteCapaian(capaianID uuid.UUID) error {
-	return service.CapaianRepository.DeleteCapaian(capaianID)
+	_, err := service.CapaianRepository.DeleteCapaian(capaianID)
+	return err
 }

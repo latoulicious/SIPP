@@ -35,6 +35,16 @@ func (handler *TahunHandler) GetTahunByID(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"status": "success", "message": "Tahun retrieved successfully", "data": tahunID})
 }
 
+func (handler *TahunHandler) GetTahunPublic(c *fiber.Ctx) error {
+	// Implement logic to fetch all tahun without requiring JWT authentication
+	tahun, err := handler.TahunService.GetTahunPublic()
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting tahun", "data": err})
+	}
+
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Tahun retrieved successfully", "data": tahun})
+}
+
 func (handler *TahunHandler) CreateTahun(c *fiber.Ctx) error {
 	tahun := new(model.TahunAjar)
 

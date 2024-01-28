@@ -36,6 +36,16 @@ func (handler *KelasHandler) GetKelasByID(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"status": "success", "message": "Kelas retrieved successfully", "data": kelasID})
 }
 
+func (handler *KelasHandler) GetKelasPublic(c *fiber.Ctx) error {
+	// Implement logic to fetch all kelas without requiring JWT authentication
+	kelas, err := handler.KelasService.GetKelasPublic()
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting kelas", "data": err})
+	}
+
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Kelas retrieved successfully", "data": kelas})
+}
+
 func (handler *KelasHandler) CreateKelas(c *fiber.Ctx) error {
 	kelas := new(model.Kelas)
 

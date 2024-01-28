@@ -41,6 +41,15 @@ func (repository *UserRepository) GetUserByID(userID uuid.UUID) (*model.Users, e
 	return &user, nil
 }
 
+func (repository *UserRepository) GetUsersPublic() ([]model.Users, error) {
+	// Implement logic to fetch all users without requiring JWT authentication
+	var users []model.Users
+	if err := repository.DB.Find(&users).Error; err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
 func (repository *UserRepository) CreateUser(user *model.Users) error {
 	user.ID = uuid.New()
 	hashedPassword, err := HashPassword(user.Password)
