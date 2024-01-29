@@ -1,7 +1,11 @@
 <script>
 import { defineComponent } from "vue";
 import { ref } from "vue";
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
 import axios from "axios";
+
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 const defaultItem = {
   JudulCapaian: "",
@@ -112,9 +116,9 @@ export default defineComponent({
             return Object.values(item).some((value) => {
               const stringValue = String(value).toLowerCase();
               const includesTerm = stringValue.includes(term);
-              console.log(
-                `Term: ${term}, Value: ${stringValue}, Result: ${includesTerm}`,
-              );
+              // console.log(
+              //   `Term: ${term}, Value: ${stringValue}, Result: ${includesTerm}`,
+              // );
               return includesTerm;
             });
           });
@@ -200,7 +204,7 @@ export default defineComponent({
             KetProsesMemproses: item?.ketProsesMemproses || "",
             KetProsesMengevaluasi: item?.ketProsesMengevaluasi || "",
             KetProsesMengkomunikasikan: item?.ketProsesMengkomunikasikan || "",
-            Id: item?.ID || "", // Use 'ID' instead of 'id'
+            ID: item?.ID || "", // Use 'ID' instead of 'id'
           };
         });
         console.log("Capaian items:", this.items);
@@ -229,6 +233,8 @@ export default defineComponent({
         });
 
         console.log("Server Response:", response.data);
+        this.resetCreatedItem();
+        this.refreshPage();
       } catch (error) {
         console.error("Error adding new item:", error);
       }
@@ -242,6 +248,10 @@ export default defineComponent({
         /// Change 'ID' to 'id'
         editedData.id = editedData.ID;
         delete editedData.ID;
+        delete editedData.User;
+        delete editedData.Mapel;
+        delete editedData.Kelas;
+        delete editedData.TahunAjar;
 
         console.log("Edited item:", this.editedItem);
         console.log("Edited item ID:", this.editedItem.id);
@@ -257,12 +267,17 @@ export default defineComponent({
             (item) => item.id === this.editedItem.id,
           );
           if (itemIndex !== -1) {
-            this.items[itemIndex] = { ...editedData, id: this.editedItem.id };
+            this.$set(this.items, itemIndex, {
+              ...editedData,
+              id: this.editedItem.id,
+            });
           }
+
           console.log("Item updated successfully");
         } else {
           console.error("Failed to update item", response.data);
         }
+        this.refreshPage();
       } catch (error) {
         console.error("Error editing item:", error);
       } finally {
@@ -288,8 +303,9 @@ export default defineComponent({
 
           // Remove the item from the items array
           this.items = this.items.filter(
-            (item) => item.id !== deletedCapaian.id,
+            (item) => item.ID !== deletedCapaian.ID,
           );
+          this.refreshPage();
         } catch (error) {
           console.error("Error deleting item:", error);
         }
@@ -305,18 +321,23 @@ export default defineComponent({
         .then((response) => {
           const data = response.data.data;
           if (data) {
-            // Include only the fields you want from the server response
             this.detailItem = {
-              Elemen: data.Elemen,
-              LingkupMateri: data.LingkupMateri,
-              TujuanPembelajaran: data.TujuanPembelajaran,
-              KodeTP: data.KodeTP,
-              AlokasiWaktu: data.AlokasiWaktu,
-              SumberBelajar: data.SumberBelajar,
-              ProjekPPancasila: data.ProjekPPancasila,
-              // Add more fields as needed
-              id: selectedItemId,
+              JudulCapaian: data.judulCapaian || "",
+              JudulElemen: data.judulElemen || "",
+              KetElemen: data.ketElemen || "",
+              KetProsesMengamati: data.ketProsesMengamati || "",
+              KetProsesMempertanyakan: data.ketProsesMempertanyakan || "",
+              KetProsesMerencanakan: data.ketProsesMerencanakan || "",
+              KetProsesMemproses: data.ketProsesMemproses || "",
+              KetProsesMengevaluasi: data.ketProsesMengevaluasi || "",
+              KetProsesMengkomunikasikan: data.ketProsesMengkomunikasikan || "",
+              // id: selectedItemId,
+              // User: data.User ? data.User.Name || "" : "",
+              // Mapel: data.Mapel ? data.Mapel.Mapel || "" : "",
+              // Kelas: data.Kelas ? data.Kelas.Kelas || "" : "",
+              // TahunAjar: data.TahunAjar ? data.TahunAjar.Tahun || "" : "",
             };
+
             this.detailModalVisible = true;
             console.log("Detail modal data:", this.detailItem);
           } else {
@@ -326,6 +347,118 @@ export default defineComponent({
         .catch((error) => {
           console.error("Error fetching data for the detail modal:", error);
         });
+    },
+
+    async printRow(rowIndex) {
+      const selectedItemId = this.filteredItems[rowIndex].ID;
+
+      try {
+        // Fetch the necessary data directly from the server
+        const response = await axios.get(
+          `http://localhost:3000/api/capaian/${selectedItemId}`,
+        );
+        const data = response.data.data;
+
+        // Log all properties of the data object
+        console.log("Data properties:", Object.keys(data));
+
+        if (data) {
+          console.log("Printing row with ID:", selectedItemId);
+
+          const tableBody = [
+            [
+              { text: "Judul Capaian", fontSize: 10, bold: true },
+              { text: "Judul Elemen", fontSize: 10, bold: true },
+              { text: "Keterangan Elemen", fontSize: 10, bold: true },
+              { text: "Keterangan Proses Mengamati", fontSize: 10, bold: true },
+              {
+                text: "Keterangan Proses Mempertanyakan",
+                fontSize: 10,
+                bold: true,
+              },
+              {
+                text: "Keterangan Proses Merencanakan",
+                fontSize: 10,
+                bold: true,
+              },
+              { text: "Keterangan Proses Memproses", fontSize: 10, bold: true },
+              {
+                text: "Keterangan Proses Mengevaluasi",
+                fontSize: 10,
+                bold: true,
+              },
+              {
+                text: "Keterangan Proses Mengkomunikasikan",
+                fontSize: 10,
+                bold: true,
+              },
+            ],
+            [
+              "judulCapaian" in data ? data.judulCapaian : "N/A",
+              "judulElemen" in data ? data.judulElemen : "N/A",
+              "ketElemen" in data ? data.ketElemen : "N/A",
+              "ketProsesMengamati" in data ? data.ketProsesMengamati : "N/A",
+              "ketProsesMempertanyakan" in data
+                ? data.ketProsesMempertanyakan
+                : "N/A",
+              "ketProsesMerencanakan" in data
+                ? data.ketProsesMerencanakan
+                : "N/A",
+              "ketProsesMemproses" in data ? data.ketProsesMemproses : "N/A",
+              "ketProsesMengevaluasi" in data
+                ? data.ketProsesMengevaluasi
+                : "N/A",
+              "ketProsesMengkomunikasikan" in data
+                ? data.ketProsesMengkomunikasikan
+                : "N/A",
+            ],
+          ];
+
+          console.log("Table Body:", tableBody);
+
+          const docDefinition = {
+            footer: function (currentPage, pageCount) {
+              return [
+                {
+                  text: currentPage.toString() + " of " + pageCount,
+                  alignment: "center",
+                  fontSize: 8,
+                  margin: [10, 10, 10, 0],
+                },
+              ];
+            },
+            content: [
+              {
+                text: "Capaian Pembelajaran",
+                fontSize: 12,
+                bold: true,
+                alignment: "center",
+                margin: [0, 20, 0, 20],
+              },
+              {
+                table: {
+                  headerRows: 1,
+                  widths: Array(tableBody[0].length).fill("auto"),
+                  body: tableBody,
+                },
+                margin: [0, 0, 0, 20],
+              },
+            ],
+            pageSize: "A4",
+            pageMargins: [20, 20, 20, 20],
+            pageOrientation: "landscape",
+          };
+
+          const pdf = pdfMake.createPdf(docDefinition);
+
+          // Open the PDF for printing
+          pdf.open();
+        } else {
+          console.error("No data received from the server");
+        }
+      } catch (error) {
+        console.error("Error fetching data for printing:", error);
+      }
     },
 
     extractOptions(data, labelProperty) {
@@ -343,6 +476,7 @@ export default defineComponent({
     resetEditedItem() {
       this.editedItem = null;
       this.editedItemId = null;
+      this.showModal = false;
     },
 
     resetCreatedItem() {
@@ -366,12 +500,15 @@ export default defineComponent({
       this.detailItem = null;
       this.detailModalVisible = false;
     },
+
+    refreshPage() {
+      // Reload the current page
+      location.reload();
+    },
   },
 
   mounted() {
     this.fetchData();
-    console.log("Component is mounted");
-    console.log("this.items:", this.items);
   },
 });
 </script>
@@ -414,7 +551,7 @@ export default defineComponent({
           <va-button
             preset="plain"
             icon="delete"
-            @click="deleteItemById(filteredItems[rowIndex].id)"
+            @click="deleteItemById(filteredItems[rowIndex].ID)"
           />
         </div>
       </template>
@@ -552,7 +689,8 @@ export default defineComponent({
 <style>
 .action-buttons {
   display: flex;
-  gap: 8px; /* Adjust the gap to your preference */
+  gap: 8px;
+  /* Adjust the gap to your preference */
 }
 
 .va-input {
@@ -565,6 +703,10 @@ export default defineComponent({
 }
 
 .modal-crud {
+  .va-select {
+    display: block;
+    margin-bottom: 10px;
+  }
   .va-textarea {
     width: 100%;
     display: flex;

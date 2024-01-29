@@ -53,7 +53,7 @@ func (repository *CapaianRepository) UpdateCapaian(capaian *model.Capaian) error
 		log.Printf("Error saving capaian: %+v\n", err)
 		return err
 	}
-	return repository.DB.Preload("User").Preload("Mapel").Preload("Kelas").Preload("TahunAjar").First(capaian, "id = ?", capaian.ID).Error
+	return nil
 }
 
 func (repository *CapaianRepository) DeleteCapaian(capaianID uuid.UUID) (*model.Capaian, error) {

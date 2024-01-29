@@ -207,28 +207,6 @@ export default defineComponent({
       }
     },
 
-    resetEditedItem() {
-      this.editedItem = null;
-      this.editedItemId = null;
-    },
-
-    resetCreatedItem() {
-      this.createdItem = { ...defaultItem };
-      this.showModal = false;
-    },
-
-    openModalToEditItemById(id) {
-      this.editedItemId = id;
-      this.editedItem = { ...this.items[id], id: this.items[id].id };
-    },
-
-    toggleAddModal() {
-      this.showModal = !this.showModal;
-      if (!this.showModal) {
-        this.resetCreatedItem();
-      }
-    },
-
     openDetailModal(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
       console.log("Opening detail modal with ID:", selectedItemId);
@@ -259,11 +237,6 @@ export default defineComponent({
         .catch((error) => {
           console.error("Error fetching data for the detail modal:", error);
         });
-    },
-
-    resetDetailItem() {
-      this.detailItem = null;
-      this.detailModalVisible = false;
     },
 
     async printRow(rowIndex) {
@@ -373,6 +346,33 @@ export default defineComponent({
       } catch (error) {
         console.error("Error fetching data for printing:", error);
       }
+    },
+
+    resetEditedItem() {
+      this.editedItem = null;
+      this.editedItemId = null;
+    },
+
+    resetCreatedItem() {
+      this.createdItem = { ...defaultItem };
+      this.showModal = false;
+    },
+
+    openModalToEditItemById(id) {
+      this.editedItemId = id;
+      this.editedItem = { ...this.items[id], id: this.items[id].id };
+    },
+
+    toggleAddModal() {
+      this.showModal = !this.showModal;
+      if (!this.showModal) {
+        this.resetCreatedItem();
+      }
+    },
+
+    resetDetailItem() {
+      this.detailItem = null;
+      this.detailModalVisible = false;
     },
   },
 

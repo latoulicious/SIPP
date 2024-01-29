@@ -72,22 +72,28 @@ func (handler *ModulHandler) UpdateModul(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Invalid UUID", "data": nil})
 	}
 
-	// Retrieve the existing Modul by ID
-	modul, err := handler.ModulService.GetModulByID(modulID)
-	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Modul not found", "data": nil})
-	}
+	modul := model.ModulAjar{}
+	modul.ID = modulID
 
 	// Parse the JSON body into the existing Modul struct
-	err = c.BodyParser(modul)
+	err = c.BodyParser(&modul)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Review your input", "data": err})
 	}
+
+	log.Printf("Updated modul: %+v\n", modul)
+	log.Print(modul.UserID)
 
 	// Update the Modul in the database
 	err = handler.ModulService.UpdateModul(&modul)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Couldn't update modul", "data": err})
+	}
+
+	// Retrieve the existing Capaian by ID
+	modul, err = handler.ModulService.GetModulByID(modulID)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Modul not found", "data": nil})
 	}
 
 	// Return the updated Modul

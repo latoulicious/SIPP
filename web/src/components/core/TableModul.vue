@@ -8,49 +8,53 @@ import axios from "axios";
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 const defaultItem = {
-  Elemen: "", // Change to match the server property name
-  LingkupMateri: "", // Change to match the server property name
-  TujuanPembelajaran: "", // Change to match the server property name
-  KodeTP: "", // Change to match the server property name
-  AlokasiWaktu: "", // Change to match the server property name
-  SumberBelajar: "", // Change to match the server property name
-  ProjekPPancasila: "", // Change to match the server property name
+  User: {}, // Initialize as an empty object
+  Kelas: {}, // Initialize as an empty object
+  TahunAjar: {}, // Initialize as an empty object
+  Sekolah: "",
+  AlokasiWaktu: "",
+  KompetensiAwal: "",
+  ProjekPPancasila: "",
+  SaranaPrasarana: "",
+  TargetPesertaDidik: "",
+  ModelPembelajaran: "",
+  TujuanPembelajaran: "",
+  PemahamanBermakna: "",
+  PertanyaanPemantik: "",
+  KegiatanPembelajaran: "",
+  Refleksi: "",
+  Glosarium: "",
+  DaftarPustaka: "",
 };
 
 const displayNames = {
-  Elemen: "Elemen", // Change to match the server property name
-  LingkupMateri: "Lingkup Materi", // Change to match the server property name
-  TujuanPembelajaran: "Tujuan Pembelajaran", // Change to match the server property name
-  KodeTP: "Kode TP", // Change to match the server property name
-  AlokasiWaktu: "Alokasi Waktu", // Change to match the server property name
-  SumberBelajar: "Sumber Belajar", // Change to match the server property name
-  ProjekPPancasila: "Projek Profile Pancasila", // Change to match the server property name
+  User: "Nama Penyusun",
+  TahunAjar: "Tahun Ajar",
+  Kelas: "Kelas",
+  Sekolah: "Sekolah",
+  AlokasiWaktu: "Alokasi Waktu",
+  KompetensiAwal: "Kompetensi Awal",
+  ProjekPPancasila: "Projek P Pancasila",
+  SaranaPrasarana: "Sarana Prasarana",
+  TargetPesertaDidik: "Target Peserta Didik",
+  ModelPembelajaran: "Model Pembelajaran",
+  TujuanPembelajaran: "Tujuan Pembelajaran",
+  PemahamanBermakna: "Pemahaman Bermakna",
+  PertanyaanPemantik: "Pertanyaan Pemantik",
+  KegiatanPembelajaran: "Kegiatan Pembelajaran",
+  Refleksi: "Refleksi",
+  Glosarium: "Glosarium",
+  DaftarPustaka: "Daftar Pustaka",
 };
-
-function imageFileToDataUrl(imageFile) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onload = function (event) {
-      resolve(event.target.result);
-    };
-
-    reader.onerror = function (error) {
-      reject(error);
-    };
-
-    reader.readAsDataURL(imageFile);
-  });
-}
 
 export default defineComponent({
   data() {
     const columns = [
-      { key: "KodeTP", sortable: false },
-      { key: "Elemen", sortable: false },
-      { key: "LingkupMateri", sortable: false },
-      { key: "AlokasiWaktu", sortable: false },
-      { key: "actions", width: 80 },
+      { key: "User", label: "Nama Penyusun", sortable: false },
+      { key: "Kelas", label: "Kelas", sortable: false },
+      { key: "TahunAjar", label: "Tahun Ajar", sortable: false },
+      { key: "AlokasiWaktu", label: "Alokasi Waktu", sortable: false },
+      { key: "actions", label: "Actions", width: 80 },
     ];
 
     return {
@@ -60,6 +64,25 @@ export default defineComponent({
       createdItem: { ...defaultItem },
       input: ref({ value: "" }),
       items: [],
+      usersOptions: [],
+      kelasOptions: [],
+      tahunAjarOptions: [],
+      textAreaFields: [
+        "Sekolah",
+        "AlokasiWaktu",
+        "KompetensiAwal",
+        "ProjekPPancasila",
+        "SaranaPrasarana",
+        "TargetPesertaDidik",
+        "ModelPembelajaran",
+        "TujuanPembelajaran",
+        "PemahamanBermakna",
+        "PertanyaanPemantik",
+        "KegiatanPembelajaran",
+        "Refleksi",
+        "Glosarium",
+        "DaftarPustaka",
+      ],
       showModal: false,
       viewModalVisible: false,
       detailItem: null,
@@ -124,17 +147,63 @@ export default defineComponent({
   methods: {
     async fetchData() {
       try {
-        const response = await axios.get("http://localhost:3000/api/capaian");
+        const response = await axios.get("http://localhost:3000/api/modul");
+        const userResponse = await axios.get(
+          "http://localhost:3000/api/public/user",
+        );
+        const kelasResponse = await axios.get(
+          "http://localhost:3000/api/public/kelas",
+        );
+        const tahunResponse = await axios.get(
+          "http://localhost:3000/api/public/tahun",
+        );
 
-        if (!response.data.data) {
-          console.error("No data received from the server:", response);
-          return;
-        }
+        // Process the data and update the UI
+        console.log("Response from server (Modul):", response.data);
+        // console.log("Response from server (Users):", userResponse.data);
+        // console.log("Response from server (Kelas):", kelasResponse.data);
+        // console.log("Response from server (Tahun):", tahunResponse.data);
 
-        this.items = response.data.data.map((alur) => ({
-          ...alur,
-          id: alur.ID,
+        // Populate usersOptions, mapelsOptions, kelasOptions, tahunAjarOptions
+        this.usersOptions = this.extractOptions(userResponse.data.data, "Name");
+        // console.log("Users options:", this.usersOptions);
+
+        this.kelasOptions = this.extractOptions(
+          kelasResponse.data.data,
+          "Kelas",
+        );
+        // console.log("Kelas options:", this.kelasOptions);
+
+        this.tahunAjarOptions = this.extractOptions(
+          tahunResponse.data.data,
+          "Tahun",
+        );
+        // console.log("Tahun Ajar options:", this.tahunAjarOptions);
+
+        // Update the items array with Modul data
+        this.items = response.data.data.map((item) => ({
+          ...item,
+          ID: item.ID || "", // Use 'ID' instead of 'id'
+          User: item.User.Name || "",
+          Kelas: item.Kelas.Kelas || "",
+          TahunAjar: item.TahunAjar.Tahun || "",
+          Sekolah: item.sekolah || "",
+          AlokasiWaktu: item.alokasiWaktu || "",
+          KompetensiAwal: item.kompetensiAwal || "",
+          ProjekPPancasila: item.projekPPancasila || "",
+          SaranaPrasarana: item.saranaPrasarana || "",
+          TargetPesertaDidik: item.targetPesertaDidik || "",
+          ModelPembelajaran: item.modelPembelajaran || "",
+          TujuanPembelajaran: item.tujuanPembelajaran || "",
+          PemahamanBermakna: item.pemahamanBermakna || "",
+          PertanyaanPemantik: item.pertanyaanPemantik || "",
+          KegiatanPembelajaran: item.kegiatanPembelajaran || "",
+          Refleksi: item.refleksi || "",
+          Glosarium: item.glosarium || "",
+          DaftarPustaka: item.daftarPustaka || "",
         }));
+
+        console.log("modul Items:", this.items);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -147,22 +216,38 @@ export default defineComponent({
       }
 
       try {
-        const response = await axios.post(
-          "http://localhost:3000/api/capaian",
-          this.createdItem,
-        );
+        console.log("Creating new item with data:", this.createdItem);
 
-        if (!response.data.data) {
-          console.error("No data received from the server:", response);
-          return;
-        }
+        const response = await axios.post("http://localhost:3000/api/modul", {
+          UserID: this.createdItem.UserID.toString(),
+          KelasID: this.createdItem.KelasID.toString(),
+          TahunAjarID: this.createdItem.TahunAjarID.toString(),
+          Sekolah: this.createdItem.Sekolah,
+          AlokasiWaktu: this.createdItem.AlokasiWaktu,
+          KompetensiAwal: this.createdItem.KompetensiAwal,
+          ProjekPPancasila: this.createdItem.ProjekPPancasila,
+          SaranaPrasarana: this.createdItem.SaranaPrasarana,
+          TargetPesertaDidik: this.createdItem.TargetPesertaDidik,
+          ModelPembelajaran: this.createdItem.ModelPembelajaran,
+          TujuanPembelajaran: this.createdItem.TujuanPembelajaran,
+          PemahamanBermakna: this.createdItem.PemahamanBermakna,
+          PertanyaanPemantik: this.createdItem.PertanyaanPemantik,
+          KegiatanPembelajaran: this.createdItem.KegiatanPembelajaran,
+          Refleksi: this.createdItem.Refleksi,
+          Glosarium: this.createdItem.Glosarium,
+          DaftarPustaka: this.createdItem.DaftarPustaka,
+        });
 
         this.items.push({
           ...this.createdItem,
-          id: response.data.data.ID,
+          ID: response.data.data.ID,
         });
 
+        console.log(this.createdItem);
+
+        console.log("Server Response:", response.data);
         this.resetCreatedItem();
+        // this.refreshPage();
       } catch (error) {
         console.error("Error adding new item:", error);
       }
@@ -173,19 +258,42 @@ export default defineComponent({
         // Create a deep copy of the edited item
         const editedData = JSON.parse(JSON.stringify(this.editedItem));
 
+        /// Change 'ID' to 'id'
+        editedData.id = editedData.ID;
+        delete editedData.ID;
+        delete editedData.User;
+        delete editedData.Kelas;
+        delete editedData.TahunAjar;
+
+        // console.log("Edited item:", this.editedItem);
+        // console.log("Edited item ID:", this.editedItem.id);
+
         const response = await axios.put(
-          `http://localhost:3000/api/capaian/${this.editedItem.id}`,
+          `http://localhost:3000/api/modul/${this.editedItem.id}`,
           editedData,
         );
 
-        if (!response.data.data) {
-          console.error("No data received from the server:", response);
-          return;
-        }
+        // Handle the response from the server
+        if (response.status === 200) {
+          // Update the local item with the edited data
+          const itemIndex = this.items.findIndex(
+            (item) => item.id === this.editedItem.id,
+          );
+          if (itemIndex !== -1) {
+            this.$set(this.items, itemIndex, {
+              ...editedData,
+              id: this.editedItem.id,
+            });
+          }
 
-        this.items = this.items.map((item) =>
-          item.id === this.editedItem.id ? { ...item, ...editedData } : item,
-        );
+          this.items = this.items.map((item) =>
+            item.id === this.editedItem.id ? { ...item, ...editedData } : item,
+          );
+
+          console.log("Item updated successfully");
+        } else {
+          console.error("Failed to update item", response.data);
+        }
 
         this.resetEditedItem();
       } catch (error) {
@@ -196,15 +304,207 @@ export default defineComponent({
     async deleteItemById(id) {
       if (window.confirm("Are you sure you want to delete this item?")) {
         try {
-          console.log("Before axios.delete");
-          await axios.delete(`http://localhost:3000/api/capaian/${id}`);
-          console.log("After axios.delete");
+          const response = await axios.delete(
+            `http://localhost:3000/api/modul/${id}`,
+          );
 
-          this.items = this.items.filter((item) => item.id !== id);
+          // Assuming the response includes the deleted Capaian with relationships preloaded
+          const deletedCapaian = response.data.data;
+
+          // Remove the item from the items array
+          this.items = this.items.filter(
+            (item) => item.id !== deletedCapaian.id,
+          );
         } catch (error) {
           console.error("Error deleting item:", error);
         }
       }
+    },
+
+    openDetailModal(rowIndex) {
+      const selectedItemId = this.filteredItems[rowIndex].ID;
+      console.log("Opening detail modal with ID:", selectedItemId);
+
+      axios
+        .get(`http://localhost:3000/api/modul/${selectedItemId}`)
+        .then((response) => {
+          const data = response.data.data;
+          if (data) {
+            this.detailItem = {
+              Sekolah: data.sekolah || "",
+              AlokasiWaktu: data.alokasiWaktu || "",
+              KompetensiAwal: data.kompetensiAwal || "",
+              ProjekPPancasila: data.projekPPancasila || "",
+              SaranaPrasarana: data.saranaPrasarana || "",
+              TargetPesertaDidik: data.targetPesertaDidik || "",
+              ModelPembelajaran: data.modelPembelajaran || "",
+              TujuanPembelajaran: data.tujuanPembelajaran || "",
+              PemahamanBermakna: data.pemahamanBermakna || "",
+              PertanyaanPemantik: data.pertanyaanPemantik || "",
+              KegiatanPembelajaran: data.kegiatanPembelajaran || "",
+              Refleksi: data.refleksi || "",
+              Glosarium: data.glosarium || "",
+              DaftarPustaka: data.daftarPustaka || "",
+              // id: selectedItemId,
+              // User: data.User ? data.User.Name || "" : "",
+              // Mapel: data.Mapel ? data.Mapel.Mapel || "" : "",
+              // Kelas: data.Kelas ? data.Kelas.Kelas || "" : "",
+              // TahunAjar: data.TahunAjar ? data.TahunAjar.Tahun || "" : "",
+            };
+
+            this.detailModalVisible = true;
+            console.log("Detail modal data:", this.detailItem);
+          } else {
+            console.error("No data received from the server");
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching data for the detail modal:", error);
+        });
+    },
+
+    async printRow(rowIndex) {
+      const selectedItemId = this.filteredItems[rowIndex].ID;
+
+      try {
+        // Fetch the necessary data directly from the server
+        const response = await axios.get(
+          `http://localhost:3000/api/modul/${selectedItemId}`,
+        );
+        const data = response.data.data;
+
+        // Log all properties of the data object
+        console.log("Data properties:", Object.keys(data));
+
+        if (data) {
+          console.log("Printing row with ID:", selectedItemId);
+
+          const tableBody = [
+            [
+              { text: "Sekolah", fontSize: 10, bold: true },
+              { text: "Alokasi Waktu", fontSize: 10, bold: true },
+              { text: "Kompetensi Awal", fontSize: 10, bold: true },
+              { text: "Projek P Pancasila", fontSize: 10, bold: true },
+              { text: "Sarana Prasarana", fontSize: 10, bold: true },
+              {
+                text: "Target Peserta Didik",
+                fontSize: 10,
+                bold: true,
+              },
+              { text: "Model Pembelajaran", fontSize: 10, bold: true },
+              {
+                text: "Tujuan Pembelajaran",
+                fontSize: 10,
+                bold: true,
+              },
+              {
+                text: "Pemahaman Bermakna",
+                fontSize: 10,
+                bold: true,
+              },
+              {
+                text: "Pertanyaan Pemantik",
+                fontSize: 10,
+                bold: true,
+              },
+              {
+                text: "Kegiatan Pembelajaran",
+                fontSize: 10,
+                bold: true,
+              },
+              {
+                text: "Refleksi",
+                fontSize: 10,
+                bold: true,
+              },
+              {
+                text: "Glosarium",
+                fontSize: 10,
+                bold: true,
+              },
+              {
+                text: "Daftar Pustaka",
+                fontSize: 10,
+                bold: true,
+              },
+            ],
+            [
+              "sekolah" in data ? data.sekolah : "N/A",
+              "alokasiWaktu" in data ? data.alokasiWaktu : "N/A",
+              "kompetensiAwal" in data ? data.kompetensiAwal : "N/A",
+              "projekPPancasila" in data ? data.projekPPancasila : "N/A",
+              "saranaPrasarana" in data ? data.saranaPrasarana : "N/A",
+              "targetPesertaDidik" in data ? data.targetPesertaDidik : "N/A",
+              "modelPembelajaran" in data ? data.modelPembelajaran : "N/A",
+              "tujuanPembelajaran" in data ? data.tujuanPembelajaran : "N/A",
+              "pemahamanBermakna" in data ? data.pemahamanBermakna : "N/A",
+              "pertanyaanPemantik" in data ? data.pertanyaanPemantik : "N/A",
+              "kegiatanPembelajaran" in data
+                ? data.kegiatanPembelajaran
+                : "N/A",
+              "refleksi" in data ? data.refleksi : "N/A",
+              "glosarium" in data ? data.glosarium : "N/A",
+              "daftarPustaka" in data ? data.daftarPustaka : "N/A",
+            ],
+          ];
+
+          console.log("Table Body:", tableBody);
+
+          const docDefinition = {
+            footer: function (currentPage, pageCount) {
+              return [
+                {
+                  text: currentPage.toString() + " of " + pageCount,
+                  alignment: "center",
+                  fontSize: 8,
+                  margin: [10, 10, 10, 0],
+                },
+              ];
+            },
+            content: [
+              {
+                text: "Capaian Pembelajaran",
+                fontSize: 12,
+                bold: true,
+                alignment: "center",
+                margin: [0, 20, 0, 20],
+              },
+              {
+                table: {
+                  headerRows: 1,
+                  widths: Array(tableBody[0].length).fill("auto"),
+                  body: tableBody,
+                },
+                margin: [0, 0, 0, 20],
+              },
+            ],
+            pageSize: "A4",
+            pageMargins: [20, 20, 20, 20],
+            pageOrientation: "landscape",
+          };
+
+          const pdf = pdfMake.createPdf(docDefinition);
+
+          // Open the PDF for printing
+          pdf.open();
+        } else {
+          console.error("No data received from the server");
+        }
+      } catch (error) {
+        console.error("Error fetching data for printing:", error);
+      }
+    },
+
+    extractOptions(data, labelProperty) {
+      if (!Array.isArray(data)) {
+        console.error("Data is not an array:", data);
+        return [];
+      }
+
+      return data.map((item) => ({
+        label: item[labelProperty] ? item[labelProperty] : "", // Use '' if labelProperty is null or undefined
+        value: item.ID, // Use 'ID' instead of 'id'
+      }));
     },
 
     resetEditedItem() {
@@ -219,7 +519,7 @@ export default defineComponent({
 
     openModalToEditItemById(id) {
       this.editedItemId = id;
-      this.editedItem = { ...this.items[id], id: this.items[id].id };
+      this.editedItem = { ...this.items[id], id: this.items[id].ID }; // Use 'id' instead of 'ID'
     },
 
     toggleAddModal() {
@@ -229,150 +529,14 @@ export default defineComponent({
       }
     },
 
-    openDetailModal(rowIndex) {
-      const selectedItemId = this.filteredItems[rowIndex].ID;
-      console.log("Opening detail modal with ID:", selectedItemId);
-
-      axios
-        .get(`http://localhost:3000/api/capaian/${selectedItemId}`)
-        .then((response) => {
-          const data = response.data.data;
-          if (data) {
-            // Include only the fields you want from the server response
-            this.detailItem = {
-              Elemen: data.Elemen,
-              LingkupMateri: data.LingkupMateri,
-              TujuanPembelajaran: data.TujuanPembelajaran,
-              KodeTP: data.KodeTP,
-              AlokasiWaktu: data.AlokasiWaktu,
-              SumberBelajar: data.SumberBelajar,
-              ProjekPPancasila: data.ProjekPPancasila,
-              // Add more fields as needed
-              id: selectedItemId,
-            };
-            this.detailModalVisible = true;
-            console.log("Detail modal data:", this.detailItem);
-          } else {
-            console.error("No data received from the server");
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching data for the detail modal:", error);
-        });
-    },
-
     resetDetailItem() {
       this.detailItem = null;
       this.detailModalVisible = false;
     },
 
-    async printRow(rowIndex) {
-      const selectedItemId = this.filteredItems[rowIndex].ID;
-
-      try {
-        // Fetch the necessary data directly from the server
-        const response = await axios.get(
-          `http://localhost:3000/api/capaian/${selectedItemId}`,
-        );
-        const data = response.data.data;
-
-        if (data) {
-          console.log("Printing row with ID:", selectedItemId);
-
-          const imagePath = "../../src/assets/login.png";
-          const imageFile = await fetch(imagePath).then((response) =>
-            response.blob(),
-          );
-          const logoDataUrl = await imageFileToDataUrl(imageFile);
-
-          const docDefinition = {
-            footer: function (currentPage, pageCount) {
-              return [
-                {
-                  text: currentPage.toString() + " of " + pageCount,
-                  alignment: "center", // Align the text to the center
-                  fontSize: 8, // Use a smaller font size
-                  margin: [10, 10, 10, 0], // Add custom margins (top, right, bottom, left)
-                },
-              ];
-            },
-            // header: function (currentPage) {
-            //   return [
-            //     {
-            //       stack: [
-            //         {
-            //           image: logoDataUrl,
-            //           fit: [80, 80], // Adjust the width and height as needed
-            //           alignment: currentPage % 2 ? "left" : "right",
-            //         },
-            //         // Add other header elements if needed
-            //       ],
-            //       margin: [10, 20, 10, 10], // Adjust the margins (top, right, bottom, left) for the entire stack
-            //     },
-            //   ];
-            // },
-            content: [
-              {
-                text: "Alur Tujuan Pembelajaran",
-                fontSize: 12,
-                bold: true,
-                alignment: "center",
-                margin: [0, 20, 0, 20],
-              },
-              {
-                table: {
-                  headerRows: 1,
-                  widths: [
-                    "auto",
-                    "auto",
-                    "auto",
-                    "auto",
-                    "auto",
-                    "auto",
-                    "auto",
-                  ],
-                  body: [
-                    [
-                      { text: "Element", fontSize: 10, bold: true },
-                      { text: "Lingkup Materi", fontSize: 10, bold: true },
-                      { text: "Tujuan Pembelajaran", fontSize: 10, bold: true },
-                      { text: "Kode TP", fontSize: 10, bold: true },
-                      { text: "Alokasi Waktu", fontSize: 10, bold: true },
-                      { text: "Sumber Belajar", fontSize: 10, bold: true },
-                      { text: "Projek Pancasila", fontSize: 10, bold: true },
-                    ],
-                    [
-                      data.Elemen,
-                      data.LingkupMateri,
-                      data.TujuanPembelajaran,
-                      data.KodeTP,
-                      data.AlokasiWaktu,
-                      data.SumberBelajar,
-                      data.ProjekPPancasila,
-                    ],
-                  ],
-                },
-                margin: [0, 0, 0, 20], // Adjust the margin for the table
-              },
-            ],
-
-            pageSize: "A4",
-            pageMargins: [40, 60, 40, 60],
-          };
-
-          const pdf = pdfMake.createPdf(docDefinition);
-
-          // Open the PDF for printing
-          pdf.open();
-
-          // Alternatively, save the PDF as a file
-          // pdf.download(`alur_${selectedItemId}.pdf`);
-        } else {
-          console.error("No data received from the server");
-        }
-      } catch (error) {
-        console.error("Error fetching data for printing:", error);
-      }
+    refreshPage() {
+      // Reload the current page
+      location.reload();
     },
   },
 
@@ -387,14 +551,18 @@ export default defineComponent({
     class="header-container"
     style="display: flex; justify-content: space-between; align-items: center"
   >
-    <va-input v-model="input.value" placeholder="Search"></va-input>
+    <va-input
+      v-model="input.value"
+      type="text"
+      placeholder="Search..."
+    ></va-input>
     <va-button-group
       icon-color="#000000"
       preset="secondary"
       border-color="#000000"
     >
       <va-button @click="toggleAddModal" preset="secondary" icon="add"
-        >Add Alur Tujuan Pembelajaran</va-button
+        >Add Modul Ajar</va-button
       >
     </va-button-group>
   </div>
@@ -416,7 +584,7 @@ export default defineComponent({
           <va-button
             preset="plain"
             icon="delete"
-            @click="deleteItemById(filteredItems[rowIndex].id)"
+            @click="deleteItemById(filteredItems[rowIndex].ID)"
           />
         </div>
       </template>
@@ -427,14 +595,41 @@ export default defineComponent({
       blur
       class="modal-crud"
       stripe
-      title="Add Alur Tujuan Pembelajaran"
+      title="Add Modul Ajar"
       size="large"
       :model-value="showModal"
       @ok="addNewItem"
       @cancel="resetCreatedItem"
     >
+      <!-- Using va-select for user, mapel, kelas, and tahun ajar -->
+      <va-select
+        v-model="createdItem.UserID"
+        :label="displayNames.User"
+        :options="usersOptions"
+        class="my-6"
+        text-by="label"
+        value-by="value"
+      />
+      <va-select
+        v-model="createdItem.KelasID"
+        :label="displayNames.Kelas"
+        :options="kelasOptions"
+        class="my-6"
+        text-by="label"
+        value-by="value"
+      />
+      <va-select
+        v-model="createdItem.TahunAjarID"
+        :label="displayNames.TahunAjar"
+        :options="tahunAjarOptions"
+        class="my-6"
+        text-by="label"
+        value-by="value"
+      />
+
+      <!-- Using va-textarea for other fields -->
       <va-textarea
-        v-for="key in inputFields"
+        v-for="key in textAreaFields"
         :key="key"
         :label="displayNames[key]"
         v-model="createdItem[key]"
@@ -446,13 +641,39 @@ export default defineComponent({
       blur
       class="modal-crud"
       :model-value="!!editedItem"
-      title="Edit Alur Tujuan Pembelajaran"
+      title="Edit Modul Ajar"
       size="large"
       @ok="editItem"
       @cancel="resetEditedItem"
     >
+      <!-- Using va-select for user, mapel, kelas, and tahun ajar -->
+      <va-select
+        v-model="editedItem.UserID"
+        :label="displayNames.User"
+        :options="usersOptions"
+        text-by="label"
+        value-by="value"
+      />
+      <va-select
+        v-model="editedItem.KelasID"
+        :label="displayNames.Kelas"
+        :options="kelasOptions"
+        class="my-6"
+        text-by="label"
+        value-by="value"
+      />
+      <va-select
+        v-model="editedItem.TahunAjarID"
+        :label="displayNames.TahunAjar"
+        :options="tahunAjarOptions"
+        class="my-6"
+        text-by="label"
+        value-by="value"
+      />
+
+      <!-- Using va-textarea for other fields -->
       <va-textarea
-        v-for="key in filteredInputFields"
+        v-for="key in textAreaFields"
         :key="key"
         :label="displayNames[key]"
         v-model="editedItem[key]"
@@ -464,7 +685,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       stripe
-      title="Detail Alur Tujuan Pembelajaran"
+      title="Detail Modul Ajar"
       size="large"
       :model-value="detailModalVisible"
       @ok="resetDetailItem"
@@ -485,7 +706,8 @@ export default defineComponent({
 <style>
 .action-buttons {
   display: flex;
-  gap: 8px; /* Adjust the gap to your preference */
+  gap: 8px;
+  /* Adjust the gap to your preference */
 }
 
 .va-input {
@@ -493,7 +715,15 @@ export default defineComponent({
   margin-bottom: 10px;
 }
 
+.va-select .dropdown-menu {
+  display: block;
+}
+
 .modal-crud {
+  .va-select {
+    display: block;
+    margin-bottom: 10px;
+  }
   .va-textarea {
     width: 100%;
     display: flex;

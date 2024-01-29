@@ -39,5 +39,6 @@ func (service *ModulService) UpdateModul(modul *model.ModulAjar) error {
 
 // DeleteModul deletes a modul by ID
 func (service *ModulService) DeleteModul(modulID uuid.UUID) error {
-	return service.ModulRepository.DeleteModul(modulID)
+	_, err := service.ModulRepository.DeleteModul(modulID)
+	return err
 }

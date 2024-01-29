@@ -74,11 +74,8 @@ func (handler *CapaianHandler) UpdateCapaian(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Invalid UUID", "data": nil})
 	}
 
-	// Retrieve the existing Capaian by ID
-	capaian, err := handler.CapaianService.GetCapaianByID(capaianID)
-	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Capaian not found", "data": nil})
-	}
+	capaian := new(model.Capaian)
+	capaian.ID = capaianID
 
 	// Parse the JSON body into the existing Capaian struct
 	err = c.BodyParser(capaian)
@@ -86,10 +83,19 @@ func (handler *CapaianHandler) UpdateCapaian(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Review your input", "data": err})
 	}
 
+	log.Printf("Updated Capaian: %+v\n", capaian)
+	log.Print(capaian.UserID)
+
 	// Update the Capaian in the database
 	err = handler.CapaianService.UpdateCapaian(capaian)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Couldn't update capaian", "data": err})
+	}
+
+	// Retrieve the existing Capaian by ID
+	capaian, err = handler.CapaianService.GetCapaianByID(capaianID)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Capaian not found", "data": nil})
 	}
 
 	// Return the updated Capaian
