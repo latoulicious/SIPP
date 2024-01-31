@@ -3,13 +3,13 @@ import { defineComponent } from "vue";
 import axios from "axios";
 
 const defaultItem = {
-  kelas: "",
+  jurusan: "",
 };
 
 export default defineComponent({
   data() {
     const columns = [
-      { key: "kelas", sortable: false },
+      { key: "jurusan", sortable: false },
       { key: "actions", width: 80 },
     ];
 
@@ -51,7 +51,7 @@ export default defineComponent({
         console.log("Token:", jwtToken); // Log the token for debugging
 
         const response = await this.$axios.get(
-          "http://localhost:3000/api/kelas",
+          "http://localhost:3000/api/jurusan",
           {
             headers: {
               Authorization: `Bearer ${jwtToken}`,
@@ -59,9 +59,9 @@ export default defineComponent({
           },
         );
 
-        this.items = response.data.data.map((kelas) => ({
-          kelas: kelas.Kelas,
-          id: kelas.ID,
+        this.items = response.data.data.map((jurusan) => ({
+          jurusan: jurusan.Jurusan,
+          id: jurusan.ID,
         }));
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -79,7 +79,7 @@ export default defineComponent({
         }
 
         const response = await axios.post(
-          "http://localhost:3000/api/kelas",
+          "http://localhost:3000/api/jurusan",
           this.createdItem,
           {
             headers: {
@@ -89,12 +89,12 @@ export default defineComponent({
         );
 
         // Assuming the API response is a single user object
-        const newKelas = {
-          kelas: response.data.data.Kelas,
+        const newJurusan = {
+          jurusan: response.data.data.Jurusan,
           id: response.data.data.ID,
         };
 
-        this.items.push(newKelas);
+        this.items.push(newJurusan);
         this.resetCreatedItem();
         this.fetchData();
       } catch (error) {
@@ -113,12 +113,11 @@ export default defineComponent({
         }
 
         const editedData = {
-          kelas: this.editedItem.kelas,
           jurusan: this.editedItem.jurusan,
         };
 
         const response = await axios.put(
-          `http://localhost:3000/api/kelas/${this.editedItem.id}`,
+          `http://localhost:3000/api/jurusan/${this.editedItem.id}`,
           editedData,
           {
             headers: {
@@ -129,7 +128,7 @@ export default defineComponent({
 
         // Update the item directly without using $set
         this.items[this.editedItemId] = {
-          kelas: response.data.data.Kelas,
+          jurusan: response.data.data.Jurusan,
           id: response.data.data.ID,
         };
 
@@ -157,7 +156,7 @@ export default defineComponent({
 
         // Make the DELETE request with headers
         await axios.delete(
-          `http://localhost:3000/api/kelas/${this.items[id].id}`,
+          `http://localhost:3000/api/jurusan/${this.items[id].id}`,
           { headers },
         );
 
@@ -209,7 +208,7 @@ export default defineComponent({
       border-color="bordered"
     >
       <va-button @click="toggleAddModal" preset="secondary" icon="add"
-        >Add Kelas</va-button
+        >Add Mata Pelajaran</va-button
       >
     </va-button-group>
   </div>
@@ -239,7 +238,7 @@ export default defineComponent({
     <va-modal
       class="modal-crud"
       stripe
-      title="Add Kelas"
+      title="Add jurusan"
       size="small"
       blur
       :model-value="showModal"
@@ -258,7 +257,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       :model-value="!!editedItem"
-      title="Edit Kelas"
+      title="Edit jurusan"
       size="small"
       @ok="editItem"
       @cancel="resetEditedItem"

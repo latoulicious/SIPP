@@ -88,6 +88,7 @@ export default defineComponent({
       detailItem: null,
       detailModalVisible: false,
       displayNames,
+      loading: false,
     };
   },
 
@@ -146,7 +147,12 @@ export default defineComponent({
 
   methods: {
     async fetchData() {
+      this.loading = true;
+
       try {
+        // Simulate a delay
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
         const response = await axios.get("http://localhost:3000/api/modul");
         const userResponse = await axios.get(
           "http://localhost:3000/api/public/user",
@@ -206,6 +212,8 @@ export default defineComponent({
         console.log("modul Items:", this.items);
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        this.loading = false;
       }
     },
 
@@ -240,17 +248,22 @@ export default defineComponent({
 
         this.items.push({
           ...this.createdItem,
-          ID: response.data.data.ID,
         });
 
-        console.log(this.createdItem);
-
         console.log("Server Response:", response.data);
+
         this.resetCreatedItem();
-        // this.refreshPage();
+        // Re-fetch the data to refresh the table
+        await this.fetchData();
       } catch (error) {
         console.error("Error adding new item:", error);
       }
+
+      // // Defer the closing of the modal until the next DOM update cycle
+      // nextTick(() => {
+      //   // Close the modal regardless of whether the data fetch was successful
+      //   this.resetCreatedItem();
+      // });
     },
 
     async editItem() {
@@ -296,9 +309,18 @@ export default defineComponent({
         }
 
         this.resetEditedItem();
+        // Re-fetch the data to refresh the table
+        await this.fetchData();
       } catch (error) {
         console.error("Error editing item:", error);
       }
+      // finally {
+      //   // Defer the closing of the modal until the next DOM update cycle
+      //   nextTick(() => {
+      //     // Close the modal regardless of whether the data fetch was successful
+      //     this.editedItem = null;
+      //   });
+      // }
     },
 
     async deleteItemById(id) {
@@ -308,13 +330,21 @@ export default defineComponent({
             `http://localhost:3000/api/modul/${id}`,
           );
 
-          // Assuming the response includes the deleted Capaian with relationships preloaded
-          const deletedCapaian = response.data.data;
+          // Check if deletedModul is not null
+          if (response.data && response.data.data) {
+            const deletedModul = response.data.data;
 
-          // Remove the item from the items array
-          this.items = this.items.filter(
-            (item) => item.id !== deletedCapaian.id,
-          );
+            // Remove the item from the items array
+            this.items = this.items.filter(
+              (item) => item.id !== deletedModul.id,
+            );
+          }
+
+          // Re-fetch the data to refresh the table
+          await this.fetchData();
+
+          // Optionally, you can show a success message
+          alert("Item deleted successfully");
         } catch (error) {
           console.error("Error deleting item:", error);
         }
@@ -533,11 +563,6 @@ export default defineComponent({
       this.detailItem = null;
       this.detailModalVisible = false;
     },
-
-    refreshPage() {
-      // Reload the current page
-      location.reload();
-    },
   },
 
   mounted() {
@@ -567,7 +592,12 @@ export default defineComponent({
     </va-button-group>
   </div>
   <div>
-    <va-data-table :items="filteredItems" :columns="columns" striped>
+    <va-data-table
+      :items="filteredItems"
+      :columns="columns"
+      striped
+      :loading="loading"
+    >
       <template #cell(actions)="{ rowIndex }">
         <div class="action-buttons">
           <va-button preset="plain" icon="print" @click="printRow(rowIndex)" />

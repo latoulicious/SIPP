@@ -8,7 +8,7 @@ import (
 type Penilaian struct {
 	gorm.Model
 	ID                  uuid.UUID `gorm:"type:uuid;primary_key"`
-	AsesemenNonKognitif string
+	AsesemenNonKognitif string    // not yet being used
 	AsesemenKognitif    string
 	AsesmenFormatif     string
 	AsesmenSumatif      string

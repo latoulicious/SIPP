@@ -77,6 +77,7 @@ export default defineComponent({
       detailItem: null,
       detailModalVisible: false,
       displayNames,
+      loading: false,
     };
   },
 
@@ -112,19 +113,12 @@ export default defineComponent({
         return this.items; // No search term, return all items
       } else {
         return this.items.filter((item) => {
-          const matches = searchTerms.every((term) => {
+          return searchTerms.every((term) => {
             return Object.values(item).some((value) => {
-              const stringValue = String(value).toLowerCase();
-              const includesTerm = stringValue.includes(term);
-              // console.log(
-              //   `Term: ${term}, Value: ${stringValue}, Result: ${includesTerm}`,
-              // );
-              return includesTerm;
+              // Check if any property value contains the search term
+              return String(value).toLowerCase().includes(term);
             });
           });
-
-          console.log(`Item ID: ${item.ID}, Matches: ${matches}`);
-          return matches;
         });
       }
     },
@@ -142,10 +136,13 @@ export default defineComponent({
 
   methods: {
     async fetchData() {
+      this.loading = true;
+
       try {
-        const capaianResponse = await axios.get(
-          "http://localhost:3000/api/capaian",
-        );
+        // Simulate a delay
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        const response = await axios.get("http://localhost:3000/api/capaian");
         const userResponse = await axios.get(
           "http://localhost:3000/api/public/user",
         );
@@ -160,61 +157,70 @@ export default defineComponent({
         );
 
         // Process the data and update the UI
-        console.log("Response from server (Capaian):", capaianResponse.data);
-        console.log("Response from server (Users):", userResponse.data);
-        console.log("Response from server (Kelas):", kelasResponse.data);
-        console.log("Response from server (Mapel):", mapelResponse.data);
-        console.log("Response from server (Tahun):", tahunResponse.data);
+        console.log("Response from server (Capaian):", response.data);
+        // console.log("Response from server (Users):", userResponse.data);
+        // console.log("Response from server (Kelas):", kelasResponse.data);
+        // console.log("Response from server (Mapel):", mapelResponse.data);
+        // console.log("Response from server (Tahun):", tahunResponse.data);
 
         // Populate usersOptions, mapelsOptions, kelasOptions, tahunAjarOptions
         this.usersOptions = this.extractOptions(userResponse.data.data, "Name");
-        console.log("Users options:", this.usersOptions);
+        // console.log("Users options:", this.usersOptions);
 
         this.kelasOptions = this.extractOptions(
           kelasResponse.data.data,
           "Kelas",
         );
-        console.log("Kelas options:", this.kelasOptions);
+        // console.log("Kelas options:", this.kelasOptions);
 
         this.mapelsOptions = this.extractOptions(
           mapelResponse.data.data,
           "Mapel",
         );
-        console.log("Mapels options:", this.mapelsOptions);
+        // console.log("Mapels options:", this.mapelsOptions);
 
         this.tahunAjarOptions = this.extractOptions(
           tahunResponse.data.data,
           "Tahun",
         );
-        console.log("Tahun Ajar options:", this.tahunAjarOptions);
+        // console.log("Tahun Ajar options:", this.tahunAjarOptions);
 
         // Update the items array with Capaian data
-        this.items = capaianResponse.data.data.map((item) => {
-          return {
-            JudulCapaian: item?.judulCapaian || "",
-            User: item?.User.Name || "",
-            Mapel: item?.Mapel.Mapel || "",
-            Kelas: item?.Kelas.Kelas || "",
-            TahunAjar: item?.TahunAjar.Tahun || "",
-            JudulElemen: item?.judulElemen || "",
-            KetElemen: item?.ketElemen || "",
-            KetProsesMengamati: item?.ketProsesMengamati || "",
-            KetProsesMempertanyakan: item?.ketProsesMempertanyakan || "",
-            KetProsesMerencanakan: item?.ketProsesMerencanakan || "",
-            KetProsesMemproses: item?.ketProsesMemproses || "",
-            KetProsesMengevaluasi: item?.ketProsesMengevaluasi || "",
-            KetProsesMengkomunikasikan: item?.ketProsesMengkomunikasikan || "",
-            ID: item?.ID || "", // Use 'ID' instead of 'id'
-          };
-        });
+        this.items = response.data.data.map((item) => ({
+          ...item,
+          ID: item?.ID || "", // Use 'ID' instead of 'id'
+          JudulCapaian: item?.judulCapaian || "",
+          User: item?.User.Name || "",
+          Mapel: item?.Mapel.Mapel || "",
+          Kelas: item?.Kelas.Kelas || "",
+          TahunAjar: item?.TahunAjar.Tahun || "",
+          JudulElemen: item?.judulElemen || "",
+          KetElemen: item?.ketElemen || "",
+          KetProsesMengamati: item?.ketProsesMengamati || "",
+          KetProsesMempertanyakan: item?.ketProsesMempertanyakan || "",
+          KetProsesMerencanakan: item?.ketProsesMerencanakan || "",
+          KetProsesMemproses: item?.ketProsesMemproses || "",
+          KetProsesMengevaluasi: item?.ketProsesMengevaluasi || "",
+          KetProsesMengkomunikasikan: item?.ketProsesMengkomunikasikan || "",
+        }));
+
         console.log("Capaian items:", this.items);
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        this.loading = false;
       }
     },
 
     async addNewItem() {
+      if (!this.isNewData) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
       try {
+        console.log("Creating new item with data:", this.createdItem);
+
         const response = await axios.post("http://localhost:3000/api/capaian", {
           UserID: this.createdItem.UserID.toString(),
           MapelID: this.createdItem.MapelID.toString(),
@@ -232,12 +238,24 @@ export default defineComponent({
             this.createdItem.KetProsesMengkomunikasikan,
         });
 
+        this.items.push({
+          ...this.createdItem,
+        });
+
         console.log("Server Response:", response.data);
+
         this.resetCreatedItem();
-        this.refreshPage();
+        // Re-fetch the data to refresh the table
+        await this.fetchData();
       } catch (error) {
         console.error("Error adding new item:", error);
       }
+
+      // // Defer the closing of the modal until the next DOM update cycle
+      // nextTick(() => {
+      //   // Close the modal regardless of whether the data fetch was successful
+      //   this.resetCreatedItem();
+      // });
     },
 
     async editItem() {
@@ -245,7 +263,7 @@ export default defineComponent({
         // Create a deep copy of the edited item
         const editedData = JSON.parse(JSON.stringify(this.editedItem));
 
-        /// Change 'ID' to 'id'
+        // Change 'ID' to 'id'
         editedData.id = editedData.ID;
         delete editedData.ID;
         delete editedData.User;
@@ -253,8 +271,6 @@ export default defineComponent({
         delete editedData.Kelas;
         delete editedData.TahunAjar;
 
-        console.log("Edited item:", this.editedItem);
-        console.log("Edited item ID:", this.editedItem.id);
         const response = await axios.put(
           `http://localhost:3000/api/capaian/${this.editedItem.id}`,
           editedData,
@@ -277,13 +293,20 @@ export default defineComponent({
         } else {
           console.error("Failed to update item", response.data);
         }
-        this.refreshPage();
+
+        this.resetEditedItem();
+        // Re-fetch the data to refresh the table
+        await this.fetchData();
       } catch (error) {
         console.error("Error editing item:", error);
-      } finally {
-        // Reset the edited item
-        this.resetEditedItem();
       }
+      // finally {
+      //   // Defer the closing of the modal until the next DOM update cycle
+      //   nextTick(() => {
+      //     // Close the modal regardless of whether the data fetch was successful
+      //     this.editedItem = null;
+      //   });
+      // }
     },
 
     async deleteItemById(id) {
@@ -293,53 +316,51 @@ export default defineComponent({
             `http://localhost:3000/api/capaian/${id}`,
           );
 
-          if (!response.data.data) {
-            console.error("No data received from the server:", response);
-            return;
+          // Check if deletedCapaian is not null
+          if (response.data && response.data.data) {
+            const deletedCapaian = response.data.data;
+
+            // Remove the item from the items array
+            this.items = this.items.filter(
+              (item) => item.id !== deletedCapaian.id,
+            );
           }
 
-          // Assuming the response includes the deleted Capaian with relationships preloaded
-          const deletedCapaian = response.data.data;
+          // Re-fetch the data to refresh the table
+          await this.fetchData();
 
-          // Remove the item from the items array
-          this.items = this.items.filter(
-            (item) => item.ID !== deletedCapaian.ID,
-          );
-          this.refreshPage();
+          // Optionally, you can show a success message
+          alert("Item deleted successfully");
         } catch (error) {
           console.error("Error deleting item:", error);
         }
       }
     },
 
-    openDetailModal(rowIndex) {
+    async openDetailModal(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
       console.log("Opening detail modal with ID:", selectedItemId);
 
       axios
-        .get(`http://localhost:3000/api/capaian/${selectedItemId}`)
+        .get(`http://localhost:3000/api/kognitif/${selectedItemId}`)
         .then((response) => {
           const data = response.data.data;
           if (data) {
-            this.detailItem = {
-              JudulCapaian: data.judulCapaian || "",
-              JudulElemen: data.judulElemen || "",
-              KetElemen: data.ketElemen || "",
-              KetProsesMengamati: data.ketProsesMengamati || "",
-              KetProsesMempertanyakan: data.ketProsesMempertanyakan || "",
-              KetProsesMerencanakan: data.ketProsesMerencanakan || "",
-              KetProsesMemproses: data.ketProsesMemproses || "",
-              KetProsesMengevaluasi: data.ketProsesMengevaluasi || "",
-              KetProsesMengkomunikasikan: data.ketProsesMengkomunikasikan || "",
-              // id: selectedItemId,
-              // User: data.User ? data.User.Name || "" : "",
-              // Mapel: data.Mapel ? data.Mapel.Mapel || "" : "",
-              // Kelas: data.Kelas ? data.Kelas.Kelas || "" : "",
-              // TahunAjar: data.TahunAjar ? data.TahunAjar.Tahun || "" : "",
-            };
+            console.log("Data:", data); // Log the data
+
+            this.detailItem = reactive({
+              BankSoalID: data.BankSoalID || "",
+              Soal: data.BankSoal.Soal || "",
+              OptionA: data.BankSoal.OptionA || "",
+              OptionB: data.BankSoal.OptionB || "",
+              OptionC: data.BankSoal.OptionC || "",
+              OptionD: data.BankSoal.OptionD || "",
+              OptionE: data.BankSoal.OptionE || "",
+            });
+
+            console.log("Detail item:", this.detailItem); // Log the detail item
 
             this.detailModalVisible = true;
-            console.log("Detail modal data:", this.detailItem);
           } else {
             console.error("No data received from the server");
           }
@@ -476,7 +497,6 @@ export default defineComponent({
     resetEditedItem() {
       this.editedItem = null;
       this.editedItemId = null;
-      this.showModal = false;
     },
 
     resetCreatedItem() {
@@ -501,9 +521,8 @@ export default defineComponent({
       this.detailModalVisible = false;
     },
 
-    refreshPage() {
-      // Reload the current page
-      location.reload();
+    incrementTableKey() {
+      this.tableKey++;
     },
   },
 
@@ -534,7 +553,12 @@ export default defineComponent({
     </va-button-group>
   </div>
   <div>
-    <va-data-table :items="filteredItems" :columns="columns" striped>
+    <va-data-table
+      :items="filteredItems"
+      :columns="columns"
+      striped
+      :loading="loading"
+    >
       <template #cell(actions)="{ rowIndex }">
         <div class="action-buttons">
           <va-button preset="plain" icon="print" @click="printRow(rowIndex)" />

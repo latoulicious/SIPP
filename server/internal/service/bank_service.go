@@ -17,12 +17,12 @@ func NewBankService(bankRepository *repository.BankRepository) *BankService {
 	}
 }
 
-// GetBank retrieve a list of banks
+// GetBank retrieve a list of bank
 func (service *BankService) GetBank() ([]model.BankSoal, error) {
 	return service.BankRepository.GetBank()
 }
 
-// GetBankByID retrieve a bank by ID
+// GetBankByID retrieve a bank by id
 func (service *BankService) GetBankByID(bankID uuid.UUID) (*model.BankSoal, error) {
 	return service.BankRepository.GetBankByID(bankID)
 }
@@ -39,5 +39,6 @@ func (service *BankService) UpdateBank(bank *model.BankSoal) error {
 
 // DeleteBank deletes a bank by ID
 func (service *BankService) DeleteBank(bankID uuid.UUID) error {
-	return service.BankRepository.DeleteBank(bankID)
+	_, err := service.BankRepository.DeleteBank(bankID)
+	return err
 }

@@ -17,12 +17,12 @@ func NewSoalService(soalRepository *repository.SoalRepository) *SoalService {
 	}
 }
 
-// GetSoal retrieves a list of soal
+// GetSoal retrieve a list of soal
 func (service *SoalService) GetSoal() ([]model.Soal, error) {
 	return service.SoalRepository.GetSoal()
 }
 
-// GetSoalByID retrieves a soal by ID
+// GetSoalByID retrieve a soal by id
 func (service *SoalService) GetSoalByID(soalID uuid.UUID) (*model.Soal, error) {
 	return service.SoalRepository.GetSoalByID(soalID)
 }
@@ -39,5 +39,6 @@ func (service *SoalService) UpdateSoal(soal *model.Soal) error {
 
 // DeleteSoal deletes a soal by ID
 func (service *SoalService) DeleteSoal(soalID uuid.UUID) error {
-	return service.SoalRepository.DeleteSoal(soalID)
+	_, err := service.SoalRepository.DeleteSoal(soalID)
+	return err
 }

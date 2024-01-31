@@ -14,6 +14,11 @@ const showManagement = computed(() => {
   return decodedToken && decodedToken.role === "Admin";
 });
 
+const showPenilaian = computed(() => {
+  // Replace this with your own logic
+  return true;
+});
+
 onMounted(() => {
   // You might perform other setup actions here if needed
 });
@@ -53,7 +58,7 @@ function decodeJwt(jwtToken: string) {
         </VaSidebarItemContent>
       </VaSidebarItem>
     </router-link>
-    <router-link to="/alurtujuan">
+    <router-link to="/alur">
       <VaSidebarItem>
         <VaSidebarItemContent>
           <VaIcon name="folder_shared" />
@@ -61,7 +66,7 @@ function decodeJwt(jwtToken: string) {
         </VaSidebarItemContent>
       </VaSidebarItem>
     </router-link>
-    <router-link to="/modulajar">
+    <router-link to="/modul">
       <VaSidebarItem>
         <VaSidebarItemContent>
           <VaIcon name="folder_shared" />
@@ -69,14 +74,64 @@ function decodeJwt(jwtToken: string) {
         </VaSidebarItemContent>
       </VaSidebarItem>
     </router-link>
-    <router-link to="/penilaian">
-      <VaSidebarItem>
-        <VaSidebarItemContent>
-          <VaIcon name="assessment" />
-          <VaSidebarItemTitle>Penilaian Ranah Pengetahuan</VaSidebarItemTitle>
-        </VaSidebarItemContent>
-      </VaSidebarItem>
-    </router-link>
+    <VaAccordion>
+      <VaCollapse v-show="showPenilaian">
+        <template #header="{ value: isCollapsed }">
+          <VaSidebarItem>
+            <VaSidebarItemContent>
+              <VaIcon name="assessment" />
+              <VaSidebarItemTitle
+                >Penilaian Ranah Pengetahuan</VaSidebarItemTitle
+              >
+              <VaSpacer />
+              <VaIcon :name="isCollapsed ? 'va-arrow-up' : 'va-arrow-down'" />
+            </VaSidebarItemContent>
+          </VaSidebarItem>
+        </template>
+        <template #body>
+          <router-link to="/kognitif">
+            <VaSidebarItem>
+              <VaSidebarItemContent>
+                <VaIcon name="assessment" />
+                <VaSidebarItemTitle>Asesemen Kognitif</VaSidebarItemTitle>
+              </VaSidebarItemContent>
+            </VaSidebarItem>
+          </router-link>
+          <router-link to="/formatif">
+            <VaSidebarItem>
+              <VaSidebarItemContent>
+                <VaIcon name="assessment" />
+                <VaSidebarItemTitle>Asesmen Formatif</VaSidebarItemTitle>
+              </VaSidebarItemContent>
+            </VaSidebarItem>
+          </router-link>
+          <router-link to="/sumatif">
+            <VaSidebarItem>
+              <VaSidebarItemContent>
+                <VaIcon name="assessment" />
+                <VaSidebarItemTitle>Asesmen Sumatif</VaSidebarItemTitle>
+              </VaSidebarItemContent>
+            </VaSidebarItem>
+          </router-link>
+          <router-link to="/pengayaan">
+            <VaSidebarItem>
+              <VaSidebarItemContent>
+                <VaIcon name="assessment" />
+                <VaSidebarItemTitle>Pengayaan</VaSidebarItemTitle>
+              </VaSidebarItemContent>
+            </VaSidebarItem>
+          </router-link>
+          <router-link to="/remedial">
+            <VaSidebarItem>
+              <VaSidebarItemContent>
+                <VaIcon name="assessment" />
+                <VaSidebarItemTitle>Remedial</VaSidebarItemTitle>
+              </VaSidebarItemContent>
+            </VaSidebarItem>
+          </router-link>
+        </template>
+      </VaCollapse>
+    </VaAccordion>
     <router-link to="/soal">
       <VaSidebarItem>
         <VaSidebarItemContent>
@@ -115,6 +170,14 @@ function decodeJwt(jwtToken: string) {
                 </VaSidebarItemContent>
               </VaSidebarItem>
             </router-link>
+            <router-link v-show="showManagement" to="/jurusan">
+              <VaSidebarItem>
+                <VaSidebarItemContent>
+                  <VaIcon name="business" />
+                  <VaSidebarItemTitle>Jurusan</VaSidebarItemTitle>
+                </VaSidebarItemContent>
+              </VaSidebarItem>
+            </router-link>
             <router-link v-show="showManagement" to="/mapel">
               <VaSidebarItem>
                 <VaSidebarItemContent>
@@ -135,7 +198,7 @@ function decodeJwt(jwtToken: string) {
               <VaSidebarItem>
                 <VaSidebarItemContent>
                   <VaIcon name="people" />
-                  <VaSidebarItemTitle>Users</VaSidebarItemTitle>
+                  <VaSidebarItemTitle>User</VaSidebarItemTitle>
                 </VaSidebarItemContent>
               </VaSidebarItem>
             </router-link>

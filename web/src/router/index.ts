@@ -24,19 +24,44 @@ const router = createRouter({
           component: () => import("@/views/core/Capaian.vue"),
         },
         {
-          path: "/alurtujuan",
+          path: "/alur",
           name: "alurtujuanpendidikan",
           component: () => import("@/views/core/Alur.vue"),
         },
         {
-          path: "/modulajar",
+          path: "/modul",
           name: "modulajar",
           component: () => import("@/views/core/Modul.vue"),
         },
+        // {
+        //   path: "/penilaian",
+        //   name: "penilaian",
+        //   component: () => import("@/views/core/Penilaian.vue"),
+        // },
         {
-          path: "/penilaian",
-          name: "penilaian",
-          component: () => import("@/views/core/Penilaian.vue"),
+          path: "/kognitif",
+          name: "kognitif",
+          component: () => import("@/views/core/Kognitif.vue"),
+        },
+        {
+          path: "/formatif",
+          name: "formatif",
+          component: () => import("@/views/core/Formatif.vue"),
+        },
+        {
+          path: "/sumatif",
+          name: "sumatif",
+          component: () => import("@/views/core/Sumatif.vue"),
+        },
+        {
+          path: "/remedial",
+          name: "remedial",
+          component: () => import("@/views/core/Remedial.vue"),
+        },
+        {
+          path: "/pengayaan",
+          name: "pengayaan",
+          component: () => import("@/views/core/Pengayaan.vue"),
         },
         {
           path: "/soal",
@@ -53,6 +78,12 @@ const router = createRouter({
           path: "/kelas",
           name: "kelas",
           component: () => import("@/views/core/Kelas.vue"),
+          beforeEnter: requireAuth,
+        },
+        {
+          path: "/jurusan",
+          name: "jurusan",
+          component: () => import("@/views/core/Jurusan.vue"),
           beforeEnter: requireAuth,
         },
         {

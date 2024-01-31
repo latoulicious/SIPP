@@ -44,10 +44,12 @@ func (handler *SoalHandler) GetSoalByID(c *fiber.Ctx) error {
 }
 
 func (handler *SoalHandler) CreateSoal(c *fiber.Ctx) error {
+
 	soal := new(model.Soal)
 
 	// Log request body for debugging purposes
 	log.Printf("Request Body: %+v\n", soal)
+	log.Printf("Received Soal object: %+v\n", soal)
 
 	err := c.BodyParser(soal)
 	if err != nil {
@@ -72,11 +74,8 @@ func (handler *SoalHandler) UpdateSoal(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Invalid UUID", "data": nil})
 	}
 
-	// Retrieve the existing Soal by ID
-	soal, err := handler.SoalService.GetSoalByID(soalID)
-	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Soal not found", "data": nil})
-	}
+	soal := new(model.Soal)
+	soal.ID = soalID
 
 	// Parse the JSON body into the existing Soal struct
 	err = c.BodyParser(soal)
@@ -84,10 +83,18 @@ func (handler *SoalHandler) UpdateSoal(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Review your input", "data": err})
 	}
 
+	log.Printf("Updated Soal: %+v\n", soal)
+
 	// Update the Soal in the database
 	err = handler.SoalService.UpdateSoal(soal)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Couldn't update soal", "data": err})
+	}
+
+	// Retrieve the existing Soal by ID
+	soal, err = handler.SoalService.GetSoalByID(soalID)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Soal not found", "data": nil})
 	}
 
 	// Return the updated Soal

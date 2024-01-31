@@ -11,36 +11,16 @@ const defaultItem = {
   User: {}, // Initialize as an empty object
   Mapel: {}, // Initialize as an empty object
   Kelas: {}, // Initialize as an empty object
-  Jurusan: {}, // Initialize as an empty object
   TahunAjar: {}, // Initialize as an empty object
-  Soal: "",
-  OptionA: "",
-  OptionB: "",
-  OptionC: "",
-  OptionD: "",
-  OptionE: "",
-  KunciJawaban: "",
-  Materi: "",
-  Indikator: "",
-  TingkatKesukaran: "",
+  Pertanyaan: "",
 };
 
 const displayNames = {
   User: "Nama Penyusun",
   Mapel: "Mata Pelajaran",
   Kelas: "Kelas",
-  Jurusan: "Jurusan",
   TahunAjar: "Tahun Ajar",
-  Soal: "Soal",
-  OptionA: "Pilihan A",
-  OptionB: "Pilihan B",
-  OptionC: "Pilihan C",
-  OptionD: "Pilihan D",
-  OptionE: "Pilihan E",
-  KunciJawaban: "Kunci Jawaban",
-  Materi: "Materi",
-  Indikator: "Indikator",
-  TingkatKesukaran: "Tingkat Kesukaran",
+  Pertanyaan: "Pertanyaan",
 };
 
 export default defineComponent({
@@ -49,9 +29,7 @@ export default defineComponent({
       { key: "User", label: "Nama Penyusun", sortable: false },
       { key: "Mapel", label: "Mata Pelajaran", sortable: false },
       { key: "Kelas", label: "Kelas", sortable: false },
-      { key: "Jurusan", label: "Jurusan", sortable: false },
       { key: "TahunAjar", label: "Tahun Ajar", sortable: false },
-      { key: "Materi", label: "Materi", sortable: false },
       { key: "actions", label: "Actions", width: 80 },
     ];
 
@@ -65,20 +43,9 @@ export default defineComponent({
       usersOptions: [],
       mapelsOptions: [],
       kelasOptions: [],
-      jurusanOptions: [],
       tahunAjarOptions: [],
-      textAreaFields: [
-        "Soal",
-        "OptionA",
-        "OptionB",
-        "OptionC",
-        "OptionD",
-        "OptionE",
-        "KunciJawaban",
-        "Materi",
-        "Indikator",
-        "TingkatKesukaran",
-      ],
+      bankSoalOptions: [],
+      textAreaFields: ["Pertanyaan"],
       showModal: false,
       viewModalVisible: false,
       detailItem: null,
@@ -149,15 +116,12 @@ export default defineComponent({
         // Simulate a delay
         await new Promise((resolve) => setTimeout(resolve, 2000));
 
-        const response = await axios.get("http://localhost:3000/api/bank");
+        const response = await axios.get("http://localhost:3000/api/formatif");
         const userResponse = await axios.get(
           "http://localhost:3000/api/public/user",
         );
         const kelasResponse = await axios.get(
           "http://localhost:3000/api/public/kelas",
-        );
-        const jurusanResponse = await axios.get(
-          "http://localhost:3000/api/public/jurusan",
         );
         const mapelResponse = await axios.get(
           "http://localhost:3000/api/public/mapel",
@@ -167,12 +131,11 @@ export default defineComponent({
         );
 
         // Process the data and update the UI
-        console.log("Response from server (BankSoal):", response.data);
-        // console.log("Response from server (Users):", userResponse.data);
-        // console.log("Response from server (Kelas):", kelasResponse.data);
-        console.log("Response from server (Jurusan):", jurusanResponse.data);
-        // console.log("Response from server (Mapel):", mapelResponse.data);
-        // console.log("Response from server (Tahun):", tahunResponse.data);
+        console.log("Response from server (Kognitif):", response.data);
+        console.log("Response from server (Users):", userResponse.data);
+        console.log("Response from server (Kelas):", kelasResponse.data);
+        console.log("Response from server (Mapel):", mapelResponse.data);
+        console.log("Response from server (Tahun):", tahunResponse.data);
 
         // Populate usersOptions, mapelsOptions, kelasOptions, tahunAjarOptions
         this.usersOptions = this.extractOptions(userResponse.data.data, "Name");
@@ -183,12 +146,6 @@ export default defineComponent({
           "Kelas",
         );
         // console.log("Kelas options:", this.kelasOptions);
-
-        this.jurusanOptions = this.extractOptions(
-          jurusanResponse.data.data,
-          "Jurusan",
-        );
-        console.log("Jurusan options:", this.jurusanOptions);
 
         this.mapelsOptions = this.extractOptions(
           mapelResponse.data.data,
@@ -202,28 +159,17 @@ export default defineComponent({
         );
         // console.log("Tahun Ajar options:", this.tahunAjarOptions);
 
-        // Update the items array with BankSoal data
         this.items = response.data.data.map((item) => ({
           ...item,
           ID: item?.ID || "", // Use 'ID' instead of 'id'
           User: item?.User.Name || "",
           Mapel: item?.Mapel.Mapel || "",
           Kelas: item?.Kelas.Kelas || "",
-          Jurusan: item?.Jurusan.Jurusan || "",
           TahunAjar: item?.TahunAjar.Tahun || "",
-          Soal: item?.Soal || "",
-          OptionA: item?.OptionA || "",
-          OptionB: item?.OptionB || "",
-          OptionC: item?.OptionC || "",
-          OptionD: item?.OptionD || "",
-          OptionE: item?.OptionE || "",
-          KunciJawaban: item?.KunciJawaban || "",
-          Materi: item?.Materi || "",
-          Indikator: item?.Indikator || "",
-          TingkatKesukaran: item?.TingkatKesukaran || "",
+          Pertanyaan: item?.pertanyaan || "",
         }));
 
-        console.log("BankSoal items:", this.items);
+        console.log("Kognitif items:", this.items);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -240,23 +186,16 @@ export default defineComponent({
       try {
         console.log("Creating new item with data:", this.createdItem);
 
-        const response = await axios.post("http://localhost:3000/api/bank", {
-          UserID: this.createdItem.UserID.toString(),
-          MapelID: this.createdItem.MapelID.toString(),
-          KelasID: this.createdItem.KelasID.toString(),
-          JurusanID: this.createdItem.JurusanID.toString(),
-          TahunAjarID: this.createdItem.TahunAjarID.toString(),
-          Soal: this.createdItem.Soal,
-          OptionA: this.createdItem.OptionA,
-          OptionB: this.createdItem.OptionB,
-          OptionC: this.createdItem.OptionC,
-          OptionD: this.createdItem.OptionD,
-          OptionE: this.createdItem.OptionE,
-          KunciJawaban: this.createdItem.KunciJawaban,
-          Materi: this.createdItem.Materi,
-          Indikator: this.createdItem.Indikator,
-          TingkatKesukaran: this.createdItem.TingkatKesukaran,
-        });
+        const response = await axios.post(
+          "http://localhost:3000/api/formatif",
+          {
+            userID: this.createdItem.UserID,
+            mapelId: this.createdItem.MapelID,
+            kelasId: this.createdItem.KelasID,
+            tahunAjarId: this.createdItem.TahunAjarID,
+            pertanyaan: this.createdItem.Pertanyaan,
+          },
+        );
 
         this.items.push({
           ...this.createdItem,
@@ -283,12 +222,11 @@ export default defineComponent({
         delete editedData.User;
         delete editedData.Mapel;
         delete editedData.Kelas;
-        delete editedData.Jurusan;
         delete editedData.TahunAjar;
 
         const response = await axios.put(
-          `http://localhost:3000/api/bank/${this.editedItem.id}`,
-          editedData,
+          `http://localhost:3000/api/formatif/${this.editedItem.id}`,
+          ...editedData,
         );
 
         // Handle the response from the server
@@ -321,16 +259,16 @@ export default defineComponent({
       if (window.confirm("Are you sure you want to delete this item?")) {
         try {
           const response = await axios.delete(
-            `http://localhost:3000/api/bank/${id}`,
+            `http://localhost:3000/api/formatif/${id}`,
           );
 
-          // Check if deletedBankSoal is not null
+          // Check if deletedFormatif is not null
           if (response.data && response.data.data) {
-            const deletedBankSoal = response.data.data;
+            const deletedFormatif = response.data.data;
 
             // Remove the item from the items array
             this.items = this.items.filter(
-              (item) => item.id !== deletedBankSoal.id,
+              (item) => item.id !== deletedFormatif.id,
             );
           }
 
@@ -350,21 +288,13 @@ export default defineComponent({
       console.log("Opening detail modal with ID:", selectedItemId);
 
       axios
-        .get(`http://localhost:3000/api/kognitif/${selectedItemId}`)
+        .get(`http://localhost:3000/api/formatif/${selectedItemId}`)
         .then((response) => {
           const data = response.data.data;
           if (data) {
-            console.log("Data:", data); // Log the data
-
-            this.detailItem = reactive({
-              BankSoalID: data.BankSoalID || "",
-              Soal: data.BankSoal.Soal || "",
-              OptionA: data.BankSoal.OptionA || "",
-              OptionB: data.BankSoal.OptionB || "",
-              OptionC: data.BankSoal.OptionC || "",
-              OptionD: data.BankSoal.OptionD || "",
-              OptionE: data.BankSoal.OptionE || "",
-            });
+            this.detailItem = {
+              Pertanyaan: data.pertanyaan || "",
+            };
 
             console.log("Detail item:", this.detailItem); // Log the detail item
 
@@ -384,7 +314,7 @@ export default defineComponent({
       try {
         // Fetch the necessary data directly from the server
         const response = await axios.get(
-          `http://localhost:3000/api/bank/${selectedItemId}`,
+          `http://localhost:3000/api/formatif/${selectedItemId}`,
         );
         const data = response.data.data;
 
@@ -396,7 +326,7 @@ export default defineComponent({
 
           const tableBody = [
             [
-              { text: "Judul BankSoal", fontSize: 10, bold: true },
+              { text: "Judul Capaian", fontSize: 10, bold: true },
               { text: "Judul Elemen", fontSize: 10, bold: true },
               { text: "Keterangan Elemen", fontSize: 10, bold: true },
               { text: "Keterangan Proses Mengamati", fontSize: 10, bold: true },
@@ -423,7 +353,7 @@ export default defineComponent({
               },
             ],
             [
-              "judulBankSoal" in data ? data.judulBankSoal : "N/A",
+              "judulCapaian" in data ? data.judulCapaian : "N/A",
               "judulElemen" in data ? data.judulElemen : "N/A",
               "ketElemen" in data ? data.ketElemen : "N/A",
               "ketProsesMengamati" in data ? data.ketProsesMengamati : "N/A",
@@ -458,7 +388,7 @@ export default defineComponent({
             },
             content: [
               {
-                text: "BankSoal Pembelajaran",
+                text: "Capaian Pembelajaran",
                 fontSize: 12,
                 bold: true,
                 alignment: "center",
@@ -499,6 +429,13 @@ export default defineComponent({
       return data.map((item) => ({
         label: item[labelProperty] ? item[labelProperty] : "", // Use '' if labelProperty is null or undefined
         value: item.ID, // Use 'ID' instead of 'id'
+        options: {
+          OptionA: item.OptionA,
+          OptionB: item.OptionB,
+          OptionC: item.OptionC,
+          OptionD: item.OptionD,
+          OptionE: item.OptionE,
+        },
       }));
     },
 
@@ -529,8 +466,22 @@ export default defineComponent({
       this.detailModalVisible = false;
     },
 
-    incrementTableKey() {
-      this.tableKey++;
+    handleSelect(selectedOption) {
+      this.createdItem.BankSoalID = selectedOption.value;
+    },
+  },
+
+  watch: {
+    BankSoalID(newVal) {
+      // Find the selected BankSoal
+      const selectedBankSoal = this.bankSoalOptions.find(
+        (option) => option.value === newVal,
+      );
+
+      // Filter the bankSoalOptions based on the selected Soal
+      this.bankSoalOptions = this.bankSoalOptions.filter(
+        (option) => option.label === selectedBankSoal.label,
+      );
     },
   },
 
@@ -556,7 +507,7 @@ export default defineComponent({
       border-color="#000000"
     >
       <va-button @click="toggleAddModal" preset="secondary" icon="add"
-        >Add BankSoal Pembelajaran</va-button
+        >Add Asesmen Formatif</va-button
       >
     </va-button-group>
   </div>
@@ -594,7 +545,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       stripe
-      title="Add Bank Soal"
+      title="Add Asesmen Kognitif"
       size="large"
       :model-value="showModal"
       @ok="addNewItem"
@@ -626,14 +577,6 @@ export default defineComponent({
         value-by="value"
       />
       <va-select
-        v-model="createdItem.JurusanID"
-        :label="displayNames.Jurusan"
-        :options="jurusanOptions"
-        class="my-6"
-        text-by="label"
-        value-by="value"
-      />
-      <va-select
         v-model="createdItem.TahunAjarID"
         :label="displayNames.TahunAjar"
         :options="tahunAjarOptions"
@@ -642,7 +585,6 @@ export default defineComponent({
         value-by="value"
       />
 
-      <!-- Using va-textarea for other fields -->
       <va-textarea
         v-for="key in textAreaFields"
         :key="key"
@@ -656,7 +598,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       :model-value="!!editedItem"
-      title="Edit Bank Soal"
+      title="Edit Asesmen Kognitif"
       size="large"
       @ok="editItem"
       @cancel="resetEditedItem"
@@ -686,14 +628,6 @@ export default defineComponent({
         value-by="value"
       />
       <va-select
-        v-model="editedItem.JurusanID"
-        :label="displayNames.Jurusan"
-        :options="jurusanOptions"
-        class="my-6"
-        text-by="label"
-        value-by="value"
-      />
-      <va-select
         v-model="editedItem.TahunAjarID"
         :label="displayNames.TahunAjar"
         :options="tahunAjarOptions"
@@ -702,7 +636,6 @@ export default defineComponent({
         value-by="value"
       />
 
-      <!-- Using va-textarea for other fields -->
       <va-textarea
         v-for="key in textAreaFields"
         :key="key"
@@ -716,7 +649,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       stripe
-      title="Detail Bank Soal"
+      title="Detail Asesmen Formatif"
       size="large"
       :model-value="detailModalVisible"
       @ok="resetDetailItem"

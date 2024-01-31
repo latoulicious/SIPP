@@ -33,6 +33,9 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	tahunRepository := repository.NewTahunRepository(database.DB)
 	tahunService := service.NewTahunService(tahunRepository)
 	tahunHandler := handler.NewTahunHandler(tahunService)
+	jurusanRepository := repository.NewJurusanRepository(database.DB)
+	jurusanService := service.NewJurusanService(jurusanRepository)
+	jurusanHandler := handler.NewJurusanHandler(jurusanService)
 
 	// General Usage
 	capaianRepository := repository.NewCapaianRepository(database.DB)
@@ -44,9 +47,24 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	modulRepository := repository.NewModulRepository(database.DB)
 	modulService := service.NewModulService(modulRepository)
 	modulHandler := handler.NewModulHandler(modulService)
-	penilaianRepository := repository.NewPenilaianRepository(database.DB)
-	penilaianService := service.NewPenilaianService(penilaianRepository)
-	penilaianHandler := handler.NewPenilaianHandler(penilaianService)
+	// penilaianRepository := repository.NewPenilaianRepository(database.DB)
+	// penilaianService := service.NewPenilaianService(penilaianRepository)
+	// penilaianHandler := handler.NewPenilaianHandler(penilaianService)
+	kognitifRepository := repository.NewKognitifRepository(database.DB)
+	kognitifService := service.NewKognitifService(kognitifRepository)
+	kognitifHandler := handler.NewKognitifHandler(kognitifService)
+	formatifRepository := repository.NewFormatifRepository(database.DB)
+	formatifService := service.NewFormatifService(formatifRepository)
+	formatifHandler := handler.NewFormatifHandler(formatifService)
+	sumatifRepository := repository.NewSumatifRepository(database.DB)
+	sumatifService := service.NewSumatifService(sumatifRepository)
+	sumatifHandler := handler.NewSumatifHandler(sumatifService)
+	remedialRepository := repository.NewRemedialRepository(database.DB)
+	remedialService := service.NewRemedialService(remedialRepository)
+	remedialHandler := handler.NewRemedialHandler(remedialService)
+	pengayaanRepository := repository.NewPengayaanRepository(database.DB)
+	pengayaanService := service.NewPengayaanService(pengayaanRepository)
+	pengayaanHandler := handler.NewPengayaanHandler(pengayaanService)
 	soalRepository := repository.NewSoalRepository(database.DB)
 	soalService := service.NewSoalService(soalRepository)
 	soalHandler := handler.NewSoalHandler(soalService)
@@ -103,6 +121,14 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	tahunRoutes.Put("/:id", tahunHandler.UpdateTahun)
 	tahunRoutes.Delete("/:id", tahunHandler.DeleteTahun)
 
+	// Jurusan routes
+	jurusanRoutes := api.Group("/jurusan")
+	jurusanRoutes.Get("/", jurusanHandler.GetJurusan)
+	jurusanRoutes.Get("/:id", jurusanHandler.GetJurusanByID)
+	jurusanRoutes.Post("/", jurusanHandler.CreateJurusan)
+	jurusanRoutes.Put("/:id", jurusanHandler.UpdateJurusan)
+	jurusanRoutes.Delete("/:id", jurusanHandler.DeleteJurusan)
+
 	// General usage routes
 
 	// Capaian routes
@@ -130,12 +156,52 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	modulRoutes.Delete("/:id", modulHandler.DeleteModul)
 
 	// Penilaian routes
-	penilaianRoutes := api.Group("/penilaian")
-	penilaianRoutes.Get("/", penilaianHandler.GetPenilaian)
-	penilaianRoutes.Get("/:id", penilaianHandler.GetPenilaianByID)
-	penilaianRoutes.Post("/", penilaianHandler.CreatePenilaian)
-	penilaianRoutes.Put("/:id", penilaianHandler.UpdatePenilaian)
-	penilaianRoutes.Delete("/:id", penilaianHandler.DeletePenilaian)
+	// penilaianRoutes := api.Group("/penilaian")
+	// penilaianRoutes.Get("/", penilaianHandler.GetPenilaian)
+	// penilaianRoutes.Get("/:id", penilaianHandler.GetPenilaianByID)
+	// penilaianRoutes.Post("/", penilaianHandler.CreatePenilaian)
+	// penilaianRoutes.Put("/:id", penilaianHandler.UpdatePenilaian)
+	// penilaianRoutes.Delete("/:id", penilaianHandler.DeletePenilaian)
+
+	// Kognitif routes
+	kognitifRoutes := api.Group("/kognitif")
+	kognitifRoutes.Get("/", kognitifHandler.GetKognitif)
+	kognitifRoutes.Get("/:id", kognitifHandler.GetKognitifByID)
+	kognitifRoutes.Post("/", kognitifHandler.CreateKognitif)
+	kognitifRoutes.Put("/:id", kognitifHandler.UpdateKognitif)
+	kognitifRoutes.Delete("/:id", kognitifHandler.DeleteKognitif)
+
+	// Formatif routes
+	formatifRoutes := api.Group("/formatif")
+	formatifRoutes.Get("/", formatifHandler.GetFormatif)
+	formatifRoutes.Get("/:id", formatifHandler.GetFormatifByID)
+	formatifRoutes.Post("/", formatifHandler.CreateFormatif)
+	formatifRoutes.Put("/:id", formatifHandler.UpdateFormatif)
+	formatifRoutes.Delete("/:id", formatifHandler.DeleteFormatif)
+
+	// Sumatif routes
+	sumatifRoutes := api.Group("/sumatif")
+	sumatifRoutes.Get("/", sumatifHandler.GetSumatif)
+	sumatifRoutes.Get("/:id", sumatifHandler.GetSumatifByID)
+	sumatifRoutes.Post("/", sumatifHandler.CreateSumatif)
+	sumatifRoutes.Put("/:id", sumatifHandler.UpdateSumatif)
+	sumatifRoutes.Delete("/:id", sumatifHandler.DeleteSumatif)
+
+	// Remedial routes
+	remedialRoutes := api.Group("/remedial")
+	remedialRoutes.Get("/", remedialHandler.GetRemedial)
+	remedialRoutes.Get("/:id", remedialHandler.GetRemedialByID)
+	remedialRoutes.Post("/", remedialHandler.CreateRemedial)
+	remedialRoutes.Put("/:id", remedialHandler.UpdateRemedial)
+	remedialRoutes.Delete("/:id", remedialHandler.DeleteRemedial)
+
+	// Pengayaan routes
+	pengayaanRoutes := api.Group("/pengayaan")
+	pengayaanRoutes.Get("/", pengayaanHandler.GetPengayaan)
+	pengayaanRoutes.Get("/:id", pengayaanHandler.GetPengayaanByID)
+	pengayaanRoutes.Post("/", pengayaanHandler.CreatePengayaan)
+	pengayaanRoutes.Put("/:id", pengayaanHandler.UpdatePengayaan)
+	pengayaanRoutes.Delete("/:id", pengayaanHandler.DeletePengayaan)
 
 	// Soal routes
 	soalRoutes := api.Group("/soal")
@@ -167,6 +233,7 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	publicRoutes.Get("/tahun", tahunHandler.GetTahunPublic)
 	publicRoutes.Get("/kelas", kelasHandler.GetKelasPublic)
 	publicRoutes.Get("/mapel", mapelHandler.GetMapelPublic)
+	publicRoutes.Get("/jurusan", jurusanHandler.GetJurusanPublic)
 
 	// misc routes
 	app.Get("/api/get-jwt-secret", func(c *fiber.Ctx) error {

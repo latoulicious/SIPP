@@ -26,7 +26,7 @@ func (handler *BankHandler) GetBank(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting bank", "data": err})
 	}
 
-	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Bank retrieved successfully", "data": bank})
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "BankSoal retrieved successfully", "data": bank})
 }
 
 func (handler *BankHandler) GetBankByID(c *fiber.Ctx) error {
@@ -40,30 +40,32 @@ func (handler *BankHandler) GetBankByID(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting bank", "data": err})
 	}
 
-	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Bank retrieved successfully", "data": bank})
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "BankSoal retrieved successfully", "data": bank})
 }
 
 func (handler *BankHandler) CreateBank(c *fiber.Ctx) error {
-	var bank model.BankSoal
 
-	// Log Request Body for debugging purposes
+	bank := new(model.BankSoal)
+
+	// Log request body for debugging purposes
 	log.Printf("Request Body: %+v\n", bank)
+	log.Printf("Received BankSoal object: %+v\n", bank)
 
-	err := c.BodyParser(&bank)
+	err := c.BodyParser(bank)
 	if err != nil {
 		// Log parsing error for debugging purposes
 		log.Printf("Error parsing request body: %v\n", err)
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Review your input", "data": err})
 	}
 
-	err = handler.BankService.CreateBank(&bank)
+	err = handler.BankService.CreateBank(bank)
 	if err != nil {
 		// Log creation error for debugging purposes
 		log.Printf("Error creating bank: %v\n", err)
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Couldn't create bank", "data": err})
 	}
 
-	return c.JSON(fiber.Map{"status": "success", "message": "Bank created", "data": bank})
+	return c.JSON(fiber.Map{"status": "success", "message": "BankSoal created", "data": bank})
 }
 
 func (handler *BankHandler) UpdateBank(c *fiber.Ctx) error {
@@ -72,26 +74,32 @@ func (handler *BankHandler) UpdateBank(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Invalid UUID", "data": nil})
 	}
 
-	// Retrieve the existing Bank by ID
-	bank, err := handler.BankService.GetBankByID(bankID)
-	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Bank not found", "data": nil})
-	}
+	bank := new(model.BankSoal)
+	bank.ID = bankID
 
-	// Parse the JSON body into the existing Bank struct
+	// Parse the JSON body into the existing BankSoal struct
 	err = c.BodyParser(bank)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Review your input", "data": err})
 	}
 
-	// Update the Bank in the database
+	log.Printf("Updated BankSoal: %+v\n", bank)
+	log.Print(bank.UserID)
+
+	// Update the BankSoal in the database
 	err = handler.BankService.UpdateBank(bank)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Couldn't update bank", "data": err})
 	}
 
-	// Return the updated Bank
-	return c.JSON(fiber.Map{"status": "success", "message": "Bank updated", "data": bank})
+	// Retrieve the existing BankSoal by ID
+	bank, err = handler.BankService.GetBankByID(bankID)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "BankSoal not found", "data": nil})
+	}
+
+	// Return the updated BankSoal
+	return c.JSON(fiber.Map{"status": "success", "message": "BankSoal updated", "data": bank})
 }
 
 func (handler *BankHandler) DeleteBank(c *fiber.Ctx) error {
@@ -100,12 +108,12 @@ func (handler *BankHandler) DeleteBank(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Invalid UUID", "data": nil})
 	}
 
-	// Delete the Bank from the database
+	// Delete the BankSoal from the database
 	err = handler.BankService.DeleteBank(bankID)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Couldn't delete bank", "data": err})
 	}
 
 	// Return success message
-	return c.JSON(fiber.Map{"status": "success", "message": "Bank deleted", "data": nil})
+	return c.JSON(fiber.Map{"status": "success", "message": "BankSoal deleted", "data": nil})
 }
