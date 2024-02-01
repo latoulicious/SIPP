@@ -8,6 +8,16 @@ import (
 type BankSoal struct {
 	gorm.Model
 	ID               uuid.UUID `gorm:"type:uuid;primary_key"`
+	UserID           uuid.UUID `gorm:"type:uuid" json:"userID"`
+	User             Users     `gorm:"foreignKey:UserID"`
+	MapelID          uuid.UUID `gorm:"type:uuid" json:"mapelId"`
+	Mapel            Mapel     `gorm:"foreignKey:MapelID"`
+	KelasID          uuid.UUID `gorm:"type:uuid" json:"kelasId"`
+	Kelas            Kelas     `gorm:"foreignKey:KelasID"`
+	JurusanID        uuid.UUID `gorm:"type:uuid" json:"jurusanId"`
+	Jurusan          Jurusan   `gorm:"foreignKey:JurusanID"`
+	TahunAjarID      uuid.UUID `gorm:"type:uuid" json:"tahunAjarId"`
+	TahunAjar        TahunAjar `gorm:"foreignKey:TahunAjarID"`
 	Soal             string
 	OptionA          string
 	OptionB          string
@@ -18,5 +28,4 @@ type BankSoal struct {
 	Materi           string
 	Indikator        string
 	TingkatKesukaran string
-	FaktorKognitif   string
 }

@@ -43,6 +43,16 @@ func (handler *UserHandler) GetUserByID(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"status": "success", "message": "User Found", "data": user})
 }
 
+func (handler *UserHandler) GetAllUsersPublic(c *fiber.Ctx) error {
+	// Implement logic to fetch all users without requiring JWT authentication
+	users, err := handler.UserService.GetUsersPublic()
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting users", "data": err})
+	}
+
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Users retrieved successfully", "data": users})
+}
+
 func (handler *UserHandler) CreateUser(c *fiber.Ctx) error {
 	user := new(model.Users)
 

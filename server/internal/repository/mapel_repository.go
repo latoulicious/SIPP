@@ -28,16 +28,25 @@ func (repository *MapelRepository) GetMapel() ([]model.Mapel, error) {
 func (repository *MapelRepository) GetMapelByID(mapelID uuid.UUID) (*model.Mapel, error) {
 	var mapel model.Mapel
 	if err := repository.DB.First(&mapel, "id = ?", mapelID).Error; err != nil {
-		// Log an error if user retrieval fails
+		// Log an error if mapel retrieval fails
 		log.Printf("Error fetching mapel by ID %s: %s\n", mapelID.String(), err.Error())
 		return nil, err
 	}
 
-	// Log successful user retrieval
+	// Log successful mapel retrieval
 	if os.Getenv("ENVIRONMENT") == "development" {
 		log.Printf("Mapel fetched by ID %s:", mapelID.String())
 	}
 	return &mapel, nil
+}
+
+func (repository *MapelRepository) GetMapelPublic() ([]model.Mapel, error) {
+	// Implement logic to fetch all mapel without requiring JWT authentication
+	var mapel []model.Mapel
+	if err := repository.DB.Find(&mapel).Error; err != nil {
+		return nil, err
+	}
+	return mapel, nil
 }
 
 func (repository *MapelRepository) CreateMapel(mapel *model.Mapel) error {

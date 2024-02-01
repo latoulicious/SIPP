@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import TableAsesmen from "@/components/core/TableAsesmen.vue";
+import TableKognitif from "@/components/core/TableKognitif.vue";
 </script>
 
 <template>
   <CorePageLayout>
     <va-card stripe stripe-color="danger">
-      <va-card-title>Data Asesmen</va-card-title>
+      <va-card-title>Data Asesmen Kognitif</va-card-title>
       <va-card-content>
-        <TableAsesmen />
+        <TableKognitif />
       </va-card-content>
     </va-card>
   </CorePageLayout>

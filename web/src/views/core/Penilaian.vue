@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import TablePRP from "@/components/core/TablePRP.vue";
+import TablePenilaian from "@/components/core/TablePenilaian.vue";
 </script>
 
 <template>
@@ -7,7 +7,7 @@ import TablePRP from "@/components/core/TablePRP.vue";
     <va-card stripe stripe-color="danger">
       <va-card-title>Data Penilaian Ranah Pengetahuan</va-card-title>
       <va-card-content>
-        <TablePRP />
+        <TablePenilaian />
       </va-card-content>
     </va-card>
   </CorePageLayout>

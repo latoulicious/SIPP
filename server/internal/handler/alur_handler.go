@@ -14,7 +14,9 @@ type AlurHandler struct {
 }
 
 func NewAlurHandler(alurService *service.AlurService) *AlurHandler {
-	return &AlurHandler{AlurService: alurService}
+	return &AlurHandler{
+		AlurService: alurService,
+	}
 }
 
 func (handler *AlurHandler) GetAlur(c *fiber.Ctx) error {

@@ -1,10 +1,9 @@
-.PHONY: frontend backend
+.PHONY: server web
 
-frontend:
-	cd web && yarn dev
+server:
+	$(MAKE) -C server go
 
-backend:
-	cd server && air
+web:
+	$(MAKE) -C web vue
 
-run:
-wt -d web yarn dev ; wt -d server air
+run: server web

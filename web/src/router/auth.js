@@ -10,8 +10,9 @@ function requireAuth(to, from, next) {
 
   const decodedToken = decodeJwt(jwtToken);
   const isAdmin = decodedToken && decodedToken.role === "Admin";
+  const isGuru = decodedToken && decodedToken.role === "Guru";
 
-  if (isAdmin) {
+  if (isAdmin || isGuru) {
     next();
   } else {
     next("/unauthorized");

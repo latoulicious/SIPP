@@ -1,0 +1,181 @@
+// User
+
+{
+    "data": [
+        {
+            "CreatedAt": "2020-12-06T23:17:45+07:00",
+            "UpdatedAt": "2023-12-22T02:44:22.806077+07:00",
+            "DeletedAt": null,
+            "ID": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+            "Username": "Yorushika",
+            "Password": "$2a$10$tgnXtYNs.z/EKTVow7LnuOHbaH68mF3Rt16IQBGyVn59w3z5gcZDG",
+            "Name": "John Doe",
+            "NIP": "123456789",
+            "Golongan": "Gol1",
+            "Role": "Admin"
+        },
+        {
+            "CreatedAt": "2020-12-07T23:32:17+07:00",
+            "UpdatedAt": "2023-12-22T02:44:22.886841+07:00",
+            "DeletedAt": null,
+            "ID": "1e63f299-8643-4cbf-92b3-af741f7f1920",
+            "Username": "Machina",
+            "Password": "$2a$10$tmH4DP8H3YQ45Z9aDsYc4.VTMt9oB/UpMzXIaTR5QZd65HHWWVx0.",
+            "Name": "Jane Doe",
+            "NIP": "987654321",
+            "Golongan": "Gol2",
+            "Role": "Guru"
+        },
+        {
+            "CreatedAt": "2023-12-23T11:45:11.965578+07:00",
+            "UpdatedAt": "2023-12-23T20:10:34.797801+07:00",
+            "DeletedAt": null,
+            "ID": "346a681b-800b-4e8a-87c5-ce6859313d08",
+            "Username": "Zutomayo",
+            "Password": "$2a$10$yyPifya67.oeIxcCGkwfvOj8/h4BF5EmdTOB6T8o9Y1hrRSwQJdzO",
+            "Name": "Yamanin Zephyr",
+            "NIP": "111222333",
+            "Golongan": "Gol5",
+            "Role": "Admin"
+        },
+        {
+            "CreatedAt": "2024-01-15T16:14:13.193949+07:00",
+            "UpdatedAt": "2024-01-15T16:14:13.193949+07:00",
+            "DeletedAt": null,
+            "ID": "5a3df56d-5088-4f7c-84a7-6984ccd1cd36",
+            "Username": "Admin",
+            "Password": "$2a$10$OJBhMtyGJ4rU5aRF5DG1/O/UziRRfn1wdpA6K1WsWA4eycMDQ0/Bq",
+            "Name": "Test Account",
+            "NIP": "123123123",
+            "Golongan": "Gol5",
+            "Role": "Admin"
+        },
+        {
+            "CreatedAt": "2024-01-15T16:18:42.568546+07:00",
+            "UpdatedAt": "2024-01-15T16:18:42.568546+07:00",
+            "DeletedAt": null,
+            "ID": "dbdba2f3-bf01-4501-9cc0-6ec48b158536",
+            "Username": "Guru",
+            "Password": "$2a$10$9BJfe/sz9yPBhnvQvzJxDO7Xz/tc3J0zso.Ps4iB8vpk1ze5wX4R6",
+            "Name": "Test Account",
+            "NIP": "999888777",
+            "Golongan": "Gol1",
+            "Role": "Guru"
+        }
+    ],
+    "message": "Users retrieved successfully",
+    "status": "success"
+}
+
+// Mapel
+
+{
+    "data": [
+        {
+            "CreatedAt": "2024-01-10T11:21:51.634167+07:00",
+            "UpdatedAt": "2024-01-10T11:21:51.634167+07:00",
+            "DeletedAt": null,
+            "ID": "47b2cb10-1e61-4ac7-9d78-077cda4c3a13",
+            "Mapel": "Matematika"
+        },
+        {
+            "CreatedAt": "2024-01-10T11:21:51.634167+07:00",
+            "UpdatedAt": "2024-01-10T11:21:51.634167+07:00",
+            "DeletedAt": null,
+            "ID": "863378ec-4b14-4e7a-b25c-63e6b5f24da8",
+            "Mapel": "Kimia"
+        },
+        {
+            "CreatedAt": "2024-01-10T11:21:51.634167+07:00",
+            "UpdatedAt": "2024-01-10T11:21:51.634167+07:00",
+            "DeletedAt": null,
+            "ID": "3e05607e-1db7-4e50-bae0-3d5c105fa981",
+            "Mapel": "Fisika"
+        },
+    ],
+    "message": "Mapels retrieved successfully",
+    "status": "success"
+}
+
+// Kelas
+
+{
+    "data": [
+        {
+            "CreatedAt": "2024-01-10T11:20:18.267919+07:00",
+            "UpdatedAt": "2024-01-10T11:20:18.267919+07:00",
+            "DeletedAt": null,
+            "ID": "a1f447f8-b5ee-4a5a-b8ce-99b47d8c883f",
+            "Kelas": "10"
+        },
+        {
+            "CreatedAt": "2024-01-10T11:20:18.267919+07:00",
+            "UpdatedAt": "2024-01-16T14:30:40.645386+07:00",
+            "DeletedAt": null,
+            "ID": "1b5931cb-5d3c-4cb6-9e1d-207c49e2e6da",
+            "Kelas": "11"
+        },
+        {
+            "CreatedAt": "2024-01-10T11:20:18.267919+07:00",
+            "UpdatedAt": "2024-01-16T14:30:51.862805+07:00",
+            "DeletedAt": null,
+            "ID": "98f8f8f1-b43a-4381-bc36-15debc1cc2f9",
+            "Kelas": "12"
+        }
+    ],
+    "message": "Kelas retrieved successfully",
+    "status": "success"
+}
+
+// Jurusan
+
+{
+    "data": [
+        {
+            "CreatedAt": "2024-01-30T15:13:31.686647+07:00",
+            "UpdatedAt": "2024-01-30T15:13:31.686647+07:00",
+            "DeletedAt": null,
+            "ID": "35a13895-ae2d-4774-a865-41887d87ce8f",
+            "Jurusan": "test"
+        },
+        {
+            "CreatedAt": "2024-01-30T15:13:35.199643+07:00",
+            "UpdatedAt": "2024-01-30T15:13:35.199643+07:00",
+            "DeletedAt": null,
+            "ID": "dcc61a0c-ad04-45f9-975b-98056219c3ae",
+            "Jurusan": "test 2"
+        }
+    ],
+    "message": "Jurusan retrieved successfully",
+    "status": "success"
+}
+
+// Tahun
+
+{
+    "data": [
+        {
+            "CreatedAt": "2024-01-10T11:18:18.085525+07:00",
+            "UpdatedAt": "2024-01-16T14:54:57.505855+07:00",
+            "DeletedAt": null,
+            "ID": "a1f447f8-b5ee-4a5a-b8ce-99b47d8c883f",
+            "Tahun": "2021"
+        },
+        {
+            "CreatedAt": "2024-01-10T11:18:18.085525+07:00",
+            "UpdatedAt": "2024-01-10T11:18:18.085525+07:00",
+            "DeletedAt": null,
+            "ID": "1b5931cb-5d3c-4cb6-9e1d-207c49e2e6da",
+            "Tahun": "2023"
+        },
+        {
+            "CreatedAt": "2024-01-10T11:18:18.085525+07:00",
+            "UpdatedAt": "2024-01-10T11:18:18.085525+07:00",
+            "DeletedAt": null,
+            "ID": "98f8f8f1-b43a-4381-bc36-15debc1cc2f9",
+            "Tahun": "2024"
+        },
+    ],
+    "message": "Tahun retrieved successfully",
+    "status": "success"
+}

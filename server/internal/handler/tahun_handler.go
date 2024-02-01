@@ -20,10 +20,10 @@ func NewTahunHandler(tahunService *service.TahunService) *TahunHandler {
 func (handler *TahunHandler) GetTahun(c *fiber.Ctx) error {
 	tahun, err := handler.TahunService.GetTahun()
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting users", "data": err})
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting tahun", "data": err})
 	}
 
-	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Users retrieved successfully", "data": tahun})
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Tahun retrieved successfully", "data": tahun})
 }
 
 func (handler *TahunHandler) GetTahunByID(c *fiber.Ctx) error {
@@ -33,6 +33,16 @@ func (handler *TahunHandler) GetTahunByID(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{"status": "success", "message": "Tahun retrieved successfully", "data": tahunID})
+}
+
+func (handler *TahunHandler) GetTahunPublic(c *fiber.Ctx) error {
+	// Implement logic to fetch all tahun without requiring JWT authentication
+	tahun, err := handler.TahunService.GetTahunPublic()
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting tahun", "data": err})
+	}
+
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Tahun retrieved successfully", "data": tahun})
 }
 
 func (handler *TahunHandler) CreateTahun(c *fiber.Ctx) error {

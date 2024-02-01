@@ -1,5 +1,3 @@
-// repository/user_repository.go
-
 package repository
 
 import (
@@ -41,6 +39,15 @@ func (repository *UserRepository) GetUserByID(userID uuid.UUID) (*model.Users, e
 		log.Printf("User fetched by ID %s: Name: %s\n Role: %s", userID.String(), user.Name, user.Role)
 	}
 	return &user, nil
+}
+
+func (repository *UserRepository) GetUsersPublic() ([]model.Users, error) {
+	// Implement logic to fetch all users without requiring JWT authentication
+	var users []model.Users
+	if err := repository.DB.Find(&users).Error; err != nil {
+		return nil, err
+	}
+	return users, nil
 }
 
 func (repository *UserRepository) CreateUser(user *model.Users) error {
