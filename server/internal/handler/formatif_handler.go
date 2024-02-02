@@ -44,27 +44,27 @@ func (handler *FormatifHandler) GetFormatifByID(c *fiber.Ctx) error {
 }
 
 func (handler *FormatifHandler) CreateFormatif(c *fiber.Ctx) error {
+	rawBody := c.Body()
+	log.Printf("Raw Request Body: %s\n", rawBody)
 
 	formatif := new(model.Formatif)
 
-	// Log request body for debugging purposes
-	log.Printf("Request Body: %+v\n", formatif)
-	log.Printf("Received Formatif object: %+v\n", formatif)
-
-	err := c.BodyParser(formatif)
-	if err != nil {
-		// Log parsing error for debugging purposes
+	// Parse the request body into the formatif struct
+	if err := c.BodyParser(formatif); err != nil {
 		log.Printf("Error parsing request body: %v\n", err)
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Review your input", "data": err})
 	}
 
-	err = handler.FormatifService.CreateFormatif(formatif)
-	if err != nil {
-		// Log creation error for debugging purposes
+	// Log the parsed formatif object
+	log.Printf("Parsed Formatif object: %+v\n", formatif)
+
+	// Call the repository method to create the formatif
+	if err := handler.FormatifService.CreateFormatif(formatif); err != nil {
 		log.Printf("Error creating formatif: %v\n", err)
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Couldn't create formatif", "data": err})
 	}
 
+	// Return the created formatif as the response
 	return c.JSON(fiber.Map{"status": "success", "message": "Formatif created", "data": formatif})
 }
 

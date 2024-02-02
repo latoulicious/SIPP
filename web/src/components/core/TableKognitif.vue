@@ -1,7 +1,6 @@
 <script>
 import { defineComponent } from "vue";
 import { ref } from "vue";
-import { reactive } from "vue";
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 import axios from "axios";
@@ -29,11 +28,11 @@ const displayNames = {
   Kelas: "Kelas",
   TahunAjar: "Tahun Ajar",
   BankSoal: "Soal",
-  OptionA: "Option A",
-  OptionB: "Option B",
-  OptionC: "Option C",
-  OptionD: "Option D",
-  OptionE: "Option E",
+  OptionA: "Pilihan A",
+  OptionB: "Pilihan B",
+  OptionC: "Pilihan C",
+  OptionD: "Pilihan D",
+  OptionE: "Pilihan E",
 };
 
 export default defineComponent({
@@ -43,12 +42,7 @@ export default defineComponent({
       { key: "Mapel", label: "Mata Pelajaran", sortable: false },
       { key: "Kelas", label: "Kelas", sortable: false },
       { key: "TahunAjar", label: "Tahun Ajar", sortable: false },
-      //   { key: "Soal", label: "Soal", sortable: false },
-      //   { key: "OptionA", label: "Option A", sortable: false },
-      //   { key: "OptionB", label: "Option B", sortable: false },
-      //   { key: "OptionC", label: "Option C", sortable: false },
-      //   { key: "OptionD", label: "Option D", sortable: false },
-      //   { key: "OptionE", label: "Option E", sortable: false },
+      { key: "Soal", label: "Soal", sortable: false },
       { key: "actions", label: "Actions", width: 80 },
     ];
 
@@ -66,9 +60,9 @@ export default defineComponent({
       bankSoalOptions: [],
       showModal: false,
       viewModalVisible: false,
-      detailItem: null,
-      detailModalVisible: false,
       displayNames,
+      detailItem: {},
+      detailModalVisible: false,
       loading: false,
     };
   },
@@ -234,9 +228,12 @@ export default defineComponent({
 
         console.log("Server Response:", response.data);
 
-        this.resetCreatedItem();
         // Re-fetch the data to refresh the table
         await this.fetchData();
+
+        setTimeout(() => {
+          this.resetCreatedItem();
+        }, 500);
       } catch (error) {
         console.error("Error adding new item:", error);
       }
@@ -254,39 +251,12 @@ export default defineComponent({
         delete editedData.Mapel;
         delete editedData.Kelas;
         delete editedData.TahunAjar;
+        delete editedData.BankSoal;
 
         const response = await axios.put(
-          `http://localhost:3000/api/kognitif/${this.editedItem.id}`,
-          {
-            ...editedData,
-            bankSoalId: this.editedItem.BankSoalID,
-            BankSoal: {
-              Soal: this.editedItem.Soal,
-              OptionA: this.editedItem.OptionA,
-              OptionB: this.editedItem.OptionB,
-              OptionC: this.editedItem.OptionC,
-              OptionD: this.editedItem.OptionD,
-              OptionE: this.editedItem.OptionE,
-            },
-          },
+          `http://localhost:3000/api/kognitif/${editedData.id}`,
+          ...editedData,
         );
-        // Handle the response from the server
-        if (response.status === 200) {
-          // Update the local item with the edited data
-          const itemIndex = this.items.findIndex(
-            (item) => item.id === this.editedItem.id,
-          );
-          if (itemIndex !== -1) {
-            this.$set(this.items, itemIndex, {
-              ...editedData,
-              id: this.editedItem.id,
-            });
-          }
-
-          console.log("Item updated successfully");
-        } else {
-          console.error("Failed to update item", response.data);
-        }
 
         this.resetEditedItem();
         // Re-fetch the data to refresh the table
@@ -328,33 +298,32 @@ export default defineComponent({
       const selectedItemId = this.filteredItems[rowIndex].ID;
       console.log("Opening detail modal with ID:", selectedItemId);
 
-      axios
-        .get(`http://localhost:3000/api/kognitif/${selectedItemId}`)
-        .then((response) => {
-          const data = response.data.data;
-          if (data) {
-            console.log("Data:", data); // Log the data
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/api/kognitif/${selectedItemId}`,
+        );
+        const data = response.data.data;
+        if (data) {
+          console.log("Data:", data);
 
-            this.detailItem = reactive({
-              BankSoalID: data.BankSoalID || "",
-              Soal: data.BankSoal.Soal || "",
-              OptionA: data.BankSoal.OptionA || "",
-              OptionB: data.BankSoal.OptionB || "",
-              OptionC: data.BankSoal.OptionC || "",
-              OptionD: data.BankSoal.OptionD || "",
-              OptionE: data.BankSoal.OptionE || "",
-            });
+          this.detailItem = {
+            BankSoalID: data.BankSoalID || "",
+            Soal: data.BankSoal.Soal || "",
+            OptionA: data.BankSoal.OptionA || "",
+            OptionB: data.BankSoal.OptionB || "",
+            OptionC: data.BankSoal.OptionC || "",
+            OptionD: data.BankSoal.OptionD || "",
+            OptionE: data.BankSoal.OptionE || "",
+          };
 
-            console.log("Detail item:", this.detailItem); // Log the detail item
-
-            this.detailModalVisible = true;
-          } else {
-            console.error("No data received from the server");
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching data for the detail modal:", error);
-        });
+          console.log("Detail item:", this.detailItem);
+          this.detailModalVisible = true;
+        } else {
+          console.error("No data received from the server");
+        }
+      } catch (error) {
+        console.error("Error fetching data for the detail modal:", error);
+      }
     },
 
     async printRow(rowIndex) {
@@ -500,7 +469,7 @@ export default defineComponent({
 
     openModalToEditItemById(id) {
       this.editedItemId = id;
-      this.editedItem = { ...this.items[id], id: this.items[id].ID }; // Use 'id' instead of 'ID'
+      this.editedItem = { ...this.items[id] };
     },
 
     toggleAddModal() {
@@ -511,26 +480,12 @@ export default defineComponent({
     },
 
     resetDetailItem() {
-      this.detailItem = null;
+      this.detailItem = {};
       this.detailModalVisible = false;
     },
 
     handleSelect(selectedOption) {
       this.createdItem.BankSoalID = selectedOption.value;
-    },
-  },
-
-  watch: {
-    BankSoalID(newVal) {
-      // Find the selected BankSoal
-      const selectedBankSoal = this.bankSoalOptions.find(
-        (option) => option.value === newVal,
-      );
-
-      // Filter the bankSoalOptions based on the selected Soal
-      this.bankSoalOptions = this.bankSoalOptions.filter(
-        (option) => option.label === selectedBankSoal.label,
-      );
     },
   },
 
@@ -648,54 +603,6 @@ export default defineComponent({
       />
     </va-modal>
 
-    <!-- this va-select below is intended for options a until e
-      <va-select
-        v-model="createdItem.BankSoal.OptionA"
-        :label="displayNames.OptionA"
-        :options="bankSoalOptions"
-        class="my-6"
-        text-by="options.OptionA"
-        value-by="options.OptionA"
-        autocomplete
-      />
-      <va-select
-        v-model="createdItem.BankSoal.OptionB"
-        :label="displayNames.OptionB"
-        :options="bankSoalOptions"
-        class="my-6"
-        text-by="options.OptionB"
-        value-by="options.OptionB"
-        autocomplete
-      />
-      <va-select
-        v-modal="createdItem.BankSoal.OptionC"
-        :label="displayNames.OptionC"
-        :options="bankSoalOptions"
-        class="my-6"
-        text-by="options.OptionC"
-        value-by="options.OptionC"
-        autocomplete
-      />
-      <va-select
-        v-modal="createdItem.BankSoal.OptionD"
-        :label="displayNames.OptionD"
-        :options="bankSoalOptions"
-        class="my-6"
-        text-by="options.OptionD"
-        value-by="options.OptionD"
-        autocomplete
-      />
-      <va-select
-        v-modal="createdItem.BankSoal.OptionE"
-        :label="displayNames.OptionE"
-        :options="bankSoalOptions"
-        class="my-6"
-        text-by="options.OptionE"
-        value-by="options.OptionE"
-        autocomplete
-      />
-    </va-modal> -->
-
     <va-modal
       blur
       class="modal-crud"
@@ -741,7 +648,7 @@ export default defineComponent({
       <!-- this va-select below is intended for soal -->
 
       <va-select
-        v-model="createdItem.BankSoalID"
+        v-model="editedItem.BankSoalID"
         :label="displayNames.BankSoal"
         :options="bankSoalOptions"
         class="my-6"
@@ -763,7 +670,7 @@ export default defineComponent({
       @cancel="resetDetailItem"
     >
       <!-- this va-select below is intended for soal -->
-      <va-input
+      <va-select
         v-model="detailItem.Soal"
         :label="displayNames.BankSoal"
         class="my-6"
@@ -773,7 +680,7 @@ export default defineComponent({
       />
 
       <!-- this va-select below is intended for options a until e -->
-      <va-input
+      <va-select
         v-model="detailItem.OptionA"
         :label="displayNames.OptionA"
         class="my-6"
@@ -781,7 +688,7 @@ export default defineComponent({
         value-by="value"
         readonly
       />
-      <va-input
+      <va-select
         v-model="detailItem.OptionB"
         :label="displayNames.OptionB"
         class="my-6"
@@ -789,7 +696,7 @@ export default defineComponent({
         value-by="value"
         readonly
       />
-      <va-input
+      <va-select
         v-model="detailItem.OptionC"
         :label="displayNames.OptionC"
         class="my-6"
@@ -797,7 +704,7 @@ export default defineComponent({
         value-by="value"
         readonly
       />
-      <va-input
+      <va-select
         v-model="detailItem.OptionD"
         :label="displayNames.OptionD"
         class="my-6"
@@ -805,7 +712,7 @@ export default defineComponent({
         value-by="value"
         readonly
       />
-      <va-input
+      <va-select
         v-model="detailItem.OptionE"
         :label="displayNames.OptionE"
         class="my-6"

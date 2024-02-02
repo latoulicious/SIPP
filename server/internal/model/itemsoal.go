@@ -8,6 +8,8 @@ import (
 type ItemSoal struct {
 	gorm.Model
 	ID         uuid.UUID `gorm:"type:uuid;primary_key"`
-	BankSoal   BankSoal  `gorm:"foreignkey:BankSoalID"`
+	SoalID     uuid.UUID `gorm:"type:uuid"`
+	Soal       Soal      `gorm:"foreignKey:SoalID"`
 	BankSoalID uuid.UUID `gorm:"type:uuid"`
+	BankSoal   BankSoal  `gorm:"foreignKey:BankSoalID"`
 }

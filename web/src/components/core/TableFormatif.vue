@@ -37,7 +37,9 @@ export default defineComponent({
       columns,
       editedItemId: null,
       editedItem: null,
-      createdItem: { ...defaultItem },
+      createdItem: {},
+      dynamicFields: {},
+      textAreaFields: ["Pertanyaan"],
       input: ref({ value: "" }),
       items: [],
       usersOptions: [],
@@ -45,7 +47,7 @@ export default defineComponent({
       kelasOptions: [],
       tahunAjarOptions: [],
       bankSoalOptions: [],
-      textAreaFields: ["Pertanyaan"],
+      // textAreaFields: ["Pertanyaan"],
       showModal: false,
       viewModalVisible: false,
       detailItem: null,
@@ -130,34 +132,25 @@ export default defineComponent({
           "http://localhost:3000/api/public/tahun",
         );
 
-        // Process the data and update the UI
-        console.log("Response from server (Kognitif):", response.data);
-        console.log("Response from server (Users):", userResponse.data);
-        console.log("Response from server (Kelas):", kelasResponse.data);
-        console.log("Response from server (Mapel):", mapelResponse.data);
-        console.log("Response from server (Tahun):", tahunResponse.data);
+        console.log("Server response:", response);
 
         // Populate usersOptions, mapelsOptions, kelasOptions, tahunAjarOptions
         this.usersOptions = this.extractOptions(userResponse.data.data, "Name");
-        // console.log("Users options:", this.usersOptions);
 
         this.kelasOptions = this.extractOptions(
           kelasResponse.data.data,
           "Kelas",
         );
-        // console.log("Kelas options:", this.kelasOptions);
 
         this.mapelsOptions = this.extractOptions(
           mapelResponse.data.data,
           "Mapel",
         );
-        // console.log("Mapels options:", this.mapelsOptions);
 
         this.tahunAjarOptions = this.extractOptions(
           tahunResponse.data.data,
           "Tahun",
         );
-        // console.log("Tahun Ajar options:", this.tahunAjarOptions);
 
         this.items = response.data.data.map((item) => ({
           ...item,
@@ -166,10 +159,8 @@ export default defineComponent({
           Mapel: item?.Mapel.Mapel || "",
           Kelas: item?.Kelas.Kelas || "",
           TahunAjar: item?.TahunAjar.Tahun || "",
-          Pertanyaan: item?.pertanyaan || "",
+          Pertanyaan: item?.Pertanyaan || "",
         }));
-
-        console.log("Kognitif items:", this.items);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -183,38 +174,48 @@ export default defineComponent({
         return;
       }
 
+      const dynamicFields = this.collectDynamicFields();
+      const newItem = {
+        ...this.createdItem,
+        DynamicFields: dynamicFields, // Wrap dynamic fields in an object
+      };
+
+      // Remove the "Pertanyaan" field from the "DynamicFields" object
+      delete newItem.DynamicFields.Pertanyaan;
+
+      // Log the newItem before sending the request
+      console.log("New Item:", newItem);
+
       try {
-        console.log("Creating new item with data:", this.createdItem);
-
-        const response = await axios.post(
-          "http://localhost:3000/api/formatif",
-          {
-            userID: this.createdItem.UserID,
-            mapelId: this.createdItem.MapelID,
-            kelasId: this.createdItem.KelasID,
-            tahunAjarId: this.createdItem.TahunAjarID,
-            pertanyaan: this.createdItem.Pertanyaan,
-          },
-        );
-
+        await axios.post("http://localhost:3000/api/formatif", newItem);
         this.items.push({
-          ...this.createdItem,
+          ...newItem,
         });
 
-        console.log("Server Response:", response.data);
-
-        this.resetCreatedItem();
         // Re-fetch the data to refresh the table
         await this.fetchData();
+
+        setTimeout(() => {
+          this.resetCreatedItem();
+        }, 500);
       } catch (error) {
         console.error("Error adding new item:", error);
       }
     },
 
     async editItem() {
+      // Collect dynamic fields from the form
+      const dynamicFields = this.collectDynamicFields();
+
+      // Create the item to edit with dynamic fields included
+      const itemToEdit = {
+        ...this.editedItem,
+        DynamicFields: dynamicFields, // Include dynamic fields in the object
+      };
+
       try {
         // Create a deep copy of the edited item
-        const editedData = JSON.parse(JSON.stringify(this.editedItem));
+        const editedData = JSON.parse(JSON.stringify(itemToEdit));
 
         // Change 'ID' to 'id'
         editedData.id = editedData.ID;
@@ -224,28 +225,11 @@ export default defineComponent({
         delete editedData.Kelas;
         delete editedData.TahunAjar;
 
-        const response = await axios.put(
+        // Send the PUT request with the edited data
+        await axios.put(
           `http://localhost:3000/api/formatif/${this.editedItem.id}`,
-          ...editedData,
+          editedData,
         );
-
-        // Handle the response from the server
-        if (response.status === 200) {
-          // Update the local item with the edited data
-          const itemIndex = this.items.findIndex(
-            (item) => item.id === this.editedItem.id,
-          );
-          if (itemIndex !== -1) {
-            this.$set(this.items, itemIndex, {
-              ...editedData,
-              id: this.editedItem.id,
-            });
-          }
-
-          console.log("Item updated successfully");
-        } else {
-          console.error("Failed to update item", response.data);
-        }
 
         this.resetEditedItem();
         // Re-fetch the data to refresh the table
@@ -283,29 +267,60 @@ export default defineComponent({
       }
     },
 
+    // async openDetailModal(rowIndex) {
+    //   const selectedItemId = this.filteredItems[rowIndex].ID;
+
+    //   try {
+    //     const response = await axios.get(`http://localhost:3000/api/formatif/${selectedItemId}`);
+    //     const serverResponse = response.data; // Correctly declare and initialize serverResponse
+    //     if (serverResponse && serverResponse.data && serverResponse.data.length > 0) {
+    //       // Access the first item in the array
+    //       const item = serverResponse.data[0];
+
+    //       // Extract the Pertanyaan and DynamicFields
+    //       this.detailItem = {
+    //         Pertanyaan: item.Pertanyaan,
+    //         DynamicFields: item.DynamicFields,
+    //       };
+
+    //       // Convert DynamicFields object into an array of keys
+    //       this.filteredDetailFields = Object.keys(this.detailItem.DynamicFields);
+
+    //       this.detailModalVisible = true;
+    //     } else {
+    //       console.error("No data received from the server");
+    //     }
+    //   } catch (error) {
+    //     console.error("Error fetching data for the detail modal:", error);
+    //   }
+    // },
+
     async openDetailModal(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
       console.log("Opening detail modal with ID:", selectedItemId);
 
-      axios
-        .get(`http://localhost:3000/api/formatif/${selectedItemId}`)
-        .then((response) => {
-          const data = response.data.data;
-          if (data) {
-            this.detailItem = {
-              Pertanyaan: data.pertanyaan || "",
-            };
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/api/formatif/${selectedItemId}`,
+        );
+        const data = response.data.data;
+        if (data) {
+          console.log("Retrieved data:", data);
 
-            console.log("Detail item:", this.detailItem); // Log the detail item
+          // Assign the new object directly
+          this.detailItem = {
+            Pertanyaan: data.Pertanyaan || "",
+            DynamicFields: data.DynamicFields || {},
+          };
 
-            this.detailModalVisible = true;
-          } else {
-            console.error("No data received from the server");
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching data for the detail modal:", error);
-        });
+          console.log("Detail item:", this.detailItem);
+          this.detailModalVisible = true;
+        } else {
+          console.error("No data received from the server");
+        }
+      } catch (error) {
+        console.error("Error fetching data for the detail modal:", error);
+      }
     },
 
     async printRow(rowIndex) {
@@ -318,12 +333,7 @@ export default defineComponent({
         );
         const data = response.data.data;
 
-        // Log all properties of the data object
-        console.log("Data properties:", Object.keys(data));
-
         if (data) {
-          console.log("Printing row with ID:", selectedItemId);
-
           const tableBody = [
             [
               { text: "Judul Capaian", fontSize: 10, bold: true },
@@ -372,8 +382,6 @@ export default defineComponent({
                 : "N/A",
             ],
           ];
-
-          console.log("Table Body:", tableBody);
 
           const docDefinition = {
             footer: function (currentPage, pageCount) {
@@ -429,14 +437,28 @@ export default defineComponent({
       return data.map((item) => ({
         label: item[labelProperty] ? item[labelProperty] : "", // Use '' if labelProperty is null or undefined
         value: item.ID, // Use 'ID' instead of 'id'
-        options: {
-          OptionA: item.OptionA,
-          OptionB: item.OptionB,
-          OptionC: item.OptionC,
-          OptionD: item.OptionD,
-          OptionE: item.OptionE,
-        },
       }));
+    },
+
+    collectDynamicFields() {
+      // Collect dynamic fields from textAreaFields and createdItem
+      const dynamicFields = {};
+      this.textAreaFields.forEach((fieldKey) => {
+        dynamicFields[fieldKey] = this.createdItem[fieldKey];
+      });
+      return dynamicFields;
+    },
+
+    addField() {
+      // Determine the next number suffix based on the current length of textAreaFields
+      const nextNumber = this.textAreaFields.length + 1;
+      const newKey = `pertanyaan${nextNumber}`; // Generate a unique key with the number suffix
+
+      // Add the new key to the textAreaFields array
+      this.textAreaFields.push(newKey);
+
+      // Use Vue's $set to reactively add the new field to createdItem with an empty string as the value
+      this.$set(this.createdItem, newKey, "");
     },
 
     resetEditedItem() {
@@ -445,16 +467,63 @@ export default defineComponent({
     },
 
     resetCreatedItem() {
+      // Reset the createdItem to the default values
       this.createdItem = { ...defaultItem };
+
+      // Reset the dynamicFields to an empty object
+      this.dynamicFields = {};
+
+      // Preserve the Pertanyaan field in textAreaFields
+      this.textAreaFields = ["Pertanyaan"];
+
+      // Close the modal
       this.showModal = false;
+
+      // Optionally, reset any form validation states
+      // For example, if using Vuelidate:
+      // this.$v.$reset();
+    },
+
+    resetAddState() {
+      // Reset the createdItem to the default values
+      this.createdItem = { ...defaultItem };
+
+      // Reset the dynamicFields to an empty object
+      this.dynamicFields = {};
+
+      // Reset the textAreaFields array to its initial state
+      this.textAreaFields = ["Pertanyaan"];
+
+      // Optionally, reset any form validation states
+      // For example, if using Vuelidate:
+      // this.$v.$reset();
     },
 
     openModalToEditItemById(id) {
-      this.editedItemId = id;
-      this.editedItem = { ...this.items[id], id: this.items[id].ID }; // Use 'id' instead of 'ID'
+      // Find the item by its ID
+      const item = this.items.find((item) => item.ID === id);
+
+      // Check if the item exists
+      if (item) {
+        // Set the editedItem to the found item
+        this.editedItem = { ...item };
+
+        // Log the editedItem to check the Pertanyaan value
+        console.log("Edited item:", this.editedItem);
+
+        // Populate textAreaFields with the keys of the dynamic fields
+        this.textAreaFields = Object.keys(this.editedItem.DynamicFields || {});
+
+        // Open the modal
+        this.showEditModal = true;
+      } else {
+        console.error(`Item with ID ${id} not found.`);
+      }
     },
 
     toggleAddModal() {
+      this.resetAddState();
+
       this.showModal = !this.showModal;
       if (!this.showModal) {
         this.resetCreatedItem();
@@ -462,26 +531,18 @@ export default defineComponent({
     },
 
     resetDetailItem() {
-      this.detailItem = null;
+      // Reset the detailItem to its initial state
+      this.detailItem = {};
+
+      // Reset the filteredDetailFields array to its initial state
+      this.filteredDetailFields = [];
+
+      // Close the detail modal
       this.detailModalVisible = false;
     },
 
     handleSelect(selectedOption) {
       this.createdItem.BankSoalID = selectedOption.value;
-    },
-  },
-
-  watch: {
-    BankSoalID(newVal) {
-      // Find the selected BankSoal
-      const selectedBankSoal = this.bankSoalOptions.find(
-        (option) => option.value === newVal,
-      );
-
-      // Filter the bankSoalOptions based on the selected Soal
-      this.bankSoalOptions = this.bankSoalOptions.filter(
-        (option) => option.label === selectedBankSoal.label,
-      );
     },
   },
 
@@ -529,7 +590,7 @@ export default defineComponent({
           <va-button
             preset="plain"
             icon="edit"
-            @click="openModalToEditItemById(rowIndex)"
+            @click="openModalToEditItemById(filteredItems[rowIndex].ID)"
           />
           <va-button
             preset="plain"
@@ -586,12 +647,25 @@ export default defineComponent({
       />
 
       <va-textarea
-        v-for="key in textAreaFields"
-        :key="key"
-        :label="displayNames[key]"
-        v-model="createdItem[key]"
+        v-for="(fieldKey, index) in textAreaFields"
+        :key="index"
+        :label="displayNames[fieldKey] || fieldKey"
+        v-model="createdItem[fieldKey]"
         class="my-6"
       />
+
+      <va-button
+        class="my-6"
+        color="primary"
+        @click="addField"
+        style="
+          width: 100%;
+          display: flex;
+          box-sizing: border-box;
+          margin-bottom: 10px;
+        "
+        >Add Fields
+      </va-button>
     </va-modal>
 
     <va-modal
@@ -636,13 +710,36 @@ export default defineComponent({
         value-by="value"
       />
 
+      <!-- Static 'pertanyaan' field -->
       <va-textarea
-        v-for="key in textAreaFields"
-        :key="key"
-        :label="displayNames[key]"
-        v-model="editedItem[key]"
+        :label="displayNames.Pertanyaanertanyaan || 'Pertanyaan'"
+        v-model="editedItem.Pertanyaan"
         class="my-6"
       />
+
+      <!-- Dynamic fields area -->
+      <div v-for="(fieldKey, index) in textAreaFields" :key="index">
+        <va-textarea
+          :label="displayNames[fieldKey] || fieldKey"
+          v-model="editedItem.DynamicFields[fieldKey]"
+          class="my-6"
+        />
+      </div>
+
+      <!-- Button to add more dynamic fields -->
+      <va-button
+        class="my-6"
+        color="primary"
+        @click="addField"
+        style="
+          width: 100%;
+          display: flex;
+          box-sizing: border-box;
+          margin-bottom: 10px;
+        "
+      >
+        Add Fields
+      </va-button>
     </va-modal>
 
     <va-modal
@@ -655,11 +752,20 @@ export default defineComponent({
       @ok="resetDetailItem"
       @cancel="resetDetailItem"
     >
+      <!-- Display the Pertanyaan field -->
       <va-textarea
-        v-for="key in filteredDetailFields"
+        :label="'Pertanyaan'"
+        v-model="detailItem.Pertanyaan"
+        class="my-6"
+        readonly
+      />
+
+      <!-- Display dynamic fields -->
+      <va-textarea
+        v-for="(value, key) in detailItem.DynamicFields"
         :key="key"
-        :label="filteredDisplayNames[key]"
-        v-model="detailItem[key]"
+        :label="key"
+        v-model="detailItem.DynamicFields[key]"
         class="my-6"
         readonly
       />

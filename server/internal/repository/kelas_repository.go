@@ -50,6 +50,7 @@ func (repository *KelasRepository) GetKelasPublic() ([]model.Kelas, error) {
 }
 
 func (repository *KelasRepository) CreateKelas(kelas *model.Kelas) error {
+	kelas.ID = uuid.New()
 	return repository.DB.Create(kelas).Error
 }
 

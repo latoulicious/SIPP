@@ -19,9 +19,14 @@ func NewSoalHandler(soalService *service.SoalService) *SoalHandler {
 	}
 }
 
+// GetSoalWithItems retrieves a Soal along with its associated ItemSoal records
 func (handler *SoalHandler) GetSoal(c *fiber.Ctx) error {
-	soal, err := handler.SoalService.GetSoal()
+	soalID, err := uuid.Parse(c.Params("id"))
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Invalid UUID", "data": nil})
+	}
 
+	soal, err := handler.SoalService.GetSoal(soalID)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting soal", "data": err})
 	}
@@ -43,25 +48,26 @@ func (handler *SoalHandler) GetSoalByID(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Soal retrieved successfully", "data": soal})
 }
 
+// CreateSoalWithItems creates a new Soal and associates it with ItemSoal records
 func (handler *SoalHandler) CreateSoal(c *fiber.Ctx) error {
-
 	soal := new(model.Soal)
+	itemSoalData := make([]*model.ItemSoal, 0)
 
-	// Log request body for debugging purposes
-	log.Printf("Request Body: %+v\n", soal)
-	log.Printf("Received Soal object: %+v\n", soal)
-
+	// Parse the JSON body into the existing Soal struct and ItemSoal data
 	err := c.BodyParser(soal)
 	if err != nil {
-		// Log parsing error for debugging purposes
-		log.Printf("Error parsing request body: %v\n", err)
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Review your input", "data": err})
 	}
 
-	err = handler.SoalService.CreateSoal(soal)
+	// Parse the ItemSoal data from the request body
+	err = c.BodyParser(&itemSoalData)
 	if err != nil {
-		// Log creation error for debugging purposes
-		log.Printf("Error creating soal: %v\n", err)
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Review your input", "data": err})
+	}
+
+	// Create the Soal and associated ItemSoal records
+	err = handler.SoalService.CreateSoal(soal, itemSoalData)
+	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Couldn't create soal", "data": err})
 	}
 

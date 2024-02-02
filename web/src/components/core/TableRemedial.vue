@@ -130,34 +130,23 @@ export default defineComponent({
           "http://localhost:3000/api/public/tahun",
         );
 
-        // Process the data and update the UI
-        console.log("Response from server (Kognitif):", response.data);
-        console.log("Response from server (Users):", userResponse.data);
-        console.log("Response from server (Kelas):", kelasResponse.data);
-        console.log("Response from server (Mapel):", mapelResponse.data);
-        console.log("Response from server (Tahun):", tahunResponse.data);
-
         // Populate usersOptions, mapelsOptions, kelasOptions, tahunAjarOptions
         this.usersOptions = this.extractOptions(userResponse.data.data, "Name");
-        // console.log("Users options:", this.usersOptions);
 
         this.kelasOptions = this.extractOptions(
           kelasResponse.data.data,
           "Kelas",
         );
-        // console.log("Kelas options:", this.kelasOptions);
 
         this.mapelsOptions = this.extractOptions(
           mapelResponse.data.data,
           "Mapel",
         );
-        // console.log("Mapels options:", this.mapelsOptions);
 
         this.tahunAjarOptions = this.extractOptions(
           tahunResponse.data.data,
           "Tahun",
         );
-        // console.log("Tahun Ajar options:", this.tahunAjarOptions);
 
         this.items = response.data.data.map((item) => ({
           ...item,
@@ -166,10 +155,10 @@ export default defineComponent({
           Mapel: item?.Mapel.Mapel || "",
           Kelas: item?.Kelas.Kelas || "",
           TahunAjar: item?.TahunAjar.Tahun || "",
-          Pertanyaan: item?.pertanyaan || "",
+          Pertanyaan: item?.Pertanyaan || "",
         }));
 
-        console.log("Kognitif items:", this.items);
+        console.log("Fetch items:", this.items);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -189,11 +178,11 @@ export default defineComponent({
         const response = await axios.post(
           "http://localhost:3000/api/remedial",
           {
-            userID: this.createdItem.UserID,
-            mapelId: this.createdItem.MapelID,
-            kelasId: this.createdItem.KelasID,
-            tahunAjarId: this.createdItem.TahunAjarID,
-            pertanyaan: this.createdItem.Pertanyaan,
+            UserID: this.createdItem.UserID.toString(),
+            MapelID: this.createdItem.MapelID.toString(),
+            KelasID: this.createdItem.KelasID.toString(),
+            TahunAjarID: this.createdItem.TahunAjarID.toString(),
+            Pertanyaan: this.createdItem.Pertanyaan,
           },
         );
 
@@ -201,11 +190,14 @@ export default defineComponent({
           ...this.createdItem,
         });
 
-        console.log("Server Response:", response.data);
+        console.log("Server Response:", this.createdItem);
 
-        this.resetCreatedItem();
         // Re-fetch the data to refresh the table
         await this.fetchData();
+
+        setTimeout(() => {
+          this.resetCreatedItem();
+        }, 500);
       } catch (error) {
         console.error("Error adding new item:", error);
       }
@@ -225,27 +217,9 @@ export default defineComponent({
         delete editedData.TahunAjar;
 
         const response = await axios.put(
-          `http://localhost:3000/api/remedial/${this.editedItem.id}`,
-          ...editedData,
+          `http://localhost:3000/api/remedial/${editedData.id}`,
+          editedData,
         );
-
-        // Handle the response from the server
-        if (response.status === 200) {
-          // Update the local item with the edited data
-          const itemIndex = this.items.findIndex(
-            (item) => item.id === this.editedItem.id,
-          );
-          if (itemIndex !== -1) {
-            this.$set(this.items, itemIndex, {
-              ...editedData,
-              id: this.editedItem.id,
-            });
-          }
-
-          console.log("Item updated successfully");
-        } else {
-          console.error("Failed to update item", response.data);
-        }
 
         this.resetEditedItem();
         // Re-fetch the data to refresh the table
@@ -429,13 +403,6 @@ export default defineComponent({
       return data.map((item) => ({
         label: item[labelProperty] ? item[labelProperty] : "", // Use '' if labelProperty is null or undefined
         value: item.ID, // Use 'ID' instead of 'id'
-        options: {
-          OptionA: item.OptionA,
-          OptionB: item.OptionB,
-          OptionC: item.OptionC,
-          OptionD: item.OptionD,
-          OptionE: item.OptionE,
-        },
       }));
     },
 
@@ -451,7 +418,7 @@ export default defineComponent({
 
     openModalToEditItemById(id) {
       this.editedItemId = id;
-      this.editedItem = { ...this.items[id], id: this.items[id].ID }; // Use 'id' instead of 'ID'
+      this.editedItem = { ...this.items[id] }; // Use 'id' instead of 'ID'
     },
 
     toggleAddModal() {
@@ -468,20 +435,6 @@ export default defineComponent({
 
     handleSelect(selectedOption) {
       this.createdItem.BankSoalID = selectedOption.value;
-    },
-  },
-
-  watch: {
-    BankSoalID(newVal) {
-      // Find the selected BankSoal
-      const selectedBankSoal = this.bankSoalOptions.find(
-        (option) => option.value === newVal,
-      );
-
-      // Filter the bankSoalOptions based on the selected Soal
-      this.bankSoalOptions = this.bankSoalOptions.filter(
-        (option) => option.label === selectedBankSoal.label,
-      );
     },
   },
 
@@ -545,7 +498,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       stripe
-      title="Add Asesmen Kognitif"
+      title="Add Remedial"
       size="large"
       :model-value="showModal"
       @ok="addNewItem"
@@ -598,7 +551,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       :model-value="!!editedItem"
-      title="Edit Asesmen Kognitif"
+      title="Edit Remedial"
       size="large"
       @ok="editItem"
       @cancel="resetEditedItem"

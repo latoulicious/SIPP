@@ -50,6 +50,7 @@ func (repository *MapelRepository) GetMapelPublic() ([]model.Mapel, error) {
 }
 
 func (repository *MapelRepository) CreateMapel(mapel *model.Mapel) error {
+	mapel.ID = uuid.New()
 	return repository.DB.Create(mapel).Error
 }
 

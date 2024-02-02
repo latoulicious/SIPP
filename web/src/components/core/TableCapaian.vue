@@ -139,8 +139,8 @@ export default defineComponent({
       this.loading = true;
 
       try {
-        // Simulate a delay
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        // // Simulate a delay
+        // await new Promise((resolve) => setTimeout(resolve, 2000));
 
         const response = await axios.get("http://localhost:3000/api/capaian");
         const userResponse = await axios.get(
@@ -244,18 +244,15 @@ export default defineComponent({
 
         console.log("Server Response:", response.data);
 
-        this.resetCreatedItem();
         // Re-fetch the data to refresh the table
         await this.fetchData();
+
+        setTimeout(() => {
+          this.resetCreatedItem();
+        }, 500);
       } catch (error) {
         console.error("Error adding new item:", error);
       }
-
-      // // Defer the closing of the modal until the next DOM update cycle
-      // nextTick(() => {
-      //   // Close the modal regardless of whether the data fetch was successful
-      //   this.resetCreatedItem();
-      // });
     },
 
     async editItem() {
@@ -272,27 +269,9 @@ export default defineComponent({
         delete editedData.TahunAjar;
 
         const response = await axios.put(
-          `http://localhost:3000/api/capaian/${this.editedItem.id}`,
+          `http://localhost:3000/api/capaian/${editedData.id}`,
           editedData,
         );
-
-        // Handle the response from the server
-        if (response.status === 200) {
-          // Update the local item with the edited data
-          const itemIndex = this.items.findIndex(
-            (item) => item.id === this.editedItem.id,
-          );
-          if (itemIndex !== -1) {
-            this.$set(this.items, itemIndex, {
-              ...editedData,
-              id: this.editedItem.id,
-            });
-          }
-
-          console.log("Item updated successfully");
-        } else {
-          console.error("Failed to update item", response.data);
-        }
 
         this.resetEditedItem();
         // Re-fetch the data to refresh the table
@@ -300,13 +279,6 @@ export default defineComponent({
       } catch (error) {
         console.error("Error editing item:", error);
       }
-      // finally {
-      //   // Defer the closing of the modal until the next DOM update cycle
-      //   nextTick(() => {
-      //     // Close the modal regardless of whether the data fetch was successful
-      //     this.editedItem = null;
-      //   });
-      // }
     },
 
     async deleteItemById(id) {
@@ -337,30 +309,34 @@ export default defineComponent({
       }
     },
 
-    async openDetailModal(rowIndex) {
+    openDetailModal(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
       console.log("Opening detail modal with ID:", selectedItemId);
 
       axios
-        .get(`http://localhost:3000/api/kognitif/${selectedItemId}`)
+        .get(`http://localhost:3000/api/capaian/${selectedItemId}`)
         .then((response) => {
           const data = response.data.data;
           if (data) {
-            console.log("Data:", data); // Log the data
-
-            this.detailItem = reactive({
-              BankSoalID: data.BankSoalID || "",
-              Soal: data.BankSoal.Soal || "",
-              OptionA: data.BankSoal.OptionA || "",
-              OptionB: data.BankSoal.OptionB || "",
-              OptionC: data.BankSoal.OptionC || "",
-              OptionD: data.BankSoal.OptionD || "",
-              OptionE: data.BankSoal.OptionE || "",
-            });
-
-            console.log("Detail item:", this.detailItem); // Log the detail item
+            this.detailItem = {
+              JudulCapaian: data.judulCapaian || "",
+              JudulElemen: data.judulElemen || "",
+              KetElemen: data.ketElemen || "",
+              KetProsesMengamati: data.ketProsesMengamati || "",
+              KetProsesMempertanyakan: data.ketProsesMempertanyakan || "",
+              KetProsesMerencanakan: data.ketProsesMerencanakan || "",
+              KetProsesMemproses: data.ketProsesMemproses || "",
+              KetProsesMengevaluasi: data.ketProsesMengevaluasi || "",
+              KetProsesMengkomunikasikan: data.ketProsesMengkomunikasikan || "",
+              // id: selectedItemId,
+              // User: data.User ? data.User.Name || "" : "",
+              // Mapel: data.Mapel ? data.Mapel.Mapel || "" : "",
+              // Kelas: data.Kelas ? data.Kelas.Kelas || "" : "",
+              // TahunAjar: data.TahunAjar ? data.TahunAjar.Tahun || "" : "",
+            };
 
             this.detailModalVisible = true;
+            console.log("Detail modal data:", this.detailItem);
           } else {
             console.error("No data received from the server");
           }
@@ -506,7 +482,9 @@ export default defineComponent({
 
     openModalToEditItemById(id) {
       this.editedItemId = id;
-      this.editedItem = { ...this.items[id], id: this.items[id].ID }; // Use 'id' instead of 'ID'
+      this.editedItem = { ...this.items[id] }; // Use 'id' instead of 'ID'
+      console.log("Edited Data:", this.editedItem);
+      console.log("Items:", this.items);
     },
 
     toggleAddModal() {

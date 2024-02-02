@@ -50,6 +50,7 @@ func (repository *TahunRepository) GetTahunPublic() ([]model.TahunAjar, error) {
 }
 
 func (repository *TahunRepository) CreateTahun(tahun *model.TahunAjar) error {
+	tahun.ID = uuid.New()
 	return repository.DB.Create(tahun).Error
 }
 
