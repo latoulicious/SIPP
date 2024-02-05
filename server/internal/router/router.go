@@ -235,6 +235,10 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	publicRoutes.Get("/mapel", mapelHandler.GetMapelPublic)
 	publicRoutes.Get("/jurusan", jurusanHandler.GetJurusanPublic)
 
+	// total count routes
+	totalCountRoutes := api.Group("/total")
+	totalCountRoutes.Get("/sumatif", sumatifHandler.CountRelatedQuestionsHandler)
+
 	// misc routes
 	app.Get("/api/get-jwt-secret", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"jwtSecret": config.JwtSecret})

@@ -50,7 +50,8 @@ export default defineComponent({
       columns,
       editedItemId: null,
       editedItem: null,
-      createdItem: { ...defaultItem },
+      createdItem: {},
+      dynamicFieldsArray: [],
       input: ref({ value: "" }),
       items: [],
       usersOptions: [],
@@ -110,9 +111,31 @@ export default defineComponent({
     },
 
     isNewData() {
-      return Object.keys(this.createdItem).every(
-        (key) => !!this.createdItem[key],
-      );
+      // Function to check if a value is truthy, allowing empty strings
+      const isTruthyOrEmptyString = (value) => {
+        if (typeof value === "object" && value !== null) {
+          return Object.values(value).every(isTruthyOrEmptyString);
+        }
+        return value === "" || !!value;
+      };
+
+      // Check if BankSoal exists and has truthy or empty string Soal and Options
+      const bankSoalExistsAndHasValues =
+        this.createdItem.BankSoal &&
+        isTruthyOrEmptyString(this.createdItem.BankSoal.Soal) &&
+        isTruthyOrEmptyString(this.createdItem.BankSoal.OptionA) &&
+        isTruthyOrEmptyString(this.createdItem.BankSoal.OptionB) &&
+        isTruthyOrEmptyString(this.createdItem.BankSoal.OptionC) &&
+        isTruthyOrEmptyString(this.createdItem.BankSoal.OptionD) &&
+        isTruthyOrEmptyString(this.createdItem.BankSoal.OptionE);
+
+      // Check if all other keys in createdItem have truthy or empty string values
+      const allOtherKeysTruthyOrEmptyString = Object.keys(this.createdItem)
+        .filter((key) => key !== "BankSoal") // Exclude BankSoal from this check
+        .every((key) => isTruthyOrEmptyString(this.createdItem[key]));
+
+      // Return true only if BankSoal has values and all other keys have truthy or empty string values
+      return bankSoalExistsAndHasValues && allOtherKeysTruthyOrEmptyString;
     },
 
     inputFields() {
@@ -143,34 +166,22 @@ export default defineComponent({
         );
         const bankResponse = await axios.get("http://localhost:3000/api/bank");
 
-        // Process the data and update the UI
-        console.log("Response from server (Kognitif):", response.data);
-        console.log("Response from server (Users):", userResponse.data);
-        console.log("Response from server (Kelas):", kelasResponse.data);
-        console.log("Response from server (Mapel):", mapelResponse.data);
-        console.log("Response from server (Tahun):", tahunResponse.data);
-        console.log("Response from server (Bank):", bankResponse.data);
-
         this.usersOptions = this.extractOptions(userResponse.data.data, "Name");
-        // console.log("Users options:", this.usersOptions);
 
         this.kelasOptions = this.extractOptions(
           kelasResponse.data.data,
           "Kelas",
         );
-        // console.log("Kelas options:", this.kelasOptions);
 
         this.mapelsOptions = this.extractOptions(
           mapelResponse.data.data,
           "Mapel",
         );
-        // console.log("Mapels options:", this.mapelsOptions);
 
         this.tahunAjarOptions = this.extractOptions(
           tahunResponse.data.data,
           "Tahun",
         );
-        // console.log("Tahun Ajar options:", this.tahunAjarOptions);
 
         this.bankSoalOptions = this.extractOptions(
           bankResponse.data.data,
@@ -203,6 +214,13 @@ export default defineComponent({
     },
 
     async addNewItem() {
+      // Log the initial state of isNewData
+      console.log("Initial isNewData:", this.isNewData);
+
+      // Log the contents of createdItem and dynamicFieldsArray
+      console.log("Contents of createdItem:", this.createdItem);
+      console.log("Contents of dynamicFieldsArray:", this.dynamicFieldsArray);
+
       if (!this.isNewData) {
         alert("Please fill in all fields.");
         return;
@@ -211,19 +229,22 @@ export default defineComponent({
       try {
         console.log("Creating new item with data:", this.createdItem);
 
+        // Include the dynamic fields in the payload
+        const payload = {
+          ...this.createdItem,
+          DynamicFields: this.collectDynamicFields(),
+        };
+
+        // Log the payload before sending it to the server
+        console.log("Payload to send:", payload);
+
         const response = await axios.post(
           "http://localhost:3000/api/kognitif",
-          {
-            userID: this.createdItem.UserID,
-            mapelId: this.createdItem.MapelID,
-            kelasId: this.createdItem.KelasID,
-            tahunAjarId: this.createdItem.TahunAjarID,
-            bankSoalId: this.createdItem.BankSoalID,
-          },
+          payload,
         );
 
         this.items.push({
-          ...this.createdItem,
+          ...payload,
         });
 
         console.log("Server Response:", response.data);
@@ -253,7 +274,7 @@ export default defineComponent({
         delete editedData.TahunAjar;
         delete editedData.BankSoal;
 
-        const response = await axios.put(
+        await axios.put(
           `http://localhost:3000/api/kognitif/${editedData.id}`,
           ...editedData,
         );
@@ -457,22 +478,81 @@ export default defineComponent({
       }));
     },
 
+    collectDynamicFields() {
+      // Collect dynamic fields from textAreaFields, createdItem, and dynamicFieldsArray
+      const dynamicFields = {};
+
+      this.dynamicFieldsArray.forEach((fieldValue, index) => {
+        dynamicFields[`field${index + 1}`] = fieldValue;
+      });
+      return dynamicFields;
+    },
+
+    addField() {
+      // Add a new entry to the dynamicFieldsArray
+      this.dynamicFieldsArray.push("");
+
+      // Directly assign the new field to createdItem with an empty string as the value
+      this.createdItem[newKey] = "";
+    },
+
     resetEditedItem() {
       this.editedItem = null;
       this.editedItemId = null;
     },
 
     resetCreatedItem() {
+      // Reset the createdItem to the default values
       this.createdItem = { ...defaultItem };
+
+      // Reset the dynamicFieldsArray to an empty array
+      this.dynamicFieldsArray = [];
+
+      // Close the modal
       this.showModal = false;
+
+      // Optionally, reset any form validation states
+      // For example, if using Vuelidate:
+      // this.$v.$reset();
+    },
+
+    resetAddState() {
+      // Reset the createdItem to the default values
+      this.createdItem = { ...defaultItem };
+
+      // Reset the dynamicFieldsArray to an empty array
+      this.dynamicFieldsArray = [];
+
+      // Optionally, reset any form validation states
+      // For example, if using Vuelidate:
+      // this.$v.$reset();
     },
 
     openModalToEditItemById(id) {
-      this.editedItemId = id;
-      this.editedItem = { ...this.items[id] };
+      // Find the item by its ID
+      const item = this.items.find((item) => item.ID === id);
+
+      // Check if the item exists
+      if (item) {
+        // Set the editedItem to the found item
+        this.editedItem = { ...item };
+
+        // Update createdItem with the dynamic fields from the editedItem
+        this.createdItem = { ...item.DynamicFields };
+
+        // Log the editedItem to check the Pertanyaan value
+        console.log("Edited item:", this.editedItem);
+
+        // Open the modal
+        this.showEditModal = true;
+      } else {
+        console.error(`Item with ID ${id} not found.`);
+      }
     },
 
     toggleAddModal() {
+      this.resetAddState();
+
       this.showModal = !this.showModal;
       if (!this.showModal) {
         this.resetCreatedItem();
@@ -480,12 +560,24 @@ export default defineComponent({
     },
 
     resetDetailItem() {
+      // Reset the detailItem to its initial state
       this.detailItem = {};
+
+      // Reset the filteredDetailFields array to its initial state
+      this.filteredDetailFields = [];
+
+      // Close the detail modal
       this.detailModalVisible = false;
     },
 
     handleSelect(selectedOption) {
       this.createdItem.BankSoalID = selectedOption.value;
+    },
+  },
+
+  watch: {
+    "editedItem.DynamicFields.pertanyaan2"(newValue, oldValue) {
+      console.log("pertanyaan2 changed from", oldValue, "to", newValue);
     },
   },
 
@@ -530,11 +622,11 @@ export default defineComponent({
             icon="remove_red_eye"
             @click="openDetailModal(rowIndex)"
           />
-          <va-button
+          <!-- <va-button
             preset="plain"
             icon="edit"
             @click="openModalToEditItemById(rowIndex)"
-          />
+          /> -->
           <va-button
             preset="plain"
             icon="delete"
@@ -601,6 +693,32 @@ export default defineComponent({
         @change="handleSelect"
         autocomplete
       />
+
+      <div v-for="(field, index) in dynamicFieldsArray" :key="index">
+        <va-select
+          v-model="dynamicFieldsArray[index]"
+          :label="'Field ' + (index + 1)"
+          :options="bankSoalOptions"
+          class="my-6"
+          text-by="label"
+          value-by="value"
+          @change="handleSelect"
+          autocomplete
+        />
+      </div>
+
+      <va-button
+        class="my-6"
+        color="primary"
+        @click="addField"
+        style="
+          width: 100%;
+          display: flex;
+          box-sizing: border-box;
+          margin-bottom: 10px;
+        "
+        >Add Fields
+      </va-button>
     </va-modal>
 
     <va-modal

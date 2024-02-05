@@ -43,6 +43,28 @@ func (handler *SumatifHandler) GetSumatifByID(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Sumatif retrieved successfully", "data": sumatif})
 }
 
+// CountRelatedQuestionsHandler handles requests to get the total count of related questions for all Sumatif records
+func (handler *SumatifHandler) CountRelatedQuestionsHandler(c *fiber.Ctx) error {
+	// Log the start of the handler
+	log.Println("CountRelatedQuestionsHandler started")
+
+	// Call the service method to get the sumatifs with question counts
+	sumatifsWithQuestionCounts, err := handler.SumatifService.CountRelatedQuestionsForAll()
+	if err != nil {
+		// Log the error
+		log.Printf("Error in CountRelatedQuestionsHandler: %v\n", err)
+
+		// Handle error, e.g., write an error response
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting sumatif question counts", "data": err})
+	}
+
+	// Log the successful retrieval of sumatifs with question counts
+	log.Println("Successfully retrieved sumatifs with question counts")
+
+	// Serialize the sumatifs with question counts to JSON and write the response
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Sumatif question counts retrieved successfully", "data": sumatifsWithQuestionCounts})
+}
+
 func (handler *SumatifHandler) CreateSumatif(c *fiber.Ctx) error {
 
 	sumatif := new(model.Sumatif)
@@ -69,37 +91,7 @@ func (handler *SumatifHandler) CreateSumatif(c *fiber.Ctx) error {
 }
 
 func (handler *SumatifHandler) UpdateSumatif(c *fiber.Ctx) error {
-	sumatifID, err := uuid.Parse(c.Params("id"))
-	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Invalid UUID", "data": nil})
-	}
-
-	sumatif := new(model.Sumatif)
-	sumatif.ID = sumatifID
-
-	// Parse the JSON body into the existing Sumatif struct
-	err = c.BodyParser(sumatif)
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Review your input", "data": err})
-	}
-
-	log.Printf("Updated Sumatif: %+v\n", sumatif)
-	log.Print(sumatif.UserID)
-
-	// Update the Sumatif in the database
-	err = handler.SumatifService.UpdateSumatif(sumatif)
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Couldn't update sumatif", "data": err})
-	}
-
-	// Retrieve the existing Sumatif by ID
-	sumatif, err = handler.SumatifService.GetSumatifByID(sumatifID)
-	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Sumatif not found", "data": nil})
-	}
-
-	// Return the updated Sumatif
-	return c.JSON(fiber.Map{"status": "success", "message": "Sumatif updated", "data": sumatif})
+	return c.Status(405).JSON(fiber.Map{"status": "error", "message": "Updates are not supported for this resource", "data": nil})
 }
 
 func (handler *SumatifHandler) DeleteSumatif(c *fiber.Ctx) error {

@@ -52,12 +52,14 @@ func ConnectDB() error {
 		&model.AlurTP{},
 		&model.ModulAjar{},
 		// &model.Penilaian{},
+		&model.BaseModel{},
 		&model.Kognitif{},
 		&model.Formatif{},
 		&model.Sumatif{},
 		&model.Pengayaan{},
 		&model.Remedial{},
 		&model.Soal{},
+		&model.ItemSoal{},
 		&model.BankSoal{},
 	)
 	if err != nil {

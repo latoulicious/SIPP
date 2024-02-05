@@ -587,11 +587,11 @@ export default defineComponent({
             icon="remove_red_eye"
             @click="openDetailModal(rowIndex)"
           />
-          <va-button
+          <!-- <va-button
             preset="plain"
             icon="edit"
             @click="openModalToEditItemById(filteredItems[rowIndex].ID)"
-          />
+          /> -->
           <va-button
             preset="plain"
             icon="delete"
