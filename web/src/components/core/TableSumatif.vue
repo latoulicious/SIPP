@@ -266,28 +266,39 @@ export default defineComponent({
       }
 
       try {
-        console.log("Creating new item with data:", this.createdItem);
+        // Start with the static field
+        let fieldsPayload = [
+          {
+            value: this.createdItem.BankSoalID,
+            label: this.bankSoalOptions.find(
+              (opt) => opt.value === this.createdItem.BankSoalID,
+            ).label,
+          },
+        ];
 
-        // Before adding DynamicFields to the payload
-        console.log("Before adding DynamicFields:", this.createdItem);
+        // Then add the dynamic fields
+        const dynamicFieldsArray = this.dynamicFieldsArray
+          .map((value) => {
+            const selectedOption = this.bankSoalOptions.find(
+              (option) => option.value === value,
+            );
+            return selectedOption
+              ? { value: selectedOption.value, label: selectedOption.label }
+              : null;
+          })
+          .filter(Boolean); // Filters out null values
 
-        // Transform the bankSoalOptions into an array of objects with 'value' and 'label'
-        const dynamicFieldsArray = this.bankSoalOptions.map((option) => ({
-          value: option.value,
-          label: option.label,
-        }));
+        // Concatenate the static and dynamic fields
+        fieldsPayload = fieldsPayload.concat(dynamicFieldsArray);
 
-        // Include the dynamic fields in the payload
+        // Include the fields in the payload
         const payload = {
           ...this.createdItem,
-          DynamicFields: dynamicFieldsArray,
+          DynamicFields: fieldsPayload,
         };
 
-        // After adding DynamicFields to the payload
-        console.log("After adding DynamicFields:", payload);
-
-        // Log the payload before sending it to the server
-        console.log("Payload to send:", payload);
+        // Remove the questionCount field from the payload
+        delete payload.questionCount;
 
         const response = await axios.post(
           "http://localhost:3000/api/sumatif",
@@ -367,40 +378,43 @@ export default defineComponent({
     },
 
     async openDetailModal(rowIndex) {
- const selectedItemId = this.filteredItems[rowIndex].ID;
- console.log("Opening detail modal with ID:", selectedItemId);
+      const selectedItemId = this.filteredItems[rowIndex].ID;
+      console.log("Opening detail modal with ID:", selectedItemId);
 
- try {
-    const response = await axios.get(`http://localhost:3000/api/sumatif/${selectedItemId}`);
-    const data = response.data.data; // Access the data object directly
-    console.log("Full response data:", data); // Log the full response data
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/api/sumatif/${selectedItemId}`,
+        );
+        const data = response.data.data; // Access the data object directly
+        console.log("Full response data:", data); // Log the full response data
 
-    if (data && data.BankSoal) {
-      console.log("Data:", data);
+        if (data && data.BankSoal) {
+          console.log("Data:", data);
 
-      this.detailItem = {
-        ...defaultItem,
-        BankSoal: {
-          Soal: data.BankSoal.Soal || "",
-          OptionA: data.BankSoal.OptionA || "",
-          OptionB: data.BankSoal.OptionB || "",
-          OptionC: data.BankSoal.OptionC || "",
-          OptionD: data.BankSoal.OptionD || "",
-          OptionE: data.BankSoal.OptionE || "",
-        },
-        DynamicFields: data.DynamicFields || [], // Access DynamicFields directly from data
-      };
+          this.detailItem = {
+            ...defaultItem,
+            BankSoal: {
+              Soal: data.BankSoal.Soal || "",
+              OptionA: data.BankSoal.OptionA || "",
+              OptionB: data.BankSoal.OptionB || "",
+              OptionC: data.BankSoal.OptionC || "",
+              OptionD: data.BankSoal.OptionD || "",
+              OptionE: data.BankSoal.OptionE || "",
+            },
+            DynamicFields: data.DynamicFields || [], // Access DynamicFields directly from data
+          };
 
-      console.log("Detail item:", this.detailItem);
-      this.detailModalVisible = true;
-    } else {
-      console.error("No data received from the server or BankSoal is undefined");
-    }
- } catch (error) {
-    console.error("Error fetching data for the detail modal:", error);
- }
-},
-
+          console.log("Detail item:", this.detailItem);
+          this.detailModalVisible = true;
+        } else {
+          console.error(
+            "No data received from the server or BankSoal is undefined",
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching data for the detail modal:", error);
+      }
+    },
 
     async printRow(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
@@ -643,8 +657,11 @@ export default defineComponent({
         (option) => option.value === selectedValue,
       );
       if (selectedOption) {
-        // Update the Soal property of the object at the given index
-        this.$set(this.dynamicFieldsArray, index, {});
+        // Update the label and value of the object at the given index
+        this.$set(this.dynamicFieldsArray, index, {
+          label: selectedOption.label,
+          value: selectedOption.value,
+        });
       }
     },
   },

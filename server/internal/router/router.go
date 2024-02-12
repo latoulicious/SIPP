@@ -237,6 +237,7 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 
 	// total count routes
 	totalCountRoutes := api.Group("/total")
+	totalCountRoutes.Get("/kognitif", kognitifHandler.CountRelatedQuestionsHandler)
 	totalCountRoutes.Get("/sumatif", sumatifHandler.CountRelatedQuestionsHandler)
 
 	// misc routes

@@ -43,6 +43,28 @@ func (handler *KognitifHandler) GetKognitifByID(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Kognitif retrieved successfully", "data": kognitif})
 }
 
+// CountRelatedQuestionsHandler handles requests to get the total count of related questions for all Kognitif records
+func (handler *KognitifHandler) CountRelatedQuestionsHandler(c *fiber.Ctx) error {
+	// Log the start of the handler
+	log.Println("CountRelatedQuestionsHandler started")
+
+	// Call the service method to get the kognitifs with question counts
+	kognitifsWithQuestionCounts, err := handler.KognitifService.CountRelatedQuestionsForAll()
+	if err != nil {
+		// Log the error
+		log.Printf("Error in CountRelatedQuestionsHandler: %v\n", err)
+
+		// Handle error, e.g., write an error response
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting kognitif question counts", "data": err})
+	}
+
+	// Log the successful retrieval of kognitifs with question counts
+	log.Println("Successfully retrieved kognitifs with question counts")
+
+	// Serialize the kognitifs with question counts to JSON and write the response
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Kognitif question counts retrieved successfully", "data": kognitifsWithQuestionCounts})
+}
+
 func (handler *KognitifHandler) CreateKognitif(c *fiber.Ctx) error {
 
 	kognitif := new(model.Kognitif)
@@ -69,37 +91,7 @@ func (handler *KognitifHandler) CreateKognitif(c *fiber.Ctx) error {
 }
 
 func (handler *KognitifHandler) UpdateKognitif(c *fiber.Ctx) error {
-	kognitifID, err := uuid.Parse(c.Params("id"))
-	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Invalid UUID", "data": nil})
-	}
-
-	kognitif := new(model.Kognitif)
-	kognitif.ID = kognitifID
-
-	// Parse the JSON body into the existing Kognitif struct
-	err = c.BodyParser(kognitif)
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Review your input", "data": err})
-	}
-
-	log.Printf("Updated Kognitif: %+v\n", kognitif)
-	log.Print(kognitif.UserID)
-
-	// Update the Kognitif in the database
-	err = handler.KognitifService.UpdateKognitif(kognitif)
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Couldn't update kognitif", "data": err})
-	}
-
-	// Retrieve the existing Kognitif by ID
-	kognitif, err = handler.KognitifService.GetKognitifByID(kognitifID)
-	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Kognitif not found", "data": nil})
-	}
-
-	// Return the updated Kognitif
-	return c.JSON(fiber.Map{"status": "success", "message": "Kognitif updated", "data": kognitif})
+	return c.Status(405).JSON(fiber.Map{"status": "error", "message": "Updates are not supported for this resource", "data": nil})
 }
 
 func (handler *KognitifHandler) DeleteKognitif(c *fiber.Ctx) error {
