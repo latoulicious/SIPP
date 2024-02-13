@@ -43,28 +43,50 @@ func (handler *PengayaanHandler) GetPengayaanByID(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Pengayaan retrieved successfully", "data": pengayaan})
 }
 
+// CountRelatedQuestionsHandler handles requests to get the total count of related questions for all Pengayaan records
+func (handler *PengayaanHandler) CountRelatedQuestionsHandler(c *fiber.Ctx) error {
+	// Log the start of the handler
+	log.Println("CountRelatedQuestionsHandler started")
+
+	// Call the service method to get the pengayaans with question counts
+	pengayaansWithQuestionCounts, err := handler.PengayaanService.CountRelatedQuestionsForAll()
+	if err != nil {
+		// Log the error
+		log.Printf("Error in CountRelatedQuestionsHandler: %v\n", err)
+
+		// Handle error, e.g., write an error response
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting pengayaan question counts", "data": err})
+	}
+
+	// Log the successful retrieval of pengayaans with question counts
+	log.Println("Successfully retrieved pengayaans with question counts")
+
+	// Serialize the pengayaans with question counts to JSON and write the response
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Pengayaan question counts retrieved successfully", "data": pengayaansWithQuestionCounts})
+}
+
 func (handler *PengayaanHandler) CreatePengayaan(c *fiber.Ctx) error {
+	rawBody := c.Body()
+	log.Printf("Raw Request Body: %s\n", rawBody)
 
 	pengayaan := new(model.Pengayaan)
 
-	// Log request body for debugging purposes
-	log.Printf("Request Body: %+v\n", pengayaan)
-	log.Printf("Received Pengayaan object: %+v\n", pengayaan)
-
-	err := c.BodyParser(pengayaan)
-	if err != nil {
-		// Log parsing error for debugging purposes
+	// Parse the request body into the pengayaan struct
+	if err := c.BodyParser(pengayaan); err != nil {
 		log.Printf("Error parsing request body: %v\n", err)
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Review your input", "data": err})
 	}
 
-	err = handler.PengayaanService.CreatePengayaan(pengayaan)
-	if err != nil {
-		// Log creation error for debugging purposes
+	// Log the parsed pengayaan object
+	log.Printf("Parsed Pengayaan object: %+v\n", pengayaan)
+
+	// Call the repository method to create the pengayaan
+	if err := handler.PengayaanService.CreatePengayaan(pengayaan); err != nil {
 		log.Printf("Error creating pengayaan: %v\n", err)
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Couldn't create pengayaan", "data": err})
 	}
 
+	// Return the created pengayaan as the response
 	return c.JSON(fiber.Map{"status": "success", "message": "Pengayaan created", "data": pengayaan})
 }
 

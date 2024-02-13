@@ -43,6 +43,28 @@ func (handler *FormatifHandler) GetFormatifByID(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Formatif retrieved successfully", "data": formatif})
 }
 
+// CountRelatedQuestionsHandler handles requests to get the total count of related questions for all Formatif records
+func (handler *FormatifHandler) CountRelatedQuestionsHandler(c *fiber.Ctx) error {
+	// Log the start of the handler
+	log.Println("CountRelatedQuestionsHandler started")
+
+	// Call the service method to get the formatifs with question counts
+	formatifsWithQuestionCounts, err := handler.FormatifService.CountRelatedQuestionsForAll()
+	if err != nil {
+		// Log the error
+		log.Printf("Error in CountRelatedQuestionsHandler: %v\n", err)
+
+		// Handle error, e.g., write an error response
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting formatif question counts", "data": err})
+	}
+
+	// Log the successful retrieval of formatifs with question counts
+	log.Println("Successfully retrieved formatifs with question counts")
+
+	// Serialize the formatifs with question counts to JSON and write the response
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Formatif question counts retrieved successfully", "data": formatifsWithQuestionCounts})
+}
+
 func (handler *FormatifHandler) CreateFormatif(c *fiber.Ctx) error {
 	rawBody := c.Body()
 	log.Printf("Raw Request Body: %s\n", rawBody)

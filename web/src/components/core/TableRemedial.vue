@@ -12,6 +12,7 @@ const defaultItem = {
   Mapel: {}, // Initialize as an empty object
   Kelas: {}, // Initialize as an empty object
   TahunAjar: {}, // Initialize as an empty object
+  questionCount: "",
   Pertanyaan: "",
 };
 
@@ -20,6 +21,7 @@ const displayNames = {
   Mapel: "Mata Pelajaran",
   Kelas: "Kelas",
   TahunAjar: "Tahun Ajar",
+  questionCount: "Total Soal",
   Pertanyaan: "Pertanyaan",
 };
 
@@ -30,6 +32,7 @@ export default defineComponent({
       { key: "Mapel", label: "Mata Pelajaran", sortable: false },
       { key: "Kelas", label: "Kelas", sortable: false },
       { key: "TahunAjar", label: "Tahun Ajar", sortable: false },
+      { key: "questionCount", label: "Total Soal", sortable: false },
       { key: "actions", label: "Actions", width: 80 },
     ];
 
@@ -74,13 +77,6 @@ export default defineComponent({
       );
     },
 
-    mergedItem() {
-      return {
-        ...this.editedItem,
-        DynamicFields: this.collectDynamicFields(),
-      };
-    },
-
     filteredInputFields() {
       return this.inputFields.filter((key) => key);
     },
@@ -107,8 +103,12 @@ export default defineComponent({
     },
 
     isNewData() {
-      return Object.keys(this.createdItem).every(
-        (key) => !!this.createdItem[key],
+      return (
+        this.createdItem.UserID &&
+        this.createdItem.MapelID &&
+        this.createdItem.KelasID &&
+        this.createdItem.TahunAjarID &&
+        this.createdItem.Pertanyaan
       );
     },
 
@@ -139,6 +139,15 @@ export default defineComponent({
           "http://localhost:3000/api/public/tahun",
         );
 
+        const questionCountResponse = await axios.get(
+          "http://localhost:3000/api/total/remedial",
+        );
+
+        console.log(
+          "Question count response data:",
+          questionCountResponse.data,
+        );
+
         console.log("Server response:", response);
 
         // Populate usersOptions, mapelsOptions, kelasOptions, tahunAjarOptions
@@ -159,15 +168,28 @@ export default defineComponent({
           "Tahun",
         );
 
-        this.items = response.data.data.map((item) => ({
-          ...item,
-          ID: item?.ID || "", // Use 'ID' instead of 'id'
-          User: item?.User.Name || "",
-          Mapel: item?.Mapel.Mapel || "",
-          Kelas: item?.Kelas.Kelas || "",
-          TahunAjar: item?.TahunAjar.Tahun || "",
-          Pertanyaan: item?.Pertanyaan || "",
-        }));
+        // Create a lookup object for quick access to question counts by ID
+        const questionCountLookup = {};
+        questionCountResponse.data.data.forEach((item) => {
+          questionCountLookup[item.ID] = item.questionCount;
+        });
+
+        // Merge the question counts with the base data
+        this.items = response.data.data.map((item) => {
+          // Retrieve the question count using the item's ID
+          const questionCount = questionCountLookup[item.ID] || 0;
+
+          return {
+            ...item,
+            ID: item?.ID || "",
+            User: item?.User.Name || "",
+            Mapel: item?.Mapel.Mapel || "",
+            Kelas: item?.Kelas.Kelas || "",
+            TahunAjar: item?.TahunAjar.Tahun || "",
+            Pertanyaan: item?.Pertanyaan || "",
+            questionCount: questionCount, // Set the question count
+          };
+        });
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -181,14 +203,29 @@ export default defineComponent({
         return;
       }
 
-      const dynamicFields = this.collectDynamicFields();
-      const newItem = {
-        ...this.createdItem,
-        DynamicFields: dynamicFields, // Wrap dynamic fields in an object
+      // Collect static fields
+      const dynamicFields = {
+        Pertanyaan: this.createdItem.Pertanyaan,
       };
 
-      // Remove the "Pertanyaan" field from the "DynamicFields" object
-      delete newItem.DynamicFields.Pertanyaan;
+      // Collect dynamic fields
+      this.textAreaFields.forEach((fieldKey) => {
+        dynamicFields[fieldKey] = this.createdItem[fieldKey];
+      });
+
+      // Construct the newItem object without the questionCount field
+      const newItem = {
+        ...this.createdItem,
+        DynamicFields: dynamicFields,
+      };
+
+      // Explicitly remove the questionCount field from the newItem object
+      delete newItem.questionCount;
+
+      // Remove the individual dynamic fields from the main object
+      this.textAreaFields.forEach((fieldKey) => {
+        delete newItem[fieldKey];
+      });
 
       // Log the newItem before sending the request
       console.log("New Item:", newItem);
@@ -211,9 +248,18 @@ export default defineComponent({
     },
 
     async editItem() {
+      // Collect dynamic fields from the form
+      const dynamicFields = this.collectDynamicFields();
+
+      // Create the item to edit with dynamic fields included
+      const itemToEdit = {
+        ...this.editedItem,
+        DynamicFields: dynamicFields, // Include dynamic fields in the object
+      };
+
       try {
-        // Create a deep copy of the merged item
-        const editedData = JSON.parse(JSON.stringify(this.mergedItem));
+        // Create a deep copy of the edited item
+        const editedData = JSON.parse(JSON.stringify(itemToEdit));
 
         // Change 'ID' to 'id'
         editedData.id = editedData.ID;
@@ -225,20 +271,15 @@ export default defineComponent({
 
         // Send the PUT request with the edited data
         await axios.put(
-          `http://localhost:3000/api/remedial/${editedData.id}`,
-          editedData, // Pass the editedData as the payload
-          {
-            headers: {
-              "Content-Type": "application/json", // Set the content type header
-            },
-          },
+          `http://localhost:3000/api/remedial/${this.editedItem.id}`,
+          editedData,
         );
 
         this.resetEditedItem();
         // Re-fetch the data to refresh the table
         await this.fetchData();
       } catch (error) {
-        // Handle errors as before
+        console.error("Error editing item:", error);
       }
     },
 
@@ -310,9 +351,8 @@ export default defineComponent({
         if (data) {
           console.log("Retrieved data:", data);
 
-          // Assign the new object directly
+          // Use only the DynamicFields object
           this.detailItem = {
-            Pertanyaan: data.Pertanyaan || "",
             DynamicFields: data.DynamicFields || {},
           };
 
@@ -460,8 +500,8 @@ export default defineComponent({
       // Add the new key to the textAreaFields array
       this.textAreaFields.push(newKey);
 
-      // Directly assign the new field to createdItem with an empty string as the value
-      this.createdItem[newKey] = "";
+      // Use Vue's $set to reactively add the new field to createdItem with an empty string as the value
+      this.$set(this.createdItem, newKey, "");
     },
 
     resetEditedItem() {
@@ -511,14 +551,11 @@ export default defineComponent({
         // Set the editedItem to the found item
         this.editedItem = { ...item };
 
-        // Update createdItem with the dynamic fields from the editedItem
-        this.createdItem = { ...item.DynamicFields };
-
         // Log the editedItem to check the Pertanyaan value
         console.log("Edited item:", this.editedItem);
 
         // Populate textAreaFields with the keys of the dynamic fields
-        this.textAreaFields = Object.keys(this.createdItem || {});
+        this.textAreaFields = Object.keys(this.editedItem.DynamicFields || {});
 
         // Open the modal
         this.showEditModal = true;
@@ -552,12 +589,6 @@ export default defineComponent({
     },
   },
 
-  watch: {
-    "editedItem.DynamicFields.pertanyaan2"(newValue, oldValue) {
-      console.log("pertanyaan2 changed from", oldValue, "to", newValue);
-    },
-  },
-
   mounted() {
     this.fetchData();
   },
@@ -580,7 +611,7 @@ export default defineComponent({
       border-color="#000000"
     >
       <va-button @click="toggleAddModal" preset="secondary" icon="add"
-        >Add Remedial</va-button
+        >Add Asesmen Remedial</va-button
       >
     </va-button-group>
   </div>
@@ -758,19 +789,19 @@ export default defineComponent({
       blur
       class="modal-crud"
       stripe
-      title="Detail Remedial"
+      title="Detail Asesmen Remedial"
       size="large"
       :model-value="detailModalVisible"
       @ok="resetDetailItem"
       @cancel="resetDetailItem"
     >
-      <!-- Display the Pertanyaan field -->
+      <!-- Display the Pertanyaan field
       <va-textarea
         :label="'Pertanyaan'"
         v-model="detailItem.Pertanyaan"
         class="my-6"
         readonly
-      />
+      /> -->
 
       <!-- Display dynamic fields -->
       <va-textarea

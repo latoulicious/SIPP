@@ -12,6 +12,7 @@ const defaultItem = {
   Mapel: {}, // Initialize as an empty object
   Kelas: {}, // Initialize as an empty object
   TahunAjar: {}, // Initialize as an empty object
+  questionCount: "",
   Pertanyaan: "",
 };
 
@@ -20,6 +21,7 @@ const displayNames = {
   Mapel: "Mata Pelajaran",
   Kelas: "Kelas",
   TahunAjar: "Tahun Ajar",
+  questionCount: "Total Soal",
   Pertanyaan: "Pertanyaan",
 };
 
@@ -30,6 +32,7 @@ export default defineComponent({
       { key: "Mapel", label: "Mata Pelajaran", sortable: false },
       { key: "Kelas", label: "Kelas", sortable: false },
       { key: "TahunAjar", label: "Tahun Ajar", sortable: false },
+      { key: "questionCount", label: "Total Soal", sortable: false },
       { key: "actions", label: "Actions", width: 80 },
     ];
 
@@ -100,8 +103,12 @@ export default defineComponent({
     },
 
     isNewData() {
-      return Object.keys(this.createdItem).every(
-        (key) => !!this.createdItem[key],
+      return (
+        this.createdItem.UserID &&
+        this.createdItem.MapelID &&
+        this.createdItem.KelasID &&
+        this.createdItem.TahunAjarID &&
+        this.createdItem.Pertanyaan
       );
     },
 
@@ -132,6 +139,15 @@ export default defineComponent({
           "http://localhost:3000/api/public/tahun",
         );
 
+        const questionCountResponse = await axios.get(
+          "http://localhost:3000/api/total/formatif",
+        );
+
+        console.log(
+          "Question count response data:",
+          questionCountResponse.data,
+        );
+
         console.log("Server response:", response);
 
         // Populate usersOptions, mapelsOptions, kelasOptions, tahunAjarOptions
@@ -152,15 +168,28 @@ export default defineComponent({
           "Tahun",
         );
 
-        this.items = response.data.data.map((item) => ({
-          ...item,
-          ID: item?.ID || "", // Use 'ID' instead of 'id'
-          User: item?.User.Name || "",
-          Mapel: item?.Mapel.Mapel || "",
-          Kelas: item?.Kelas.Kelas || "",
-          TahunAjar: item?.TahunAjar.Tahun || "",
-          Pertanyaan: item?.Pertanyaan || "",
-        }));
+        // Create a lookup object for quick access to question counts by ID
+        const questionCountLookup = {};
+        questionCountResponse.data.data.forEach((item) => {
+          questionCountLookup[item.ID] = item.questionCount;
+        });
+
+        // Merge the question counts with the base data
+        this.items = response.data.data.map((item) => {
+          // Retrieve the question count using the item's ID
+          const questionCount = questionCountLookup[item.ID] || 0;
+
+          return {
+            ...item,
+            ID: item?.ID || "",
+            User: item?.User.Name || "",
+            Mapel: item?.Mapel.Mapel || "",
+            Kelas: item?.Kelas.Kelas || "",
+            TahunAjar: item?.TahunAjar.Tahun || "",
+            Pertanyaan: item?.Pertanyaan || "",
+            questionCount: questionCount, // Set the question count
+          };
+        });
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -174,14 +203,29 @@ export default defineComponent({
         return;
       }
 
-      const dynamicFields = this.collectDynamicFields();
-      const newItem = {
-        ...this.createdItem,
-        DynamicFields: dynamicFields, // Wrap dynamic fields in an object
+      // Collect static fields
+      const dynamicFields = {
+        Pertanyaan: this.createdItem.Pertanyaan,
       };
 
-      // Remove the "Pertanyaan" field from the "DynamicFields" object
-      delete newItem.DynamicFields.Pertanyaan;
+      // Collect dynamic fields
+      this.textAreaFields.forEach((fieldKey) => {
+        dynamicFields[fieldKey] = this.createdItem[fieldKey];
+      });
+
+      // Construct the newItem object without the questionCount field
+      const newItem = {
+        ...this.createdItem,
+        DynamicFields: dynamicFields,
+      };
+
+      // Explicitly remove the questionCount field from the newItem object
+      delete newItem.questionCount;
+
+      // Remove the individual dynamic fields from the main object
+      this.textAreaFields.forEach((fieldKey) => {
+        delete newItem[fieldKey];
+      });
 
       // Log the newItem before sending the request
       console.log("New Item:", newItem);
@@ -307,9 +351,8 @@ export default defineComponent({
         if (data) {
           console.log("Retrieved data:", data);
 
-          // Assign the new object directly
+          // Use only the DynamicFields object
           this.detailItem = {
-            Pertanyaan: data.Pertanyaan || "",
             DynamicFields: data.DynamicFields || {},
           };
 
@@ -752,13 +795,13 @@ export default defineComponent({
       @ok="resetDetailItem"
       @cancel="resetDetailItem"
     >
-      <!-- Display the Pertanyaan field -->
+      <!-- Display the Pertanyaan field
       <va-textarea
         :label="'Pertanyaan'"
         v-model="detailItem.Pertanyaan"
         class="my-6"
         readonly
-      />
+      /> -->
 
       <!-- Display dynamic fields -->
       <va-textarea

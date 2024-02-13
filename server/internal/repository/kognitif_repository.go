@@ -54,44 +54,20 @@ func (repository *KognitifRepository) CreateKognitif(kognitif *model.Kognitif) e
 		return err
 	}
 
-	// Add similar checks for mapel_id, kelas_id, tahun_ajar_id
-
-	// Convert the bankSoal to JSON
-	bankSoalJSON, err := json.Marshal(bankSoal)
-	if err != nil {
+	// Unmarshal the DynamicFields JSON into a slice of maps
+	var dynamicFields []map[string]interface{}
+	if err := json.Unmarshal(kognitif.DynamicFields, &dynamicFields); err != nil {
 		return err
 	}
 
-	// Unmarshal the existing DynamicFields JSON into a map
-	var dynamicFieldsMap map[string]interface{}
-	err = json.Unmarshal([]byte(kognitif.DynamicFields), &dynamicFieldsMap)
-	if err != nil {
-		return err
+	// Extract the labels from the DynamicFields array
+	var dynamicFieldsLabels []string
+	for _, field := range dynamicFields {
+		// Access the 'label' key from the map
+		if label, ok := field["label"].(string); ok {
+			dynamicFieldsLabels = append(dynamicFieldsLabels, label)
+		}
 	}
-
-	// Unmarshal the bankSoal JSON into a map
-	var bankSoalMap map[string]interface{}
-	err = json.Unmarshal(bankSoalJSON, &bankSoalMap)
-	if err != nil {
-		return err
-	}
-
-	// Update only the relevant fields in dynamicFieldsMap with the values from bankSoalMap
-	dynamicFieldsMap["Soal"] = bankSoalMap["Soal"]
-	dynamicFieldsMap["OptionA"] = bankSoalMap["OptionA"]
-	dynamicFieldsMap["OptionB"] = bankSoalMap["OptionB"]
-	dynamicFieldsMap["OptionC"] = bankSoalMap["OptionC"]
-	dynamicFieldsMap["OptionD"] = bankSoalMap["OptionD"]
-	dynamicFieldsMap["OptionE"] = bankSoalMap["OptionE"]
-
-	// Marshal the updated dynamicFieldsMap back into a JSON byte slice
-	updatedDynamicFieldsJSON, err := json.Marshal(dynamicFieldsMap)
-	if err != nil {
-		return err
-	}
-
-	// Assign the updated JSON byte slice back to kognitif.DynamicFields
-	kognitif.DynamicFields = updatedDynamicFieldsJSON
 
 	// Assign a new UUID to the kognitif object
 	kognitif.ID = uuid.New()

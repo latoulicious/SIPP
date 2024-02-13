@@ -238,7 +238,10 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	// total count routes
 	totalCountRoutes := api.Group("/total")
 	totalCountRoutes.Get("/kognitif", kognitifHandler.CountRelatedQuestionsHandler)
+	totalCountRoutes.Get("/formatif", formatifHandler.CountRelatedQuestionsHandler)
 	totalCountRoutes.Get("/sumatif", sumatifHandler.CountRelatedQuestionsHandler)
+	totalCountRoutes.Get("/pengayaan", pengayaanHandler.CountRelatedQuestionsHandler)
+	totalCountRoutes.Get("/remedial", remedialHandler.CountRelatedQuestionsHandler)
 
 	// misc routes
 	app.Get("/api/get-jwt-secret", func(c *fiber.Ctx) error {

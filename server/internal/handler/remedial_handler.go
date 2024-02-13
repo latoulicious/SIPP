@@ -43,28 +43,50 @@ func (handler *RemedialHandler) GetRemedialByID(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Remedial retrieved successfully", "data": remedial})
 }
 
+// CountRelatedQuestionsHandler handles requests to get the total count of related questions for all Remedial records
+func (handler *RemedialHandler) CountRelatedQuestionsHandler(c *fiber.Ctx) error {
+	// Log the start of the handler
+	log.Println("CountRelatedQuestionsHandler started")
+
+	// Call the service method to get the remedials with question counts
+	remedialsWithQuestionCounts, err := handler.RemedialService.CountRelatedQuestionsForAll()
+	if err != nil {
+		// Log the error
+		log.Printf("Error in CountRelatedQuestionsHandler: %v\n", err)
+
+		// Handle error, e.g., write an error response
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting remedial question counts", "data": err})
+	}
+
+	// Log the successful retrieval of remedials with question counts
+	log.Println("Successfully retrieved remedials with question counts")
+
+	// Serialize the remedials with question counts to JSON and write the response
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Remedial question counts retrieved successfully", "data": remedialsWithQuestionCounts})
+}
+
 func (handler *RemedialHandler) CreateRemedial(c *fiber.Ctx) error {
+	rawBody := c.Body()
+	log.Printf("Raw Request Body: %s\n", rawBody)
 
 	remedial := new(model.Remedial)
 
-	// Log request body for debugging purposes
-	log.Printf("Request Body: %+v\n", remedial)
-	log.Printf("Received Remedial object: %+v\n", remedial)
-
-	err := c.BodyParser(remedial)
-	if err != nil {
-		// Log parsing error for debugging purposes
+	// Parse the request body into the remedial struct
+	if err := c.BodyParser(remedial); err != nil {
 		log.Printf("Error parsing request body: %v\n", err)
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Review your input", "data": err})
 	}
 
-	err = handler.RemedialService.CreateRemedial(remedial)
-	if err != nil {
-		// Log creation error for debugging purposes
+	// Log the parsed remedial object
+	log.Printf("Parsed Remedial object: %+v\n", remedial)
+
+	// Call the repository method to create the remedial
+	if err := handler.RemedialService.CreateRemedial(remedial); err != nil {
 		log.Printf("Error creating remedial: %v\n", err)
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Couldn't create remedial", "data": err})
 	}
 
+	// Return the created remedial as the response
 	return c.JSON(fiber.Map{"status": "success", "message": "Remedial created", "data": remedial})
 }
 

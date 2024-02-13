@@ -32,21 +32,20 @@ func (repository *PengayaanRepository) GetPengayaanByID(pengayaanID uuid.UUID) (
 	return &pengayaan, nil
 }
 
-func (repository *PengayaanRepository) CreatePengayaan(formatif *model.Pengayaan) error {
+func (repository *PengayaanRepository) CreatePengayaan(pengayaan *model.Pengayaan) error {
+	// Log the pengayaan object before saving to the database
+	log.Printf("Creating Pengayaan with DynamicFields: %+v\n", pengayaan.DynamicFields)
 
-	// Log the formatif object before saving to the database
-	log.Printf("Creating Formatif with DynamicFields: %+v\n", formatif.DynamicFields)
+	// Assign a new UUID to the pengayaan object
+	pengayaan.ID = uuid.New()
 
-	// Assign a new UUID to the formatif object
-	formatif.ID = uuid.New()
-
-	// Save the formatif to the database
-	if err := repository.DB.Create(&formatif).Error; err != nil {
+	// Save the pengayaan to the database
+	if err := repository.DB.Create(&pengayaan).Error; err != nil {
 		return err
 	}
 
-	// Log the created formatif object
-	log.Printf("Created Formatif object: %+v\n", formatif)
+	// Log the created pengayaan object
+	log.Printf("Created Pengayaan object: %+v\n", pengayaan)
 
 	return nil
 }
@@ -54,6 +53,7 @@ func (repository *PengayaanRepository) CreatePengayaan(formatif *model.Pengayaan
 func (repository *PengayaanRepository) UpdatePengayaan(pengayaan *model.Pengayaan) error {
 	log.Printf("Updating Pengayaan with ID: %s\n", pengayaan.ID)
 
+	// Assuming pengayaan.DynamicFields is populated with the updated dynamic fields
 	if err := repository.DB.Save(pengayaan).Error; err != nil {
 		log.Printf("Error saving pengayaan: %+v\n", err)
 		return err

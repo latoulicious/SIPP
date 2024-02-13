@@ -34,7 +34,7 @@ func (repository *RemedialRepository) GetRemedialByID(remedialID uuid.UUID) (*mo
 
 func (repository *RemedialRepository) CreateRemedial(remedial *model.Remedial) error {
 	// Log the remedial object before saving to the database
-	log.Printf("Creating Formatif with DynamicFields: %+v\n", remedial.DynamicFields)
+	log.Printf("Creating Remedial with DynamicFields: %+v\n", remedial.DynamicFields)
 
 	// Assign a new UUID to the remedial object
 	remedial.ID = uuid.New()
@@ -49,9 +49,11 @@ func (repository *RemedialRepository) CreateRemedial(remedial *model.Remedial) e
 
 	return nil
 }
+
 func (repository *RemedialRepository) UpdateRemedial(remedial *model.Remedial) error {
 	log.Printf("Updating Remedial with ID: %s\n", remedial.ID)
 
+	// Assuming remedial.DynamicFields is populated with the updated dynamic fields
 	if err := repository.DB.Save(remedial).Error; err != nil {
 		log.Printf("Error saving remedial: %+v\n", err)
 		return err
