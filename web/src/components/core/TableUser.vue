@@ -8,7 +8,6 @@ const defaultItem = {
   name: "",
   nip: "",
   golongan: "",
-  role: "",
 };
 
 export default defineComponent({
@@ -29,13 +28,16 @@ export default defineComponent({
       createdItem: { ...defaultItem },
       items: [],
       showModal: false,
+      loading: false,
     };
   },
 
   computed: {
     filteredInputFields() {
-      // Exclude 'password' field from the inputFields
-      return this.inputFields.filter((key) => key !== "password");
+      // Exclude 'password' and 'role' fields from the inputFields
+      return this.inputFields.filter(
+        (key) => key !== "password" && key !== "role",
+      );
     },
     isNewData() {
       return Object.keys(this.createdItem).every(
@@ -49,6 +51,8 @@ export default defineComponent({
 
   methods: {
     async fetchData() {
+      this.loading = true;
+
       try {
         const jwtToken = localStorage.getItem("jwtToken");
 
@@ -59,6 +63,8 @@ export default defineComponent({
         }
 
         console.log("Token:", jwtToken); // Log the token for debugging
+
+        await new Promise((resolve) => setTimeout(resolve, 2000));
 
         const response = await this.$axios.get(
           "http://localhost:3000/api/user",
@@ -80,6 +86,8 @@ export default defineComponent({
         }));
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        this.loading = false;
       }
     },
 
@@ -116,7 +124,7 @@ export default defineComponent({
 
         this.items.push(newUser);
         this.resetCreatedItem();
-        this.fetchData();
+        await this.fetchData();
       } catch (error) {
         console.error("Error adding new item:", error);
       }
@@ -163,7 +171,7 @@ export default defineComponent({
         };
 
         this.resetEditedItem();
-        this.fetchData();
+        await this.fetchData();
       } catch (error) {
         console.error("Error editing item:", error);
       }
@@ -192,6 +200,7 @@ export default defineComponent({
 
         // Remove the item from the array
         this.items.splice(id, 1);
+        await this.fetchData();
       } catch (error) {
         console.error("Error deleting item:", error);
       }
@@ -243,14 +252,9 @@ export default defineComponent({
     </va-button-group>
   </div>
   <div>
-    <va-data-table :items="items" :columns="columns" striped>
+    <va-data-table :items="items" :columns="columns" :loading="loading" striped>
       <template #cell(actions)="{ rowIndex }">
         <div class="action-buttons">
-          <!-- <va-button
-            preset="plain"
-            icon="remove_red_eye"
-            @click="deleteItemById(rowIndex)"
-          /> -->
           <va-button
             preset="plain"
             icon="edit"
@@ -266,21 +270,26 @@ export default defineComponent({
     </va-data-table>
     <!-- Modal Content -->
     <va-modal
+      blur
       class="modal-crud"
-      stripe
+      :model-value="showModal"
       title="Add user"
       size="small"
-      blur
-      :model-value="showModal"
       @ok="addNewItem"
       @cancel="resetCreatedItem"
     >
       <va-input
-        v-for="key in Object.keys(createdItem)"
+        v-for="key in filteredInputFields"
         :key="key"
         :label="key"
         :type="key === 'password' ? 'password' : 'text'"
         v-model="createdItem[key]"
+        class="my-6"
+      />
+      <va-select
+        label="Role"
+        v-model="createdItem.role"
+        :options="['Admin', 'Guru', 'Wakil Kepala Sekolah', 'Kepala Sekolah']"
         class="my-6"
       />
     </va-modal>
@@ -300,6 +309,12 @@ export default defineComponent({
         class="my-6"
         :label="key"
         :type="key === 'password' ? 'password' : 'text'"
+      />
+      <va-select
+        label="Role"
+        v-model="editedItem.role"
+        :options="['Admin', 'Guru', 'Wakil Kepala Sekolah', 'Kepala Sekolah']"
+        class="my-6"
       />
     </va-modal>
   </div>

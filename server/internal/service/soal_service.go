@@ -17,9 +17,9 @@ func NewSoalService(soalRepository *repository.SoalRepository) *SoalService {
 	}
 }
 
-// GetSoalWithItems retrieves a Soal along with its associated ItemSoal records
-func (service *SoalService) GetSoal(soalID uuid.UUID) (*model.Soal, error) {
-	return service.SoalRepository.GetSoal(soalID)
+// GetSoal retrieves all Soal records along with their associated ItemSoal records
+func (service *SoalService) GetSoal() ([]*model.Soal, error) {
+	return service.SoalRepository.GetSoal()
 }
 
 // GetSoalByID retrieve a soal by id
@@ -27,9 +27,21 @@ func (service *SoalService) GetSoalByID(soalID uuid.UUID) (*model.Soal, error) {
 	return service.SoalRepository.GetSoalByID(soalID)
 }
 
-// CreateSoalWithItems creates a new Soal and associates it with ItemSoal records
-func (service *SoalService) CreateSoal(soal *model.Soal, itemSoalData []*model.ItemSoal) error {
-	return service.SoalRepository.CreateSoal(soal, itemSoalData)
+func (service *SoalService) CreateSoal(soal *model.Soal, itemSoal *model.ItemSoal) error {
+	// Save the Soal record
+	if err := service.SoalRepository.CreateSoal(soal); err != nil {
+		return err
+	}
+
+	// Associate the ItemSoal with the newly created Soal
+	itemSoal.SoalID = soal.ID
+
+	// Save the ItemSoal record
+	if err := service.SoalRepository.CreateItem(itemSoal); err != nil {
+		return err
+	}
+
+	return nil // Successful creation
 }
 
 // UpdateSoal updates an existing soal

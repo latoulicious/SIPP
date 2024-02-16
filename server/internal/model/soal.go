@@ -19,5 +19,5 @@ type Soal struct {
 	Hari      string
 	Tanggal   string
 	Waktu     string
-	Items     []ItemSoal `gorm:"foreignKey:SoalID"`
+	Items     []ItemSoal `gorm:"foreignKey:SoalID;associationForeignKey:SoalID"`
 }

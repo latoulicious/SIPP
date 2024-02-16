@@ -12,6 +12,7 @@ const defaultItem = {
   Mapel: {}, // Initialize as an empty object
   Kelas: {}, // Initialize as an empty object
   Jurusan: {}, // Initialize as an empty object
+  questionCount: "",
   BankSoal: {
     Soal: "",
     OptionA: "",
@@ -30,12 +31,13 @@ const displayNames = {
   Mapel: "Mata Pelajaran",
   Kelas: "Kelas",
   Jurusan: "Jurusan",
+  questionCount: "Total Soal",
   BankSoal: "Soal",
-  OptionA: "Option A",
-  OptionB: "Option B",
-  OptionC: "Option C",
-  OptionD: "Option D",
-  OptionE: "Option E",
+  OptionA: "Pilihan A",
+  OptionB: "Pilihan B",
+  OptionC: "Pilihan C",
+  OptionD: "Pilihan D",
+  OptionE: "Pilihan E",
   Hari: "Hari",
   Tanggal: "Tanggal",
   Waktu: "Waktu",
@@ -47,7 +49,7 @@ export default defineComponent({
       { key: "User", label: "Nama Penyusun", sortable: false },
       { key: "Mapel", label: "Mata Pelajaran", sortable: false },
       { key: "Kelas", label: "Kelas", sortable: false },
-      { key: "Jurusan", label: "Jurusan", sortable: false },
+      { key: "questionCount", label: "Total Soal", sortable: false },
       { key: "actions", label: "Actions", width: 80 },
     ];
 
@@ -55,19 +57,32 @@ export default defineComponent({
       columns,
       editedItemId: null,
       editedItem: null,
-      createdItem: { ...defaultItem },
+      createdItem: {},
+      dynamicFieldsArray: [],
+      selectedValues: {},
       input: ref({ value: "" }),
       items: [],
       usersOptions: [],
       mapelsOptions: [],
       kelasOptions: [],
       jurusanOptions: [],
+      bankSoalOptions: [],
       textAreaFields: ["Hari", "Tanggal", "Waktu"],
       showModal: false,
       viewModalVisible: false,
-      detailItem: null,
-      detailModalVisible: false,
       displayNames,
+      detailItem: {
+        DynamicFields: [], // Initialize DynamicFields as an empty array
+        BankSoal: {
+          Soal: "",
+          OptionA: "",
+          OptionB: "",
+          OptionC: "",
+          OptionD: "",
+          OptionE: "",
+        },
+      },
+      detailModalVisible: false,
       loading: false,
     };
   },
@@ -115,9 +130,43 @@ export default defineComponent({
     },
 
     isNewData() {
-      return Object.keys(this.createdItem).every(
-        (key) => !!this.createdItem[key],
-      );
+      // Function to check if a value is truthy, allowing empty strings
+      const isTruthyOrEmptyString = (value) => {
+        if (typeof value === "object" && value !== null) {
+          return Object.values(value).every(isTruthyOrEmptyString);
+        }
+        return value === "" || !!value;
+      };
+
+      // Check if BankSoal exists and has truthy or empty string Soal and Options
+      const bankSoalExistsAndHasValues =
+        this.createdItem.BankSoal &&
+        isTruthyOrEmptyString(this.createdItem.BankSoal.Soal) &&
+        isTruthyOrEmptyString(this.createdItem.BankSoal.OptionA) &&
+        isTruthyOrEmptyString(this.createdItem.BankSoal.OptionB) &&
+        isTruthyOrEmptyString(this.createdItem.BankSoal.OptionC) &&
+        isTruthyOrEmptyString(this.createdItem.BankSoal.OptionD) &&
+        isTruthyOrEmptyString(this.createdItem.BankSoal.OptionE);
+
+      // Check if all other keys in createdItem have truthy or empty string values
+      const allOtherKeysTruthyOrEmptyString = Object.keys(this.createdItem)
+        .filter((key) => key !== "BankSoal") // Exclude BankSoal from this check
+        .every((key) => isTruthyOrEmptyString(this.createdItem[key]));
+
+      // Return true only if BankSoal has values and all other keys have truthy or empty string values
+      return bankSoalExistsAndHasValues && allOtherKeysTruthyOrEmptyString;
+    },
+
+    dynamicFieldsSelectItems() {
+      // Check if DynamicFields is defined and is an array
+      if (Array.isArray(this.detailItem.DynamicFields)) {
+        return this.detailItem.DynamicFields.map((field) => ({
+          text: field.label,
+          value: field.value,
+        }));
+      }
+      // Return an empty array if DynamicFields is not defined or not an array
+      return [];
     },
 
     inputFields() {
@@ -148,23 +197,24 @@ export default defineComponent({
         );
         const bankResponse = await axios.get("http://localhost:3000/api/bank");
 
-        // Process the data and update the UI
-        console.log("Response from server (BankSoal):", response.data);
-        // console.log("Response from server (Users):", userResponse.data);
-        // console.log("Response from server (Kelas):", kelasResponse.data);
-        console.log("Response from server (Jurusan):", jurusanResponse.data);
-        // console.log("Response from server (Mapel):", mapelResponse.data);
+        // const questionCountResponse = await axios.get("http://localhost:3000/api/total/soal");
 
-        // Populate usersOptions, mapelsOptions, kelasOptions, tahunAjarOptions
+        // console.log("Question count response data:", questionCountResponse.data);
 
         this.usersOptions = this.extractOptions(userResponse.data.data, "Name");
-        // console.log("Users options:", this.usersOptions);
+        console.log("User options:", this.usersOptions);
 
         this.kelasOptions = this.extractOptions(
           kelasResponse.data.data,
           "Kelas",
         );
-        // console.log("Kelas options:", this.kelasOptions);
+        console.log("Kelas options:", this.kelasOptions);
+
+        this.mapelsOptions = this.extractOptions(
+          mapelResponse.data.data,
+          "Mapel",
+        );
+        console.log("Mapel options:", this.mapelsOptions);
 
         this.jurusanOptions = this.extractOptions(
           jurusanResponse.data.data,
@@ -172,39 +222,49 @@ export default defineComponent({
         );
         console.log("Jurusan options:", this.jurusanOptions);
 
-        this.mapelsOptions = this.extractOptions(
-          mapelResponse.data.data,
-          "Mapel",
-        );
-        // console.log("Mapels options:", this.mapelsOptions);
-
         this.bankSoalOptions = this.extractOptions(
           bankResponse.data.data,
           "Soal",
         );
+        console.log("Bank Soal options:", this.bankSoalOptions);
 
-        console.log("bankSoal options:", this.bankSoalOptions);
+        console.log("Soal response data:", response.data);
 
-        // Update the items array with BankSoal data
-        this.items = response.data.data.map((item) => ({
-          ...item,
-          ID: item?.ID || "", // Use 'ID' instead of 'id'
-          User: item?.User.Name || "",
-          Mapel: item?.Mapel.Mapel || "",
-          Kelas: item?.Kelas.Kelas || "",
-          Jurusan: item?.Jurusan.Jurusan || "",
-          Soal: item?.BankSoal.Soal || "",
-          OptionA: item?.BankSoal.OptionA || "",
-          OptionB: item?.BankSoal.OptionB || "",
-          OptionC: item?.BankSoal.OptionC || "",
-          OptionD: item?.BankSoal.OptionD || "",
-          OptionE: item?.BankSoal.OptionE || "",
-          Hari: item?.Hari.Hari || "",
-          Tanggal: item?.Tanggal.Tanggal || "",
-          Waktu: item?.Waktu.Waktu || "",
-        }));
+        // // Create a lookup object for quick access to question counts by ID
+        // const questionCountLookup = {};
+        // questionCountResponse.data.data.forEach((item) => {
+        //   questionCountLookup[item.ID] = item.questionCount;
+        // });
 
-        console.log("BankSoal items:", this.items);
+        // Merge the question counts with the base data
+        this.items = response.data.data.map((item) => {
+          // Retrieve the question count using the item's ID
+          // const questionCount = questionCountLookup[item.ID] ||  0;
+
+          console.log("Processing item:", item);
+
+          return {
+            ...item,
+            ID: item.ID || "",
+            User: item.User ? item.User.Name : "",
+            Mapel: item.Mapel ? item.Mapel.Mapel : "",
+            Kelas: item.Kelas ? item.Kelas.Kelas : "",
+            Jurusan: item.Jurusan ? item.Jurusan.Jurusan : "",
+            Soal: item.BankSoal ? item.BankSoal.Soal : "",
+            OptionA: item.BankSoal ? item.BankSoal.OptionA : "",
+            OptionB: item.BankSoal ? item.BankSoal.OptionB : "",
+            OptionC: item.BankSoal ? item.BankSoal.OptionC : "",
+            OptionD: item.BankSoal ? item.BankSoal.OptionD : "",
+            OptionE: item.BankSoal ? item.BankSoal.OptionE : "",
+            DynamicFields: item.BankSoal ? item.BankSoal.DynamicFields : {}, // Assuming DynamicFields is now an object
+            // questionCount: questionCount, // Use the questionCount variable here
+            Hari: item.Hari || "",
+            Tanggal: item.Tanggal || "",
+            Waktu: item.Waktu || "",
+          };
+        });
+
+        console.log("Final items list:", this.items);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -219,28 +279,57 @@ export default defineComponent({
       }
 
       try {
-        console.log("Creating new item with data:", this.createdItem);
+        // Start with the static field
+        let fieldsPayload = [
+          {
+            value: this.createdItem.BankSoalID,
+            label: this.bankSoalOptions.find(
+              (opt) => opt.value === this.createdItem.BankSoalID,
+            ).label,
+          },
+        ];
 
-        const response = await axios.post("http://localhost:3000/api/soal", {
-          UserID: this.createdItem.UserID.toString(),
-          MapelID: this.createdItem.MapelID.toString(),
-          KelasID: this.createdItem.KelasID.toString(),
-          JurusanID: this.createdItem.JurusanID.toString(),
-          bankSoalId: this.createdItem.BankSoalID,
-          Hari: this.createdItem.Hari,
-          Tanggal: this.createdItem.Tanggal,
-          Waktu: this.createdItem.Waktu,
-        });
+        // Then add the dynamic fields
+        const dynamicFieldsArray = this.dynamicFieldsArray
+          .map((value) => {
+            const selectedOption = this.bankSoalOptions.find(
+              (option) => option.value === value,
+            );
+            return selectedOption
+              ? { value: selectedOption.value, label: selectedOption.label }
+              : null;
+          })
+          .filter(Boolean); // Filters out null values
+
+        // Concatenate the static and dynamic fields
+        fieldsPayload = fieldsPayload.concat(dynamicFieldsArray);
+
+        // Include the fields in the payload
+        const payload = {
+          ...this.createdItem,
+          DynamicFields: fieldsPayload,
+        };
+
+        // Remove the questionCount field from the payload
+        delete payload.questionCount;
+
+        const response = await axios.post(
+          "http://localhost:3000/api/soal",
+          payload,
+        );
 
         this.items.push({
-          ...this.createdItem,
+          ...payload,
         });
 
         console.log("Server Response:", response.data);
 
-        this.resetCreatedItem();
         // Re-fetch the data to refresh the table
         await this.fetchData();
+
+        setTimeout(() => {
+          this.resetCreatedItem();
+        }, 500);
       } catch (error) {
         console.error("Error adding new item:", error);
       }
@@ -257,30 +346,13 @@ export default defineComponent({
         delete editedData.User;
         delete editedData.Mapel;
         delete editedData.Kelas;
-        delete editedData.Jurusan;
+        delete editedData.TahunAjar;
+        delete editedData.BankSoal;
 
-        const response = await axios.put(
-          `http://localhost:3000/api/soal/${this.editedItem.id}`,
-          editedData,
+        await axios.put(
+          `http://localhost:3000/api/soal/${editedData.id}`,
+          ...editedData,
         );
-
-        // Handle the response from the server
-        if (response.status === 200) {
-          // Update the local item with the edited data
-          const itemIndex = this.items.findIndex(
-            (item) => item.id === this.editedItem.id,
-          );
-          if (itemIndex !== -1) {
-            this.$set(this.items, itemIndex, {
-              ...editedData,
-              id: this.editedItem.id,
-            });
-          }
-
-          console.log("Item updated successfully");
-        } else {
-          console.error("Failed to update item", response.data);
-        }
 
         this.resetEditedItem();
         // Re-fetch the data to refresh the table
@@ -322,33 +394,39 @@ export default defineComponent({
       const selectedItemId = this.filteredItems[rowIndex].ID;
       console.log("Opening detail modal with ID:", selectedItemId);
 
-      axios
-        .get(`http://localhost:3000/api/kognitif/${selectedItemId}`)
-        .then((response) => {
-          const data = response.data.data;
-          if (data) {
-            console.log("Data:", data); // Log the data
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/api/soal/${selectedItemId}`,
+        );
+        const data = response.data.data; // Access the data object directly
+        console.log("Full response data:", data); // Log the full response data
 
-            this.detailItem = reactive({
-              BankSoalID: data.BankSoalID || "",
+        if (data && data.BankSoal) {
+          console.log("Data:", data);
+
+          this.detailItem = {
+            ...defaultItem,
+            BankSoal: {
               Soal: data.BankSoal.Soal || "",
               OptionA: data.BankSoal.OptionA || "",
               OptionB: data.BankSoal.OptionB || "",
               OptionC: data.BankSoal.OptionC || "",
               OptionD: data.BankSoal.OptionD || "",
               OptionE: data.BankSoal.OptionE || "",
-            });
+            },
+            DynamicFields: data.DynamicFields || [], // Access DynamicFields directly from data
+          };
 
-            console.log("Detail item:", this.detailItem); // Log the detail item
-
-            this.detailModalVisible = true;
-          } else {
-            console.error("No data received from the server");
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching data for the detail modal:", error);
-        });
+          console.log("Detail item:", this.detailItem);
+          this.detailModalVisible = true;
+        } else {
+          console.error(
+            "No data received from the server or BankSoal is undefined",
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching data for the detail modal:", error);
+      }
     },
 
     async printRow(rowIndex) {
@@ -369,7 +447,7 @@ export default defineComponent({
 
           const tableBody = [
             [
-              { text: "Judul BankSoal", fontSize: 10, bold: true },
+              { text: "Judul Capaian", fontSize: 10, bold: true },
               { text: "Judul Elemen", fontSize: 10, bold: true },
               { text: "Keterangan Elemen", fontSize: 10, bold: true },
               { text: "Keterangan Proses Mengamati", fontSize: 10, bold: true },
@@ -396,7 +474,7 @@ export default defineComponent({
               },
             ],
             [
-              "judulBankSoal" in data ? data.judulBankSoal : "N/A",
+              "judulCapaian" in data ? data.judulCapaian : "N/A",
               "judulElemen" in data ? data.judulElemen : "N/A",
               "ketElemen" in data ? data.ketElemen : "N/A",
               "ketProsesMengamati" in data ? data.ketProsesMengamati : "N/A",
@@ -431,7 +509,7 @@ export default defineComponent({
             },
             content: [
               {
-                text: "BankSoal Pembelajaran",
+                text: "Capaian Pembelajaran",
                 fontSize: 12,
                 bold: true,
                 alignment: "center",
@@ -472,7 +550,44 @@ export default defineComponent({
       return data.map((item) => ({
         label: item[labelProperty] ? item[labelProperty] : "", // Use '' if labelProperty is null or undefined
         value: item.ID, // Use 'ID' instead of 'id'
+        options: {
+          OptionA: item.OptionA,
+          OptionB: item.OptionB,
+          OptionC: item.OptionC,
+          OptionD: item.OptionD,
+          OptionE: item.OptionE,
+        },
       }));
+    },
+
+    collectDynamicFields() {
+      // Gather the data from the BankSoal proxy object
+      const dynamicFields = {
+        Soal: this.createdItem.BankSoal.Soal,
+        OptionA: this.createdItem.BankSoal.OptionA,
+        OptionB: this.createdItem.BankSoal.OptionB,
+        OptionC: this.createdItem.BankSoal.OptionC,
+        OptionD: this.createdItem.BankSoal.OptionD,
+        OptionE: this.createdItem.BankSoal.OptionE,
+      };
+
+      // Filter out any fields that are empty strings
+      Object.keys(dynamicFields).forEach((key) => {
+        if (dynamicFields[key] === "") {
+          delete dynamicFields[key];
+        }
+      });
+
+      // Return the collected dynamic fields
+      return dynamicFields;
+    },
+
+    addField() {
+      // Add a new entry to the dynamicFieldsArray
+      this.dynamicFieldsArray.push("");
+
+      // Directly assign the new field to createdItem with an empty string as the value
+      this.createdItem[newKey] = "";
     },
 
     resetEditedItem() {
@@ -481,16 +596,57 @@ export default defineComponent({
     },
 
     resetCreatedItem() {
+      // Reset the createdItem to the default values
       this.createdItem = { ...defaultItem };
+
+      // Reset the dynamicFieldsArray to an empty array
+      this.dynamicFieldsArray = [];
+
+      // Close the modal
       this.showModal = false;
+
+      // Optionally, reset any form validation states
+      // For example, if using Vuelidate:
+      // this.$v.$reset();
+    },
+
+    resetAddState() {
+      // Reset the createdItem to the default values
+      this.createdItem = { ...defaultItem };
+
+      // Reset the dynamicFieldsArray to an empty array
+      this.dynamicFieldsArray = [];
+
+      // Optionally, reset any form validation states
+      // For example, if using Vuelidate:
+      // this.$v.$reset();
     },
 
     openModalToEditItemById(id) {
-      this.editedItemId = id;
-      this.editedItem = { ...this.items[id], id: this.items[id].ID }; // Use 'id' instead of 'ID'
+      // Find the item by its ID
+      const item = this.items.find((item) => item.ID === id);
+
+      // Check if the item exists
+      if (item) {
+        // Set the editedItem to the found item
+        this.editedItem = { ...item };
+
+        // Update createdItem with the dynamic fields from the editedItem
+        this.createdItem = { ...item.DynamicFields };
+
+        // Log the editedItem to check the Pertanyaan value
+        console.log("Edited item:", this.editedItem);
+
+        // Open the modal
+        this.showEditModal = true;
+      } else {
+        console.error(`Item with ID ${id} not found.`);
+      }
     },
 
     toggleAddModal() {
+      this.resetAddState();
+
       this.showModal = !this.showModal;
       if (!this.showModal) {
         this.resetCreatedItem();
@@ -498,12 +654,41 @@ export default defineComponent({
     },
 
     resetDetailItem() {
-      this.detailItem = null;
+      // Reset the detailItem to its initial state
+      this.detailItem = {};
+
+      // Reset the filteredDetailFields array to its initial state
+      this.filteredDetailFields = [];
+
+      // Close the detail modal
       this.detailModalVisible = false;
     },
 
-    incrementTableKey() {
-      this.tableKey++;
+    handleSelect(selectedValue, index) {
+      // Find the selected option by its value
+      const selectedOption = this.bankSoalOptions.find(
+        (option) => option.value === selectedValue,
+      );
+      if (selectedOption) {
+        // Update the label and value of the object at the given index
+        this.$set(this.dynamicFieldsArray, index, {
+          label: selectedOption.label,
+          value: selectedOption.value,
+        });
+      }
+    },
+  },
+
+  watch: {
+    detailItem: {
+      handler(newVal) {
+        if (newVal && Array.isArray(newVal.DynamicFields)) {
+          newVal.DynamicFields.forEach((field, index) => {
+            console.log(`Field Label ${index}:`, field.label);
+          });
+        }
+      },
+      deep: true, // Watch nested properties inside detailItem
     },
   },
 
@@ -529,7 +714,7 @@ export default defineComponent({
       border-color="#000000"
     >
       <va-button @click="toggleAddModal" preset="secondary" icon="add"
-        >Add Soal</va-button
+        >Create Soal</va-button
       >
     </va-button-group>
   </div>
@@ -548,11 +733,11 @@ export default defineComponent({
             icon="remove_red_eye"
             @click="openDetailModal(rowIndex)"
           />
-          <va-button
+          <!-- <va-button
             preset="plain"
             icon="edit"
             @click="openModalToEditItemById(rowIndex)"
-          />
+          /> -->
           <va-button
             preset="plain"
             icon="delete"
@@ -567,7 +752,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       stripe
-      title="Add Soal"
+      title="Add Asesmen Soal"
       size="large"
       :model-value="showModal"
       @ok="addNewItem"
@@ -607,6 +792,14 @@ export default defineComponent({
         value-by="value"
       />
 
+      <va-textarea
+        v-for="key in textAreaFields"
+        :key="key"
+        :label="displayNames[key]"
+        v-model="createdItem[key]"
+        class="my-6"
+      />
+
       <!-- this va-select below is intended for soal -->
 
       <va-select
@@ -620,21 +813,38 @@ export default defineComponent({
         autocomplete
       />
 
-      <!-- Using va-textarea for other fields -->
-      <va-textarea
-        v-for="key in textAreaFields"
-        :key="key"
-        :label="displayNames[key]"
-        v-model="createdItem[key]"
+      <div v-for="(field, index) in dynamicFieldsArray" :key="index">
+        <va-select
+          v-model="dynamicFieldsArray[index]"
+          :label="'Soal ' + (index + 2)"
+          :options="bankSoalOptions"
+          class="my-6"
+          text-by="label"
+          value-by="value"
+          @change="handleSelect($event, index)"
+          autocomplete
+        />
+      </div>
+
+      <va-button
         class="my-6"
-      />
+        color="primary"
+        @click="addField"
+        style="
+          width: 100%;
+          display: flex;
+          box-sizing: border-box;
+          margin-bottom: 10px;
+        "
+        >Add Fields
+      </va-button>
     </va-modal>
 
     <va-modal
       blur
       class="modal-crud"
       :model-value="!!editedItem"
-      title="Edit Soal"
+      title="Edit Asesmen Soal"
       size="large"
       @ok="editItem"
       @cancel="resetEditedItem"
@@ -664,9 +874,9 @@ export default defineComponent({
         value-by="value"
       />
       <va-select
-        v-model="editedItem.JurusanID"
-        :label="displayNames.Jurusan"
-        :options="jurusanOptions"
+        v-model="editedItem.TahunAjarID"
+        :label="displayNames.TahunAjar"
+        :options="tahunAjarOptions"
         class="my-6"
         text-by="label"
         value-by="value"
@@ -675,7 +885,7 @@ export default defineComponent({
       <!-- this va-select below is intended for soal -->
 
       <va-select
-        v-model="createdItem.BankSoalID"
+        v-model="editedItem.BankSoalID"
         :label="displayNames.BankSoal"
         :options="bankSoalOptions"
         class="my-6"
@@ -684,79 +894,18 @@ export default defineComponent({
         @change="handleSelect"
         autocomplete
       />
-
-      <!-- Using va-textarea for other fields -->
-      <va-textarea
-        v-for="key in textAreaFields"
-        :key="key"
-        :label="displayNames[key]"
-        v-model="editedItem[key]"
-        class="my-6"
-      />
     </va-modal>
 
     <va-modal
       blur
       class="modal-crud"
       stripe
-      title="Detail Soal"
+      title="Detail Asesmen Soal"
       size="large"
       :model-value="detailModalVisible"
       @ok="resetDetailItem"
       @cancel="resetDetailItem"
     >
-      <!-- this va-select below is intended for soal -->
-      <va-input
-        v-model="detailItem.Soal"
-        :label="displayNames.BankSoal"
-        class="my-6"
-        text-by="label"
-        value-by="value"
-        readonly
-      />
-
-      <!-- this va-select below is intended for options a until e -->
-      <va-input
-        v-model="detailItem.OptionA"
-        :label="displayNames.OptionA"
-        class="my-6"
-        text-by="label"
-        value-by="value"
-        readonly
-      />
-      <va-input
-        v-model="detailItem.OptionB"
-        :label="displayNames.OptionB"
-        class="my-6"
-        text-by="label"
-        value-by="value"
-        readonly
-      />
-      <va-input
-        v-model="detailItem.OptionC"
-        :label="displayNames.OptionC"
-        class="my-6"
-        text-by="label"
-        value-by="value"
-        readonly
-      />
-      <va-input
-        v-model="detailItem.OptionD"
-        :label="displayNames.OptionD"
-        class="my-6"
-        text-by="label"
-        value-by="value"
-        readonly
-      />
-      <va-input
-        v-model="detailItem.OptionE"
-        :label="displayNames.OptionE"
-        class="my-6"
-        text-by="label"
-        value-by="value"
-        readonly
-      />
-
       <va-textarea
         v-for="key in filteredDetailFields"
         :key="key"
@@ -765,6 +914,66 @@ export default defineComponent({
         class="my-6"
         readonly
       />
+
+      <!-- Dynamically generate va-textarea components for DynamicFields -->
+      <div
+        v-if="detailItem.DynamicFields && detailItem.DynamicFields.length > 0"
+      >
+        <div v-for="(field, index) in detailItem.DynamicFields" :key="index">
+          <va-textarea
+            :label="'Soal ' + (index + 1)"
+            class="my-6"
+            :modelValue="field.label"
+            readonly
+          />
+        </div>
+      </div>
+      <!-- If there are no DynamicFields, display a placeholder message -->
+      <div v-else>
+        <p>No dynamic fields found.</p>
+      </div>
+
+      <div class="options-container">
+        <div class="top-row">
+          <!-- Option A -->
+          <va-textarea
+            :label="displayNames.OptionA"
+            class="my-6"
+            :value="detailItem.BankSoal.OptionA"
+            readonly
+          />
+          <!-- Option B -->
+          <va-textarea
+            :label="displayNames.OptionB"
+            class="my-6"
+            :value="detailItem.BankSoal.OptionB"
+            readonly
+          />
+          <!-- Option C -->
+          <va-textarea
+            :label="displayNames.OptionC"
+            class="my-6"
+            :value="detailItem.BankSoal.OptionC"
+            readonly
+          />
+        </div>
+        <div class="bottom-row">
+          <!-- Option D -->
+          <va-textarea
+            :label="displayNames.OptionD"
+            class="my-6"
+            :value="detailItem.BankSoal.OptionD"
+            readonly
+          />
+          <!-- Option E -->
+          <va-textarea
+            :label="displayNames.OptionE"
+            class="my-6"
+            :value="detailItem.BankSoal.OptionE"
+            readonly
+          />
+        </div>
+      </div>
     </va-modal>
   </div>
 </template>
@@ -796,5 +1005,25 @@ export default defineComponent({
     box-sizing: border-box;
     margin-bottom: 20px;
   }
+}
+</style>
+
+<style scoped>
+.options-container {
+  display: flex;
+  flex-direction: column; /* Stack top-row and bottom-row vertically */
+  gap: 10px; /* Match the margin-bottom of the non-scoped va-select */
+}
+
+.top-row,
+.bottom-row {
+  display: flex;
+  justify-content: space-between; /* Distribute space evenly between children */
+  gap: 10px; /* Match the margin-bottom of the non-scoped va-select */
+}
+
+.option-select {
+  flex: 1; /* Allow each select to grow and shrink equally */
+  max-width: calc(20% - 10px); /* Limit the width to 20% minus the gap size */
 }
 </style>

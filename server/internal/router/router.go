@@ -47,9 +47,6 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	modulRepository := repository.NewModulRepository(database.DB)
 	modulService := service.NewModulService(modulRepository)
 	modulHandler := handler.NewModulHandler(modulService)
-	// penilaianRepository := repository.NewPenilaianRepository(database.DB)
-	// penilaianService := service.NewPenilaianService(penilaianRepository)
-	// penilaianHandler := handler.NewPenilaianHandler(penilaianService)
 	kognitifRepository := repository.NewKognitifRepository(database.DB)
 	kognitifService := service.NewKognitifService(kognitifRepository)
 	kognitifHandler := handler.NewKognitifHandler(kognitifService)
@@ -68,9 +65,6 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	soalRepository := repository.NewSoalRepository(database.DB)
 	soalService := service.NewSoalService(soalRepository)
 	soalHandler := handler.NewSoalHandler(soalService)
-	itemRepository := repository.NewItemRepository(database.DB)
-	itemService := service.NewItemService(itemRepository)
-	itemHandler := handler.NewItemHandler(itemService)
 	bankRepository := repository.NewBankRepository(database.DB)
 	bankService := service.NewBankService(bankRepository)
 	bankHandler := handler.NewBankHandler(bankService)
@@ -155,14 +149,6 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	modulRoutes.Put("/:id", modulHandler.UpdateModul)
 	modulRoutes.Delete("/:id", modulHandler.DeleteModul)
 
-	// Penilaian routes
-	// penilaianRoutes := api.Group("/penilaian")
-	// penilaianRoutes.Get("/", penilaianHandler.GetPenilaian)
-	// penilaianRoutes.Get("/:id", penilaianHandler.GetPenilaianByID)
-	// penilaianRoutes.Post("/", penilaianHandler.CreatePenilaian)
-	// penilaianRoutes.Put("/:id", penilaianHandler.UpdatePenilaian)
-	// penilaianRoutes.Delete("/:id", penilaianHandler.DeletePenilaian)
-
 	// Kognitif routes
 	kognitifRoutes := api.Group("/kognitif")
 	kognitifRoutes.Get("/", kognitifHandler.GetKognitif)
@@ -210,14 +196,6 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	soalRoutes.Post("/", soalHandler.CreateSoal)
 	soalRoutes.Put("/:id", soalHandler.UpdateSoal)
 	soalRoutes.Delete("/:id", soalHandler.DeleteSoal)
-
-	// ItemSoal routes
-	itemRoutes := api.Group("/item")
-	itemRoutes.Get("/", itemHandler.GetItem)
-	itemRoutes.Get("/:id", itemHandler.GetItemByID)
-	itemRoutes.Post("/", itemHandler.CreateItem)
-	itemRoutes.Put("/:id", itemHandler.UpdateItem)
-	itemRoutes.Delete("/:id", itemHandler.DeleteItem)
 
 	// BankSoal routes
 	bankRoutes := api.Group("/bank")

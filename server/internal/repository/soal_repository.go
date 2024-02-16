@@ -14,8 +14,18 @@ func NewSoalRepository(db *gorm.DB) *SoalRepository {
 	return &SoalRepository{DB: db}
 }
 
-// GetSoalWithItems retrieves a Soal along with its associated ItemSoal records
-func (repository *SoalRepository) GetSoal(soalID uuid.UUID) (*model.Soal, error) {
+// GetSoal retrieves all Soal records along with their associated ItemSoal records
+func (repository *SoalRepository) GetSoal() ([]*model.Soal, error) {
+	var soals []*model.Soal
+	err := repository.DB.Preload("User").Preload("Mapel").Preload("Kelas").Preload("Jurusan").Find(&soals).Error
+	if err != nil {
+		return nil, err
+	}
+	return soals, nil
+}
+
+// GetSoalByID retrieves a Soal along with its associated ItemSoal records by ID
+func (repository *SoalRepository) GetSoalByID(soalID uuid.UUID) (*model.Soal, error) {
 	var soal model.Soal
 	if err := repository.DB.Preload("User").Preload("Mapel").Preload("Kelas").Preload("Jurusan").Preload("Items").Preload("Items.BankSoal").First(&soal, "id = ?", soalID).Error; err != nil {
 		return nil, err
@@ -23,30 +33,14 @@ func (repository *SoalRepository) GetSoal(soalID uuid.UUID) (*model.Soal, error)
 	return &soal, nil
 }
 
-func (repository *SoalRepository) GetSoalByID(soalID uuid.UUID) (*model.Soal, error) {
-	var soal model.Soal
-	if err := repository.DB.Preload("User").Preload("Mapel").Preload("Kelas").Preload("Jurusan").Preload("BankSoal").First(&soal, "id = ?", soalID).Error; err != nil {
-		return nil, err
-	}
-	return &soal, nil
+func (repository *SoalRepository) CreateSoal(soal *model.Soal) error {
+	soal.ID = uuid.New()
+	return repository.DB.Create(soal).Error
 }
 
-// CreateSoalWithItems creates a new Soal and associates it with ItemSoal records
-func (repository *SoalRepository) CreateSoal(soal *model.Soal, itemSoalData []*model.ItemSoal) error {
-	soal.ID = uuid.New()
-	if err := repository.DB.Create(soal).Error; err != nil {
-		return err
-	}
-
-	// Create ItemSoal records for each BankSoal ID
-	for _, itemSoal := range itemSoalData {
-		itemSoal.SoalID = soal.ID
-		if err := repository.DB.Create(itemSoal).Error; err != nil {
-			return err
-		}
-	}
-
-	return nil
+func (repository *SoalRepository) CreateItem(item *model.ItemSoal) error {
+	item.ID = uuid.New()
+	return repository.DB.Create(item).Error
 }
 
 func (repository *SoalRepository) UpdateSoal(soal *model.Soal) error {
@@ -54,14 +48,10 @@ func (repository *SoalRepository) UpdateSoal(soal *model.Soal) error {
 	if err := repository.DB.Save(soal).Error; err != nil {
 		return err
 	}
-
-	// No need to update ItemSoal records since they reference the Soal model
-	// Any changes to the Soal model will be reflected in the ItemSoal records
-	// that reference it due to the foreign key relationship.
-
 	return nil
 }
 
+// DeleteSoal deletes a soal by ID
 func (repository *SoalRepository) DeleteSoal(soalID uuid.UUID) error {
 	// First, delete all associated ItemSoal records
 	if err := repository.DB.Where("soal_id = ?", soalID).Delete(&model.ItemSoal{}).Error; err != nil {
@@ -69,7 +59,7 @@ func (repository *SoalRepository) DeleteSoal(soalID uuid.UUID) error {
 	}
 
 	// Then, delete the Soal record itself
-	if err := repository.DB.Delete(&model.Soal{}, "id = ?", soalID).Error; err != nil {
+	if err := repository.DB.Unscoped().Delete(&model.Soal{}, "id = ?", soalID).Error; err != nil {
 		return err
 	}
 
