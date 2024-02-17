@@ -90,8 +90,7 @@ export default defineComponent({
   computed: {
     filteredDetailFields() {
       return Object.keys(this.detailItem).filter(
-        (key) =>
-          !["created_at", "updated_at", "deleted_at", "id"].includes(key),
+        (key) => !["created_at", "updated_at", "deleted_at", "id"].includes(key)
       );
     },
 
@@ -99,8 +98,8 @@ export default defineComponent({
       return Object.fromEntries(
         Object.entries(this.displayNames).filter(
           ([key]) =>
-            !["created_at", "updated_at", "deleted_at", "id"].includes(key),
-        ),
+            !["created_at", "updated_at", "deleted_at", "id"].includes(key)
+        )
       );
     },
 
@@ -158,7 +157,7 @@ export default defineComponent({
     },
 
     dynamicFields() {
-      return this.detailItem.DynamicFields || {};
+      return this.detailItem.DynamicFields;
     },
 
     dynamicFieldsSelectItems() {
@@ -188,44 +187,44 @@ export default defineComponent({
 
         const response = await axios.get("http://localhost:3000/api/soal");
         const userResponse = await axios.get(
-          "http://localhost:3000/api/public/user",
+          "http://localhost:3000/api/public/user"
         );
         const kelasResponse = await axios.get(
-          "http://localhost:3000/api/public/kelas",
+          "http://localhost:3000/api/public/kelas"
         );
         const jurusanResponse = await axios.get(
-          "http://localhost:3000/api/public/jurusan",
+          "http://localhost:3000/api/public/jurusan"
         );
         const mapelResponse = await axios.get(
-          "http://localhost:3000/api/public/mapel",
+          "http://localhost:3000/api/public/mapel"
         );
         const bankResponse = await axios.get("http://localhost:3000/api/bank");
         const questionCountResponse = await axios.get(
-          "http://localhost:3000/api/total/item",
+          "http://localhost:3000/api/total/item"
         );
 
         console.log("Soal response data:", response.data);
         console.log(
           "ItemSoal question counts response data:",
-          questionCountResponse.data,
+          questionCountResponse.data
         );
 
         this.usersOptions = this.extractOptions(userResponse.data.data, "Name");
         this.kelasOptions = this.extractOptions(
           kelasResponse.data.data,
-          "Kelas",
+          "Kelas"
         );
         this.mapelsOptions = this.extractOptions(
           mapelResponse.data.data,
-          "Mapel",
+          "Mapel"
         );
         this.jurusanOptions = this.extractOptions(
           jurusanResponse.data.data,
-          "Jurusan",
+          "Jurusan"
         );
         this.bankSoalOptions = this.extractOptions(
           bankResponse.data.data,
-          "Soal",
+          "Soal"
         );
 
         // Populate questionCountLookup using SoalID
@@ -234,6 +233,15 @@ export default defineComponent({
           questionCountLookup[item.SoalID] = item.questionCount;
         });
 
+        // Assuming that the first ItemSoal in the Items array contains the DynamicFields
+        const dynamicFieldsLookup = {};
+        questionCountResponse.data.data.forEach((item) => {
+          dynamicFieldsLookup[item.SoalID] = item.DynamicFields;
+        });
+
+        // Log the populated dynamicFieldsLookup
+        console.log("Populated dynamicFieldsLookup:", dynamicFieldsLookup);
+
         // Log the populated questionCountLookup
         console.log("Populated questionCountLookup:", questionCountLookup);
 
@@ -241,10 +249,7 @@ export default defineComponent({
         this.items = response.data.data.map((item) => {
           const soalId = item.ID; // Use the ID field as the SoalID
           const questionCount = questionCountLookup[soalId] || 0;
-
-          // Assuming that the first ItemSoal in the Items array contains the DynamicFields
-          const dynamicFields =
-            item.Items && item.Items[0] ? item.Items[0].DynamicFields : {};
+          const dynamicFields = dynamicFieldsLookup[soalId] || {};
 
           console.log("Dynamic Fields Map:", dynamicFields);
 
@@ -252,7 +257,14 @@ export default defineComponent({
             "After mapping for Soal ID:",
             soalId,
             "questionCount:",
-            questionCount,
+            questionCount
+          );
+
+          console.log(
+            "After mapping for Soal ID:",
+            soalId,
+            "Dynamic Fields:",
+            dynamicFields
           );
 
           return {
@@ -296,7 +308,7 @@ export default defineComponent({
           {
             value: this.createdItem.BankSoalID,
             label: this.bankSoalOptions.find(
-              (opt) => opt.value === this.createdItem.BankSoalID,
+              (opt) => opt.value === this.createdItem.BankSoalID
             ).label,
           },
         ];
@@ -305,7 +317,7 @@ export default defineComponent({
         const dynamicFieldsArray = this.dynamicFieldsArray
           .map((value) => {
             const selectedOption = this.bankSoalOptions.find(
-              (option) => option.value === value,
+              (option) => option.value === value
             );
             return selectedOption
               ? { value: selectedOption.value, label: selectedOption.label }
@@ -327,7 +339,7 @@ export default defineComponent({
 
         const response = await axios.post(
           "http://localhost:3000/api/soal",
-          payload,
+          payload
         );
 
         this.items.push({
@@ -363,7 +375,7 @@ export default defineComponent({
 
         await axios.put(
           `http://localhost:3000/api/soal/${editedData.id}`,
-          ...editedData,
+          ...editedData
         );
 
         this.resetEditedItem();
@@ -378,7 +390,7 @@ export default defineComponent({
       if (window.confirm("Are you sure you want to delete this item?")) {
         try {
           const response = await axios.delete(
-            `http://localhost:3000/api/soal/${id}`,
+            `http://localhost:3000/api/soal/${id}`
           );
 
           // Check if deletedSoal is not null
@@ -387,7 +399,7 @@ export default defineComponent({
 
             // Remove the item from the items array
             this.items = this.items.filter(
-              (item) => item.id !== deletedSoal.id,
+              (item) => item.id !== deletedSoal.id
             );
           }
 
@@ -408,28 +420,29 @@ export default defineComponent({
 
       try {
         const response = await axios.get(
-          `http://localhost:3000/api/soal/${selectedItemId}`,
+          `http://localhost:3000/api/soal/${selectedItemId}`
         );
-        console.log("Response status:", response.status); // Log the response status
-        console.log("Response headers:", response.headers); // Log the response headers
-        console.log("Response data:", response.data); // Log the full response data
+        console.log("Response status:", response.status);
+        console.log("Response headers:", response.headers);
+        console.log("Response data:", response.data);
 
-        const data = response.data.data[0]; // Access the first item in the data array
-        console.log("Data:", data); // Log the data
+        const data = response.data.data; // Access the data directly
+        console.log("Data:", data);
 
-        if (data && data.Items && data.Items[0]) {
+        if (data) {
           console.log("Data:", data);
 
           this.detailItem = {
             ...defaultItem,
-            DynamicFields: data.Items[0].DynamicFields || {}, // Access DynamicFields from the first ItemSoal
+            DynamicFields:
+              data.Items && data.Items[0] ? data.Items[0].DynamicFields : {}, // Access DynamicFields from the first ItemSoal
           };
 
           console.log("Detail item:", this.detailItem);
           this.detailModalVisible = true;
         } else {
           console.error(
-            "No data received from the server or data is undefined",
+            "No data received from the server or data is undefined"
           );
         }
       } catch (error) {
@@ -443,7 +456,7 @@ export default defineComponent({
       try {
         // Fetch the necessary data directly from the server
         const response = await axios.get(
-          `http://localhost:3000/api/soal/${selectedItemId}`,
+          `http://localhost:3000/api/soal/${selectedItemId}`
         );
         const data = response.data.data;
 
@@ -675,7 +688,7 @@ export default defineComponent({
     handleSelect(selectedValue, index) {
       // Find the selected option by its value
       const selectedOption = this.bankSoalOptions.find(
-        (option) => option.value === selectedValue,
+        (option) => option.value === selectedValue
       );
       if (selectedOption) {
         // Update the label and value of the object at the given index
@@ -914,17 +927,26 @@ export default defineComponent({
       @ok="resetDetailItem"
       @cancel="resetDetailItem"
     >
-      <va-textarea
-        v-for="(value, key) in dynamicFields"
+    <div
+        v-for="(value, key, index) in detailItem.DynamicFields"
         :key="key"
-        :label="key"
-        :value="value"
-        class="my-6"
-        readonly
-      />
-
+        class="textarea-container"
+      >
+        <label :for="'textarea-' + index" class="textarea-label">Soal {{ index +   1 }}</label>
+        <textarea
+          :id="'textarea-' + index"
+          class="my-6"
+          readonly
+          :value="key"
+        ></textarea>
+      </div>
       <!-- If there are no DynamicFields, display a placeholder message -->
-      <div v-if="!dynamicFields || Object.keys(dynamicFields).length === 0">
+      <div
+        v-if="
+          !detailItem.DynamicFields ||
+          Object.keys(detailItem.DynamicFields).length ===   0
+        "
+      >
         <p>No dynamic fields found.</p>
       </div>
     </va-modal>
@@ -952,7 +974,15 @@ export default defineComponent({
     display: block;
     margin-bottom: 10px;
   }
+
   .va-textarea {
+    width: 100%;
+    display: flex;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+  }
+
+  .textarea {
     width: 100%;
     display: flex;
     box-sizing: border-box;
@@ -964,19 +994,46 @@ export default defineComponent({
 <style scoped>
 .options-container {
   display: flex;
-  flex-direction: column; /* Stack top-row and bottom-row vertically */
-  gap: 10px; /* Match the margin-bottom of the non-scoped va-select */
+  flex-direction: column;
+  /* Stack top-row and bottom-row vertically */
+  gap: 10px;
+  /* Match the margin-bottom of the non-scoped va-select */
 }
 
 .top-row,
 .bottom-row {
   display: flex;
-  justify-content: space-between; /* Distribute space evenly between children */
-  gap: 10px; /* Match the margin-bottom of the non-scoped va-select */
+  justify-content: space-between;
+  /* Distribute space evenly between children */
+  gap: 10px;
+  /* Match the margin-bottom of the non-scoped va-select */
 }
 
 .option-select {
-  flex: 1; /* Allow each select to grow and shrink equally */
-  max-width: calc(20% - 10px); /* Limit the width to 20% minus the gap size */
+  flex: 1;
+  /* Allow each select to grow and shrink equally */
+  max-width: calc(20% - 10px);
+  /* Limit the width to 20% minus the gap size */
+}
+</style>
+
+<style scoped>
+.textarea-container {
+  margin-bottom:  1rem;
+}
+
+.textarea-label {
+  display: block;
+  margin-bottom:  0.5rem;
+  font-weight: bold;
+}
+
+.my-6 {
+  width:  100%;
+  min-height:  100px;
+  padding:  0.5rem;
+  border:  1px solid #ccc;
+  border-radius:  4px;
+  resize: vertical;
 }
 </style>
