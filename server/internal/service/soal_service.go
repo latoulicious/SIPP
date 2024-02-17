@@ -17,9 +17,28 @@ func NewSoalService(soalRepository *repository.SoalRepository) *SoalService {
 	}
 }
 
-// GetSoal retrieves all Soal records along with their associated ItemSoal records
 func (service *SoalService) GetSoal() ([]*model.Soal, error) {
-	return service.SoalRepository.GetSoal()
+	var soals []*model.Soal
+
+	// Directly preload dynamic fields
+	// Remove the Preload for "Items.DynamicFields" as it is not a valid relation
+	err := service.SoalRepository.DB.Preload("User").Preload("Mapel").Preload("Kelas").Preload("Jurusan").Preload("Items").Preload("Items.BankSoal").Find(&soals).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// Count dynamic fields (assuming CountDynamicFields is also updated to work with the new structure)
+	for _, soal := range soals {
+		for _, item := range soal.Items {
+			count, err := service.CountDynamicFields(item.SoalID)
+			if err != nil {
+				return nil, err
+			}
+			item.QuestionCount = count
+		}
+	}
+
+	return soals, nil
 }
 
 // GetSoalByID retrieve a soal by id
@@ -53,4 +72,13 @@ func (service *SoalService) UpdateSoal(soal *model.Soal) error {
 func (service *SoalService) DeleteSoal(soalID uuid.UUID) error {
 	err := service.SoalRepository.DeleteSoal(soalID)
 	return err
+}
+
+// misc function
+
+// Update the CountDynamicFields method in SoalService to use int64
+func (service *SoalService) CountDynamicFields(soalID uuid.UUID) (int64, error) {
+	var count int64
+	err := service.SoalRepository.DB.Model(&model.ItemSoal{}).Where("soal_id = ?", soalID).Count(&count).Error
+	return count, err
 }

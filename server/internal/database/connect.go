@@ -57,6 +57,7 @@ func ConnectDB() error {
 		&model.Pengayaan{},
 		&model.Remedial{},
 		&model.Soal{},
+		&model.ItemSoal{},
 		&model.BankSoal{},
 	)
 	if err != nil {

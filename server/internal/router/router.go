@@ -65,6 +65,9 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	soalRepository := repository.NewSoalRepository(database.DB)
 	soalService := service.NewSoalService(soalRepository)
 	soalHandler := handler.NewSoalHandler(soalService)
+	itemRepository := repository.NewItemSoalRepository(database.DB)
+	itemService := service.NewItemSoalService(itemRepository)
+	itemHandler := handler.NewItemSoalHandler(itemService)
 	bankRepository := repository.NewBankRepository(database.DB)
 	bankService := service.NewBankService(bankRepository)
 	bankHandler := handler.NewBankHandler(bankService)
@@ -197,6 +200,11 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	soalRoutes.Put("/:id", soalHandler.UpdateSoal)
 	soalRoutes.Delete("/:id", soalHandler.DeleteSoal)
 
+	// ItemSoal routes
+	itemSoalRoutes := api.Group("/item")
+	itemSoalRoutes.Get("/", itemHandler.GetItemSoal)
+	itemSoalRoutes.Get("/:id", itemHandler.GetItemSoalByID)
+
 	// BankSoal routes
 	bankRoutes := api.Group("/bank")
 	bankRoutes.Get("/", bankHandler.GetBank)
@@ -220,6 +228,7 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	totalCountRoutes.Get("/sumatif", sumatifHandler.CountRelatedQuestionsHandler)
 	totalCountRoutes.Get("/pengayaan", pengayaanHandler.CountRelatedQuestionsHandler)
 	totalCountRoutes.Get("/remedial", remedialHandler.CountRelatedQuestionsHandler)
+	totalCountRoutes.Get("/item", itemHandler.CountRelatedQuestionsHandler)
 
 	// misc routes
 	app.Get("/api/get-jwt-secret", func(c *fiber.Ctx) error {

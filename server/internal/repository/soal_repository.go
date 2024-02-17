@@ -51,14 +51,14 @@ func (repository *SoalRepository) UpdateSoal(soal *model.Soal) error {
 	return nil
 }
 
-// DeleteSoal deletes a soal by ID
+// DeleteSoal deletes a soal by ID and its associated ItemSoal records
 func (repository *SoalRepository) DeleteSoal(soalID uuid.UUID) error {
-	// First, delete all associated ItemSoal records
-	if err := repository.DB.Where("soal_id = ?", soalID).Delete(&model.ItemSoal{}).Error; err != nil {
+	// First, hard delete all associated ItemSoal records
+	if err := repository.DB.Unscoped().Where("soal_id = ?", soalID).Delete(&model.ItemSoal{}).Error; err != nil {
 		return err
 	}
 
-	// Then, delete the Soal record itself
+	// Then, hard delete the Soal record itself
 	if err := repository.DB.Unscoped().Delete(&model.Soal{}, "id = ?", soalID).Error; err != nil {
 		return err
 	}
