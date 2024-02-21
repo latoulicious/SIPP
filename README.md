@@ -184,4 +184,4 @@ For more detailed guidelines on our contribution process, please refer to our [C
 
 ## License
 
-This project is licensed under the  MIT license. For the full license text, please see the [LICENSE](https://github.com/latoulicious/SIPP/blob/main/LICENSE).
+This project is licensed under the  [MIT license](https://github.com/latoulicious/SIPP/blob/main/LICENSE).
