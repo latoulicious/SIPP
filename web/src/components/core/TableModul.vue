@@ -46,62 +46,10 @@ const displayNames = {
   Glosarium: "Glosarium",
   DaftarPustaka: "Daftar Pustaka",
 };
-import { ref } from "vue";
-import pdfMake from "pdfmake/build/pdfmake";
-import pdfFonts from "pdfmake/build/vfs_fonts";
-import axios from "axios";
-
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
-
-const defaultItem = {
-  User: {}, // Initialize as an empty object
-  Kelas: {}, // Initialize as an empty object
-  TahunAjar: {}, // Initialize as an empty object
-  Sekolah: "",
-  AlokasiWaktu: "",
-  KompetensiAwal: "",
-  ProjekPPancasila: "",
-  SaranaPrasarana: "",
-  TargetPesertaDidik: "",
-  ModelPembelajaran: "",
-  TujuanPembelajaran: "",
-  PemahamanBermakna: "",
-  PertanyaanPemantik: "",
-  KegiatanPembelajaran: "",
-  Refleksi: "",
-  Glosarium: "",
-  DaftarPustaka: "",
-};
-
-const displayNames = {
-  User: "Nama Penyusun",
-  TahunAjar: "Tahun Ajar",
-  Kelas: "Kelas",
-  Sekolah: "Sekolah",
-  AlokasiWaktu: "Alokasi Waktu",
-  KompetensiAwal: "Kompetensi Awal",
-  ProjekPPancasila: "Projek P Pancasila",
-  SaranaPrasarana: "Sarana Prasarana",
-  TargetPesertaDidik: "Target Peserta Didik",
-  ModelPembelajaran: "Model Pembelajaran",
-  TujuanPembelajaran: "Tujuan Pembelajaran",
-  PemahamanBermakna: "Pemahaman Bermakna",
-  PertanyaanPemantik: "Pertanyaan Pemantik",
-  KegiatanPembelajaran: "Kegiatan Pembelajaran",
-  Refleksi: "Refleksi",
-  Glosarium: "Glosarium",
-  DaftarPustaka: "Daftar Pustaka",
-};
 
 export default defineComponent({
   data() {
     const columns = [
-      { key: "User", label: "Nama Penyusun", sortable: false },
-      { key: "Kelas", label: "Kelas", sortable: false },
-      { key: "TahunAjar", label: "Tahun Ajar", sortable: false },
-      { key: "AlokasiWaktu", label: "Alokasi Waktu", sortable: false },
-      { key: "actions", label: "Actions", width: 80 },
-    ];
       { key: "User", label: "Nama Penyusun", sortable: false },
       { key: "Kelas", label: "Kelas", sortable: false },
       { key: "TahunAjar", label: "Tahun Ajar", sortable: false },
@@ -135,36 +83,7 @@ export default defineComponent({
         "Glosarium",
         "DaftarPustaka",
       ],
-      editedItemId: null,
-      editedItem: null,
-      createdItem: { ...defaultItem },
-      input: ref({ value: "" }),
-      items: [],
-      usersOptions: [],
-      kelasOptions: [],
-      tahunAjarOptions: [],
-      textAreaFields: [
-        "Sekolah",
-        "AlokasiWaktu",
-        "KompetensiAwal",
-        "ProjekPPancasila",
-        "SaranaPrasarana",
-        "TargetPesertaDidik",
-        "ModelPembelajaran",
-        "TujuanPembelajaran",
-        "PemahamanBermakna",
-        "PertanyaanPemantik",
-        "KegiatanPembelajaran",
-        "Refleksi",
-        "Glosarium",
-        "DaftarPustaka",
-      ],
       showModal: false,
-      viewModalVisible: false,
-      detailItem: null,
-      detailModalVisible: false,
-      displayNames,
-      loading: false,
       viewModalVisible: false,
       detailItem: null,
       detailModalVisible: false,
@@ -223,126 +142,10 @@ export default defineComponent({
 
     inputFields() {
       return Object.keys(this.createdItem);
-    filteredDetailFields() {
-      return Object.keys(this.detailItem).filter(
-        (key) =>
-          !["created_at", "updated_at", "deleted_at", "id"].includes(key),
-      );
-    },
-
-    filteredDisplayNames() {
-      return Object.fromEntries(
-        Object.entries(this.displayNames).filter(
-          ([key]) =>
-            !["created_at", "updated_at", "deleted_at", "id"].includes(key),
-        ),
-      );
-    },
-
-    filteredInputFields() {
-      return this.inputFields.filter((key) => key);
-    },
-
-    isViewModalVisible() {
-      return this.viewModalVisible;
-    },
-
-    filteredItems() {
-      const searchTerms = this.input.value.toLowerCase().trim().split(/\s+/);
-
-      if (searchTerms.length === 0) {
-        return this.items; // No search term, return all items
-      } else {
-        return this.items.filter((item) => {
-          return searchTerms.every((term) => {
-            return Object.values(item).some((value) => {
-              // Check if any property value contains the search term
-              return String(value).toLowerCase().includes(term);
-            });
-          });
-        });
-      }
-    },
-
-    isNewData() {
-      return Object.keys(this.createdItem).every(
-        (key) => !!this.createdItem[key],
-      );
-    },
-
-    inputFields() {
-      return Object.keys(this.createdItem);
     },
   },
 
   methods: {
-    async fetchData() {
-      this.loading = true;
-
-      try {
-        // Simulate a delay
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-
-        const response = await axios.get("http://localhost:3000/api/modul");
-        const userResponse = await axios.get(
-          "http://localhost:3000/api/public/user",
-        );
-        const kelasResponse = await axios.get(
-          "http://localhost:3000/api/public/kelas",
-        );
-        const tahunResponse = await axios.get(
-          "http://localhost:3000/api/public/tahun",
-        );
-
-        // Process the data and update the UI
-        console.log("Response from server (Modul):", response.data);
-        // console.log("Response from server (Users):", userResponse.data);
-        // console.log("Response from server (Kelas):", kelasResponse.data);
-        // console.log("Response from server (Tahun):", tahunResponse.data);
-
-        // Populate usersOptions, mapelsOptions, kelasOptions, tahunAjarOptions
-        this.usersOptions = this.extractOptions(userResponse.data.data, "Name");
-        // console.log("Users options:", this.usersOptions);
-
-        this.kelasOptions = this.extractOptions(
-          kelasResponse.data.data,
-          "Kelas",
-        );
-        // console.log("Kelas options:", this.kelasOptions);
-
-        this.tahunAjarOptions = this.extractOptions(
-          tahunResponse.data.data,
-          "Tahun",
-        );
-        // console.log("Tahun Ajar options:", this.tahunAjarOptions);
-
-        // Update the items array with Modul data
-        this.items = response.data.data.map((item) => ({
-          ...item,
-          ID: item.ID || "", // Use 'ID' instead of 'id'
-          User: item.User.Name || "",
-          Kelas: item.Kelas.Kelas || "",
-          TahunAjar: item.TahunAjar.Tahun || "",
-          Sekolah: item.sekolah || "",
-          AlokasiWaktu: item.alokasiWaktu || "",
-          KompetensiAwal: item.kompetensiAwal || "",
-          ProjekPPancasila: item.projekPPancasila || "",
-          SaranaPrasarana: item.saranaPrasarana || "",
-          TargetPesertaDidik: item.targetPesertaDidik || "",
-          ModelPembelajaran: item.modelPembelajaran || "",
-          TujuanPembelajaran: item.tujuanPembelajaran || "",
-          PemahamanBermakna: item.pemahamanBermakna || "",
-          PertanyaanPemantik: item.pertanyaanPemantik || "",
-          KegiatanPembelajaran: item.kegiatanPembelajaran || "",
-          Refleksi: item.refleksi || "",
-          Glosarium: item.glosarium || "",
-          DaftarPustaka: item.daftarPustaka || "",
-        }));
-
-        console.log("modul Items:", this.items);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
     async fetchData() {
       this.loading = true;
 
@@ -744,11 +547,6 @@ export default defineComponent({
       this.detailItem = null;
       this.detailModalVisible = false;
     },
-
-    resetDetailItem() {
-      this.detailItem = null;
-      this.detailModalVisible = false;
-    },
   },
 
   mounted() {
@@ -782,28 +580,8 @@ export default defineComponent({
       :items="filteredItems"
       :columns="columns"
       striped
-      striped
       :loading="loading"
     >
-      <template #cell(actions)="{ rowIndex }">
-        <div class="action-buttons">
-          <va-button preset="plain" icon="print" @click="printRow(rowIndex)" />
-          <va-button
-            preset="plain"
-            icon="remove_red_eye"
-            @click="openDetailModal(rowIndex)"
-          />
-          <va-button
-            preset="plain"
-            icon="edit"
-            @click="openModalToEditItemById(rowIndex)"
-          />
-          <va-button
-            preset="plain"
-            icon="delete"
-            @click="deleteItemById(filteredItems[rowIndex].ID)"
-          />
-        </div>
       <template #cell(actions)="{ rowIndex }">
         <div class="action-buttons">
           <va-button preset="plain" icon="print" @click="printRow(rowIndex)" />
@@ -941,36 +719,15 @@ export default defineComponent({
 
 <style>
 .action-buttons {
-.action-buttons {
   display: flex;
-  gap: 8px;
-  /* Adjust the gap to your preference */
   gap: 8px;
   /* Adjust the gap to your preference */
 }
 
-.va-input {
-  display: block;
 .va-input {
   display: block;
   margin-bottom: 10px;
 }
-
-.va-select .dropdown-menu {
-  display: block;
-}
-
-.modal-crud {
-  .va-select {
-    display: block;
-    margin-bottom: 10px;
-  }
-  .va-textarea {
-    width: 100%;
-    display: flex;
-    box-sizing: border-box;
-    margin-bottom: 20px;
-  }
 
 .va-select .dropdown-menu {
   display: block;

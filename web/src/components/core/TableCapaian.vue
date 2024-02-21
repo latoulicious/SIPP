@@ -3,9 +3,6 @@ import { defineComponent } from "vue";
 import { ref } from "vue";
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
-import { ref } from "vue";
-import pdfMake from "pdfmake/build/pdfmake";
-import pdfFonts from "pdfmake/build/vfs_fonts";
 import axios from "axios";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
