@@ -13,11 +13,17 @@ type PengayaanHandler struct {
 	PengayaanService *service.PengayaanService
 }
 
+// NewPengayaanHandler initializes a new PengayaanHandler with the given PengayaanService.
+// It returns a pointer to the initialized PengayaanHandler.
+
 func NewPengayaanHandler(pengayaanService *service.PengayaanService) *PengayaanHandler {
 	return &PengayaanHandler{
 		PengayaanService: pengayaanService,
 	}
 }
+
+// GetPengayaan retrieves all pengayaan records from the database.
+// It returns the pengayaan records and any error encountered.
 
 func (handler *PengayaanHandler) GetPengayaan(c *fiber.Ctx) error {
 	pengayaan, err := handler.PengayaanService.GetPengayaan()
@@ -28,6 +34,12 @@ func (handler *PengayaanHandler) GetPengayaan(c *fiber.Ctx) error {
 
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Pengayaan retrieved successfully", "data": pengayaan})
 }
+
+// GetPengayaanByID retrieves a pengayaan by its ID.
+// It parses the ID from the route parameter "id".
+// Returns a 400 if the ID is invalid.
+// Returns a 500 if there is an error retrieving the pengayaan.
+// Otherwise returns a 200 with the pengayaan data.
 
 func (handler *PengayaanHandler) GetPengayaanByID(c *fiber.Ctx) error {
 	pengayaanID, err := uuid.Parse(c.Params("id"))
@@ -43,7 +55,11 @@ func (handler *PengayaanHandler) GetPengayaanByID(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Pengayaan retrieved successfully", "data": pengayaan})
 }
 
-// CountRelatedQuestionsHandler handles requests to get the total count of related questions for all Pengayaan records
+// CountRelatedQuestionsHandler handles requests to get the total count of related questions
+// for all Pengayaan records. It logs the start and end of the request, calls the
+// PengayaanService to retrieve the pengayaans with question counts, handles any errors,
+// logs the successful retrieval, serializes the response to JSON, and writes the response.
+
 func (handler *PengayaanHandler) CountRelatedQuestionsHandler(c *fiber.Ctx) error {
 	// Log the start of the handler
 	log.Println("CountRelatedQuestionsHandler started")
@@ -64,6 +80,12 @@ func (handler *PengayaanHandler) CountRelatedQuestionsHandler(c *fiber.Ctx) erro
 	// Serialize the pengayaans with question counts to JSON and write the response
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Pengayaan question counts retrieved successfully", "data": pengayaansWithQuestionCounts})
 }
+
+// CreatePengayaan creates a new pengayaan record in the database.
+// It parses the pengayaan data from the request body, calls the service
+// layer to persist it, and returns the created pengayaan object in the response.
+// Returns 500 error if there is an error parsing the request or creating the
+// pengayaan.
 
 func (handler *PengayaanHandler) CreatePengayaan(c *fiber.Ctx) error {
 	rawBody := c.Body()
@@ -89,6 +111,12 @@ func (handler *PengayaanHandler) CreatePengayaan(c *fiber.Ctx) error {
 	// Return the created pengayaan as the response
 	return c.JSON(fiber.Map{"status": "success", "message": "Pengayaan created", "data": pengayaan})
 }
+
+// UpdatePengayaan updates an existing pengayaan record in the database.
+// It parses the updated pengayaan data from the request body, calls the service
+// layer to persist the updates, and returns the updated pengayaan object.
+// Returns 400 if the pengayaan ID is invalid, 404 if the pengayaan is not found,
+// 500 if there is an error parsing the request or updating the database.
 
 func (handler *PengayaanHandler) UpdatePengayaan(c *fiber.Ctx) error {
 	pengayaanID, err := uuid.Parse(c.Params("id"))
@@ -123,6 +151,11 @@ func (handler *PengayaanHandler) UpdatePengayaan(c *fiber.Ctx) error {
 	// Return the updated Pengayaan
 	return c.JSON(fiber.Map{"status": "success", "message": "Pengayaan updated", "data": pengayaan})
 }
+
+// DeletePengayaan deletes a Pengayaan record from the database.
+// It takes a Pengayaan ID as a parameter, parses it into a UUID,
+// calls the PengayaanService's DeletePengayaan method, and returns
+// a JSON response indicating success or failure.
 
 func (handler *PengayaanHandler) DeletePengayaan(c *fiber.Ctx) error {
 	pengayaanID, err := uuid.Parse(c.Params("id"))

@@ -13,11 +13,18 @@ type CapaianHandler struct {
 	CapaianService *service.CapaianService
 }
 
+// NewCapaianHandler returns a new CapaianHandler instance with the given CapaianService.
+// This allows creating a CapaianHandler with a mock or configured CapaianService instance.
+
 func NewCapaianHandler(capaianService *service.CapaianService) *CapaianHandler {
 	return &CapaianHandler{
 		CapaianService: capaianService,
 	}
 }
+
+// GetCapaian retrieves all capaian records from the database and returns them.
+// It returns a 500 error if there is a problem retrieving the records.
+// Otherwise it returns a 200 status with the capaian records in the response body.
 
 func (handler *CapaianHandler) GetCapaian(c *fiber.Ctx) error {
 	capaian, err := handler.CapaianService.GetCapaian()
@@ -28,6 +35,15 @@ func (handler *CapaianHandler) GetCapaian(c *fiber.Ctx) error {
 
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Capaian retrieved successfully", "data": capaian})
 }
+
+// GetCapaianByID retrieves a Capaian by its ID.
+// It parses the ID from the route parameter "id",
+// validates it is a valid UUID, calls the CapaianService
+// to retrieve the Capaian by that ID, and returns
+// it in a JSON response with status code 200 if found.
+// If there is an error parsing the ID, it returns a
+// 400 error response. If there is an error retrieving
+// the Capaian, it returns a 500 error response.
 
 func (handler *CapaianHandler) GetCapaianByID(c *fiber.Ctx) error {
 	capaianID, err := uuid.Parse(c.Params("id"))
@@ -42,6 +58,11 @@ func (handler *CapaianHandler) GetCapaianByID(c *fiber.Ctx) error {
 
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Capaian retrieved successfully", "data": capaian})
 }
+
+// CreateCapaian handles creating a new capaian record.
+// It parses the request body into a Capaian struct, logs for debugging,
+// calls the CapaianService to insert into the database, and returns
+// a JSON response with the result.
 
 func (handler *CapaianHandler) CreateCapaian(c *fiber.Ctx) error {
 
@@ -67,6 +88,13 @@ func (handler *CapaianHandler) CreateCapaian(c *fiber.Ctx) error {
 
 	return c.JSON(fiber.Map{"status": "success", "message": "Capaian created", "data": capaian})
 }
+
+// UpdateCapaian handles updating an existing capaian record.
+// It parses the capaian ID from the route parameter "id", validates it is a
+// valid UUID, parses the updated capaian data from the request body, calls the
+// CapaianService to update the database, and returns the updated capaian in the
+// response. Returns a 400 error for invalid ID, 500 error for any service/db error,
+// and 404 if the original capaian is not found.
 
 func (handler *CapaianHandler) UpdateCapaian(c *fiber.Ctx) error {
 	capaianID, err := uuid.Parse(c.Params("id"))
@@ -101,6 +129,12 @@ func (handler *CapaianHandler) UpdateCapaian(c *fiber.Ctx) error {
 	// Return the updated Capaian
 	return c.JSON(fiber.Map{"status": "success", "message": "Capaian updated", "data": capaian})
 }
+
+// DeleteCapaian deletes a Capaian record from the database.
+// It takes a Fiber context and Capaian ID as parameters.
+// It first validates the Capaian ID by parsing it as a UUID.
+// If valid, it calls the CapaianService DeleteCapaian method to delete from the DB.
+// It returns a 200 success response if deleted, or a 500 error if delete failed.
 
 func (handler *CapaianHandler) DeleteCapaian(c *fiber.Ctx) error {
 	capaianID, err := uuid.Parse(c.Params("id"))

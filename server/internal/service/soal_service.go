@@ -17,6 +17,7 @@ func NewSoalService(soalRepository *repository.SoalRepository) *SoalService {
 	}
 }
 
+// GetSoal retrieve a list of soal
 func (service *SoalService) GetSoal() ([]*model.Soal, error) {
 	var soals []*model.Soal
 
@@ -46,6 +47,7 @@ func (service *SoalService) GetSoalByID(soalID uuid.UUID) (*model.Soal, error) {
 	return service.SoalRepository.GetSoalByID(soalID)
 }
 
+// CreateSoal creates a new soal
 func (service *SoalService) CreateSoal(soal *model.Soal, itemSoal *model.ItemSoal) error {
 	// Save the Soal record
 	if err := service.SoalRepository.CreateSoal(soal); err != nil {

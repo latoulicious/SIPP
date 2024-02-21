@@ -13,11 +13,17 @@ type AuthHandler struct {
 	UserService *service.UserService
 }
 
+// NewAuthHandler creates a new AuthHandler with the given UserService.
+
 func NewAuthHandler(userService *service.UserService) *AuthHandler {
 	return &AuthHandler{
 		UserService: userService,
 	}
 }
+
+// LoginHandler handles user login requests. It parses the username, password, name
+// and role from the request body, calls the UserService to authenticate, and returns
+// a JWT token on success or an error status code on failure.
 
 func (handler *AuthHandler) LoginHandler(c *fiber.Ctx) error {
 	// Print incoming request details for debugging purposes

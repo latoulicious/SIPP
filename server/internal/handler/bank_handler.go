@@ -13,11 +13,17 @@ type BankHandler struct {
 	BankService *service.BankService
 }
 
+// NewBankHandler creates a new BankHandler with the given BankService.
 func NewBankHandler(bankService *service.BankService) *BankHandler {
 	return &BankHandler{
 		BankService: bankService,
 	}
 }
+
+// GetBank retrieves the bank details from the database.
+// It calls the BankService's GetBank method to get the bank,
+// and returns the bank data in the response if successful,
+// or returns a 500 error response if there is an error.
 
 func (handler *BankHandler) GetBank(c *fiber.Ctx) error {
 	bank, err := handler.BankService.GetBank()
@@ -28,6 +34,11 @@ func (handler *BankHandler) GetBank(c *fiber.Ctx) error {
 
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "BankSoal retrieved successfully", "data": bank})
 }
+
+// GetBankByID retrieves a bank by its ID.
+// It parses the ID from the route parameter "id", calls the BankService
+// to get the bank by that ID, and returns the bank in the response if found.
+// If the ID is invalid or the bank is not found, it returns a 400 or 500 error.
 
 func (handler *BankHandler) GetBankByID(c *fiber.Ctx) error {
 	bankID, err := uuid.Parse(c.Params("id"))
@@ -42,6 +53,12 @@ func (handler *BankHandler) GetBankByID(c *fiber.Ctx) error {
 
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "BankSoal retrieved successfully", "data": bank})
 }
+
+// CreateBank handles creating a new bank in the database.
+// It parses the request body into a BankSoal model, calls the BankService's
+// CreateBank method to insert into the database, and returns the created bank
+// in the response if successful, or returns a 500 error if there is an error.
+// The function logs helpful debugging info.
 
 func (handler *BankHandler) CreateBank(c *fiber.Ctx) error {
 
@@ -67,6 +84,13 @@ func (handler *BankHandler) CreateBank(c *fiber.Ctx) error {
 
 	return c.JSON(fiber.Map{"status": "success", "message": "BankSoal created", "data": bank})
 }
+
+// UpdateBank updates the bank with the given ID by parsing the ID
+// from the route parameter "id", parsing the updated bank data from
+// the request body, calling the BankService to update the bank,
+// and returning the updated bank in the response. It returns a 400
+// error for an invalid ID, 500 error for parsing errors, and 404
+// error if the bank is not found after updating.
 
 func (handler *BankHandler) UpdateBank(c *fiber.Ctx) error {
 	bankID, err := uuid.Parse(c.Params("id"))
@@ -101,6 +125,12 @@ func (handler *BankHandler) UpdateBank(c *fiber.Ctx) error {
 	// Return the updated BankSoal
 	return c.JSON(fiber.Map{"status": "success", "message": "BankSoal updated", "data": bank})
 }
+
+// DeleteBank deletes a BankSoal record from the database by ID.
+// It parses the bank ID from the URL parameter, calls the BankService
+// to delete the bank, and returns a JSON response indicating success or failure.
+// Returns a 400 if the ID is invalid, 404 if the bank is not found,
+// or 500 if there is a database error.
 
 func (handler *BankHandler) DeleteBank(c *fiber.Ctx) error {
 	bankID, err := uuid.Parse(c.Params("id"))
