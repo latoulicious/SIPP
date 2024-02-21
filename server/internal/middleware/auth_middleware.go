@@ -14,7 +14,10 @@ import (
 	"github.com/latoulicious/SIPP/internal/repository"
 )
 
-// AuthMiddleware is a middleware function to check JWT token on protected endpoints
+// AuthMiddleware is a middleware function used to verify JWT tokens on protected API endpoints.
+// It extracts the username, role, and user ID from the JWT claims and adds them to the request
+// context. It proceeds to call the RBACMiddleware if token verification succeeds.
+
 func AuthMiddleware(e *casbin.Enforcer, userRepository *repository.UserRepository) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		tokenString := c.Get("Authorization")

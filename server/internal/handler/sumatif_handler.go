@@ -13,11 +13,17 @@ type SumatifHandler struct {
 	SumatifService *service.SumatifService
 }
 
+// NewSumatifHandler returns a new SumatifHandler instance with the given SumatifService.
+
 func NewSumatifHandler(sumatifService *service.SumatifService) *SumatifHandler {
 	return &SumatifHandler{
 		SumatifService: sumatifService,
 	}
 }
+
+// GetSumatif retrieves the sumatif data from the database
+// via the SumatifService and returns it in a JSON response.
+// It returns a 500 error if there is a problem retrieving the data.
 
 func (handler *SumatifHandler) GetSumatif(c *fiber.Ctx) error {
 	sumatif, err := handler.SumatifService.GetSumatif()
@@ -28,6 +34,10 @@ func (handler *SumatifHandler) GetSumatif(c *fiber.Ctx) error {
 
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Sumatif retrieved successfully", "data": sumatif})
 }
+
+// GetSumatifByID retrieves a sumatif by its ID.
+// It parses the ID from the request parameters, calls the service layer to retrieve the sumatif,
+// and returns the sumatif or an error response.
 
 func (handler *SumatifHandler) GetSumatifByID(c *fiber.Ctx) error {
 	sumatifID, err := uuid.Parse(c.Params("id"))
@@ -43,7 +53,10 @@ func (handler *SumatifHandler) GetSumatifByID(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Sumatif retrieved successfully", "data": sumatif})
 }
 
-// CountRelatedQuestionsHandler handles requests to get the total count of related questions for all Sumatif records
+// CountRelatedQuestionsHandler handles requests to get the total count of related questions for all Sumatif records.
+// It calls the SumatifService to retrieve the sumatifs with question counts, logs and handles any errors,
+// logs success, serializes the result to JSON, and writes the response.
+
 func (handler *SumatifHandler) CountRelatedQuestionsHandler(c *fiber.Ctx) error {
 	// Log the start of the handler
 	log.Println("CountRelatedQuestionsHandler started")
@@ -64,6 +77,10 @@ func (handler *SumatifHandler) CountRelatedQuestionsHandler(c *fiber.Ctx) error 
 	// Serialize the sumatifs with question counts to JSON and write the response
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Sumatif question counts retrieved successfully", "data": sumatifsWithQuestionCounts})
 }
+
+// CreateSumatif handles requests to create a new Sumatif record.
+// It parses the Sumatif from the request body, calls the SumatifService
+// to create it in the database, and handles any errors or success.
 
 func (handler *SumatifHandler) CreateSumatif(c *fiber.Ctx) error {
 
@@ -90,9 +107,17 @@ func (handler *SumatifHandler) CreateSumatif(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"status": "success", "message": "Sumatif created", "data": sumatif})
 }
 
+// UpdateSumatif handles requests to update a Sumatif record.
+// It returns a 405 status code and error response indicating that updates are not supported for Sumatif resources.
+
 func (handler *SumatifHandler) UpdateSumatif(c *fiber.Ctx) error {
 	return c.Status(405).JSON(fiber.Map{"status": "error", "message": "Updates are not supported for this resource", "data": nil})
 }
+
+// DeleteSumatif deletes a sumatif by ID.
+// It parses the sumatif ID from the request parameters, calls the service
+// to delete the sumatif, and returns a 200 response on success or an error
+// response on failure.
 
 func (handler *SumatifHandler) DeleteSumatif(c *fiber.Ctx) error {
 	sumatifID, err := uuid.Parse(c.Params("id"))

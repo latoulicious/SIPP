@@ -21,6 +21,7 @@ import (
 // Declare dsn at the package level
 var DSN string
 
+// main is the entry point for the application. It loads configuration, initializes dependencies like the database, sets up routes and middleware, and starts the HTTP server.
 func main() {
 	// Load configuration from .env file
 	config.LoadConfig()
@@ -83,6 +84,9 @@ func main() {
 		log.Println("Graceful shutdown failed:", err)
 	}
 }
+
+// initCasbin initializes a Casbin enforcer using the provided model file and policy file.
+// It returns a Casbin enforcer instance to be used for access control.
 
 func initCasbin() (*casbin.Enforcer, error) {
 	// Load the model configuration from the file

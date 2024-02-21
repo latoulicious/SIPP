@@ -13,7 +13,12 @@ import (
 	"github.com/latoulicious/SIPP/internal/repository"
 )
 
-// RBACMiddleware is a middleware function to check RBAC on protected endpoints
+// RBACMiddleware is a middleware function that checks role-based access control (RBAC)
+// on protected API endpoints. It extracts the user ID from the request context,
+// fetches the user from the database to get their role, and checks with the
+// Casbin enforcer whether the role has permission to access the requested
+// endpoint. If not allowed, it returns a 403 Forbidden error.
+
 func RBACMiddleware(e *casbin.Enforcer, userRepository *repository.UserRepository) fiber.Handler {
 	// Exclude certain paths from RBAC checks
 	excludePaths := []string{"/api/user/:id/change-password"}
