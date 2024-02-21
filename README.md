@@ -36,7 +36,9 @@ This project has two components: a web frontend and a Go backend server. Follow 
 ### Prerequisites
 
 * Node.js and PNPM
+
 * Go 1.21.3 or later
+
 * A PostgreSQL database instance
 
 > Web Frontend Setup
@@ -117,7 +119,7 @@ We greatly appreciate contributions to this project! If you have improvements, b
 
 * Submit a pull request: Fork the repository, make your changes, and submit a pull request for review. Be sure to follow any established coding standards and conventions.
 
-For more detailed guidelines on our contribution process, please refer to our CONTRIBUTING.md file [link to the CONTRIBUTING.md in your project directory].
+For more detailed guidelines on our contribution process, please refer to our [CONTRIBUTING.md](https://github.com/latoulicious/SIPP/blob/server/CONTRIBUTING.md).
 
 ## License
 
