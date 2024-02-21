@@ -136,13 +136,13 @@ export default defineComponent({
 
   methods: {
     /**
- * Fetches capaian data from the API and populates component state.
- * 
- * Makes requests to the API to get capaian, user, kelas, mapel, and 
- * tahun ajar data. Processes the responses to extract options for
- * selects/filters. Updates component state with capaian items and
- * options for selects/filters. Handles loading state.
- */
+     * Fetches capaian data from the API and populates component state.
+     *
+     * Makes requests to the API to get capaian, user, kelas, mapel, and
+     * tahun ajar data. Processes the responses to extract options for
+     * selects/filters. Updates component state with capaian items and
+     * options for selects/filters. Handles loading state.
+     */
     async fetchData() {
       this.loading = true;
 
@@ -221,16 +221,16 @@ export default defineComponent({
     },
 
     /**
- * Adds a new capaian item by making a POST request to the API.
- *
- * Maps the form data from createdItem to the expected API payload format.
- * Makes the POST request to the /capaian endpoint.
- * Pushes the new item into the items array.
- * Refetches the data to refresh the table after creating.
- * Resets the form after a timeout.
- *
- * Handles any errors from the API request.
- */
+     * Adds a new capaian item by making a POST request to the API.
+     *
+     * Maps the form data from createdItem to the expected API payload format.
+     * Makes the POST request to the /capaian endpoint.
+     * Pushes the new item into the items array.
+     * Refetches the data to refresh the table after creating.
+     * Resets the form after a timeout.
+     *
+     * Handles any errors from the API request.
+     */
     async addNewItem() {
       if (!this.isNewData) {
         alert("Please fill in all fields.");
@@ -275,17 +275,17 @@ export default defineComponent({
     },
 
     /**
- * Edits an existing capaian item.
- * 
- * Makes a copy of the edited item data.
- * Converts the 'ID' field to 'id' to match the API.
- * Removes unneeded fields.
- * Makes a PUT request to update the item on the server. 
- * Resets the edited item.
- * Refetches the data to refresh the table.
- * 
- * Handles any errors from the API request.
- */
+     * Edits an existing capaian item.
+     *
+     * Makes a copy of the edited item data.
+     * Converts the 'ID' field to 'id' to match the API.
+     * Removes unneeded fields.
+     * Makes a PUT request to update the item on the server.
+     * Resets the edited item.
+     * Refetches the data to refresh the table.
+     *
+     * Handles any errors from the API request.
+     */
     async editItem() {
       try {
         // Create a deep copy of the edited item
@@ -313,13 +313,13 @@ export default defineComponent({
     },
 
     /**
- * Deletes a capaian item by ID.
- * 
- * Prompts user to confirm deletion.
- * Makes API call to delete item on server.
- * Removes item from local items array.
- * Refetches data to refresh table.
- */
+     * Deletes a capaian item by ID.
+     *
+     * Prompts user to confirm deletion.
+     * Makes API call to delete item on server.
+     * Removes item from local items array.
+     * Refetches data to refresh table.
+     */
     async deleteItemById(id) {
       if (window.confirm("Are you sure you want to delete this item?")) {
         try {
@@ -349,13 +349,13 @@ export default defineComponent({
     },
 
     /**
- * Opens the detail modal for the capaian item at the given row index.
- * 
- * Gets the item ID from the filtered items array.
- * Makes API call to fetch the item data. 
- * Populates the detailItem data for the modal.
- * Shows the detail modal.
- */
+     * Opens the detail modal for the capaian item at the given row index.
+     *
+     * Gets the item ID from the filtered items array.
+     * Makes API call to fetch the item data.
+     * Populates the detailItem data for the modal.
+     * Shows the detail modal.
+     */
     openDetailModal(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
       console.log("Opening detail modal with ID:", selectedItemId);
@@ -394,13 +394,13 @@ export default defineComponent({
     },
 
     /**
- * Prints a row from the table to a PDF.
- * 
- * Fetches the data for the row from the API using the row ID.
- * Logs the data properties received.
- * Generates a PDF with the row data in a table.
- * Opens the PDF for printing.
- */
+     * Prints a row from the table to a PDF.
+     *
+     * Fetches the data for the row from the API using the row ID.
+     * Logs the data properties received.
+     * Generates a PDF with the row data in a table.
+     * Opens the PDF for printing.
+     */
     async printRow(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
 

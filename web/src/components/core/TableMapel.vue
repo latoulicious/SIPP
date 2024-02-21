@@ -40,14 +40,14 @@ export default defineComponent({
 
   methods: {
     /**
- * Fetches mapel data from the API and updates component state.
- * 
- * Gets JWT token from local storage.
- * Makes authorized API request to get mapel. 
- * Maps response data to array of objects with id and name.
- * Updates component items state with new data array.
- * Handles loading state.
- */
+     * Fetches mapel data from the API and updates component state.
+     *
+     * Gets JWT token from local storage.
+     * Makes authorized API request to get mapel.
+     * Maps response data to array of objects with id and name.
+     * Updates component items state with new data array.
+     * Handles loading state.
+     */
     async fetchData() {
       this.loading = true;
 
@@ -83,14 +83,14 @@ export default defineComponent({
     },
 
     /**
- * Adds a new mapel by making an authorized API request.
- * 
- * Gets the JWT token from local storage.
- * Makes a POST request to the mapel API endpoint to create the new mapel.
- * Handles success and error cases.
- * Updates component state by pushing new mapel onto items array.
- * Calls fetchData() to refresh data after adding.
- */
+     * Adds a new mapel by making an authorized API request.
+     *
+     * Gets the JWT token from local storage.
+     * Makes a POST request to the mapel API endpoint to create the new mapel.
+     * Handles success and error cases.
+     * Updates component state by pushing new mapel onto items array.
+     * Calls fetchData() to refresh data after adding.
+     */
     async addNewItem() {
       try {
         const jwtToken = localStorage.getItem("jwtToken");
@@ -126,15 +126,15 @@ export default defineComponent({
     },
 
     /**
- * Edits an existing item.
- * 
- * Fetches a JWT token from local storage.
- * Sends a PUT request to the API to update the item.
- * Updates the item directly in the items array.
- * Refetches the data after editing to update the UI.
- * 
- * @throws {Error} If the request fails.
- */
+     * Edits an existing item.
+     *
+     * Fetches a JWT token from local storage.
+     * Sends a PUT request to the API to update the item.
+     * Updates the item directly in the items array.
+     * Refetches the data after editing to update the UI.
+     *
+     * @throws {Error} If the request fails.
+     */
     async editItem() {
       try {
         const jwtToken = localStorage.getItem("jwtToken");
@@ -173,18 +173,18 @@ export default defineComponent({
     },
 
     /**
- * Deletes an item by ID.
- * 
- * Prompts user to confirm deletion.
- * Fetches JWT token from local storage.
- * Makes DELETE request to API with authentication header.
- * Removes item from items array.
- * Refetches data to update UI.
- * Shows success message.
- * 
- * @param {number} id - The ID of the item to delete.
- * @throws {Error} If the request fails.
- */
+     * Deletes an item by ID.
+     *
+     * Prompts user to confirm deletion.
+     * Fetches JWT token from local storage.
+     * Makes DELETE request to API with authentication header.
+     * Removes item from items array.
+     * Refetches data to update UI.
+     * Shows success message.
+     *
+     * @param {number} id - The ID of the item to delete.
+     * @throws {Error} If the request fails.
+     */
     async deleteItemById(id) {
       if (window.confirm("Are you sure you want to delete this item?")) {
         try {

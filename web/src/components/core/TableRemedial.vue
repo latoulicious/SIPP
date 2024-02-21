@@ -119,14 +119,14 @@ export default defineComponent({
 
   methods: {
     /**
- * Fetches remedial data from the API and processes it:
- * - Fetches remedial, user, kelas, mapel, tahun, and question count data from API
- * - Extracts user, kelas, mapel, tahun options from responses 
- * - Creates question count lookup from question count response
- * - Merges question counts into remedial data
- * - Handles loading state
- * - Catches errors
-*/
+     * Fetches remedial data from the API and processes it:
+     * - Fetches remedial, user, kelas, mapel, tahun, and question count data from API
+     * - Extracts user, kelas, mapel, tahun options from responses
+     * - Creates question count lookup from question count response
+     * - Merges question counts into remedial data
+     * - Handles loading state
+     * - Catches errors
+     */
     async fetchData() {
       this.loading = true;
 
@@ -207,14 +207,14 @@ export default defineComponent({
     },
 
     /**
- * Adds a new item to the list. 
- * 
- * Collects the static and dynamic fields from the form data, constructs a newItem object, 
- * logs it, makes a POST request to the API to add it, pushes the new item into the local list,
- * refetches the data to refresh the table, and resets the form.
- * 
- * Handles errors from the API request.
-*/
+     * Adds a new item to the list.
+     *
+     * Collects the static and dynamic fields from the form data, constructs a newItem object,
+     * logs it, makes a POST request to the API to add it, pushes the new item into the local list,
+     * refetches the data to refresh the table, and resets the form.
+     *
+     * Handles errors from the API request.
+     */
     async addNewItem() {
       if (!this.isNewData) {
         alert("Please fill in all fields.");
@@ -266,12 +266,12 @@ export default defineComponent({
     },
 
     /**
- * Edits an existing item.
- * 
- * Collects the dynamic form fields and includes them in the item to edit.
- * Sends a PUT request to update the item on the server.
- * Refreshes the table data after successfully updating.
- */
+     * Edits an existing item.
+     *
+     * Collects the dynamic form fields and includes them in the item to edit.
+     * Sends a PUT request to update the item on the server.
+     * Refreshes the table data after successfully updating.
+     */
     async editItem() {
       // Collect dynamic fields from the form
       const dynamicFields = this.collectDynamicFields();
@@ -309,15 +309,15 @@ export default defineComponent({
     },
 
     /**
- * Deletes a remedial item by ID.
- * 
- * Prompts user to confirm deletion. 
- * Makes API call to delete remedial item.
- * Removes deleted item from items array.
- * Refreshes data table after deletion.
- * Shows alert on success.
- * Logs error on failure.
-*/
+     * Deletes a remedial item by ID.
+     *
+     * Prompts user to confirm deletion.
+     * Makes API call to delete remedial item.
+     * Removes deleted item from items array.
+     * Refreshes data table after deletion.
+     * Shows alert on success.
+     * Logs error on failure.
+     */
     async deleteItemById(id) {
       if (window.confirm("Are you sure you want to delete this item?")) {
         try {
@@ -347,9 +347,9 @@ export default defineComponent({
     },
 
     /**
- * Opens the detail modal popup to show details for the item at the specified row index.
- * Retrieves the item data from the API and populates the modal with it.
- */
+     * Opens the detail modal popup to show details for the item at the specified row index.
+     * Retrieves the item data from the API and populates the modal with it.
+     */
     async openDetailModal(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
       console.log("Opening detail modal with ID:", selectedItemId);
@@ -378,12 +378,12 @@ export default defineComponent({
     },
 
     /**
- * Prints a PDF report for the remedial item with the given row index.
- * 
- * Fetches the full remedial item data for the row from the API.
- * Extracts the subject, class, and question text into a PDF document definition. 
- * Uses pdfMake to generate and open the PDF report.
- */
+     * Prints a PDF report for the remedial item with the given row index.
+     *
+     * Fetches the full remedial item data for the row from the API.
+     * Extracts the subject, class, and question text into a PDF document definition.
+     * Uses pdfMake to generate and open the PDF report.
+     */
     async printRow(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
       console.log(`Selected item ID: ${selectedItemId}`);

@@ -40,10 +40,10 @@ export default defineComponent({
 
   methods: {
     /**
- * Fetches jurusan data from the API and updates component state.
- * Requires valid JWT token with Authorization header.
- * Handles loading state and errors.
- */
+     * Fetches jurusan data from the API and updates component state.
+     * Requires valid JWT token with Authorization header.
+     * Handles loading state and errors.
+     */
     async fetchData() {
       this.loading = true;
 
@@ -79,11 +79,11 @@ export default defineComponent({
     },
 
     /**
- * Adds a new jurusan item by making a POST request to the API.
- * Requires valid JWT token.
- * Handles API response and updates component state on success.
- * Logs errors on failure.
- */
+     * Adds a new jurusan item by making a POST request to the API.
+     * Requires valid JWT token.
+     * Handles API response and updates component state on success.
+     * Logs errors on failure.
+     */
     async addNewItem() {
       try {
         const jwtToken = localStorage.getItem("jwtToken");
@@ -119,11 +119,11 @@ export default defineComponent({
     },
 
     /**
- * Edits an existing jurusan item by making a PUT request to the API.
- * Requires valid JWT token. 
- * Handles API response and updates component state on success.
- * Logs errors on failure.
-*/
+     * Edits an existing jurusan item by making a PUT request to the API.
+     * Requires valid JWT token.
+     * Handles API response and updates component state on success.
+     * Logs errors on failure.
+     */
     async editItem() {
       try {
         const jwtToken = localStorage.getItem("jwtToken");
@@ -162,11 +162,11 @@ export default defineComponent({
     },
 
     /**
- * Deletes a jurusan item by ID by making a DELETE request to the API. 
- * Requires valid JWT token.
- * Removes the deleted item from component state on success.
- * Logs errors on failure.
-*/
+     * Deletes a jurusan item by ID by making a DELETE request to the API.
+     * Requires valid JWT token.
+     * Removes the deleted item from component state on success.
+     * Logs errors on failure.
+     */
     async deleteItemById(id) {
       if (window.confirm("Are you sure you want to delete this item?")) {
         try {

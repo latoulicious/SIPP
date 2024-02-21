@@ -107,9 +107,9 @@ export default defineComponent({
 
   methods: {
     /**
- * Fetches alur data from the API and maps it to the component's items.
- * Handles errors from the API request.
-*/
+     * Fetches alur data from the API and maps it to the component's items.
+     * Handles errors from the API request.
+     */
     async fetchData() {
       try {
         const response = await axios.get("http://localhost:3000/api/alur");
@@ -129,11 +129,11 @@ export default defineComponent({
     },
 
     /**
- * Adds a new item to the list by making a POST request to the API.
- * Validates input data, handles errors from the API request.
- * Updates component state by pushing new item and resetting form.
- * Refetches latest data after successful creation.
-*/
+     * Adds a new item to the list by making a POST request to the API.
+     * Validates input data, handles errors from the API request.
+     * Updates component state by pushing new item and resetting form.
+     * Refetches latest data after successful creation.
+     */
     async addNewItem() {
       if (!this.isNewData) {
         alert("Please fill in all fields.");
@@ -164,11 +164,11 @@ export default defineComponent({
     },
 
     /**
- * Edits an existing item by making a PUT request to the API.
- * Validates input data, handles errors from the API request. 
- * Updates component state by mapping over items and replacing the edited item.
- * Refetches latest data after successful edit.
-*/
+     * Edits an existing item by making a PUT request to the API.
+     * Validates input data, handles errors from the API request.
+     * Updates component state by mapping over items and replacing the edited item.
+     * Refetches latest data after successful edit.
+     */
     async editItem() {
       try {
         // Create a deep copy of the edited item
@@ -196,12 +196,12 @@ export default defineComponent({
     },
 
     /**
- * Deletes an item by ID by making a DELETE request to the API.
- * Prompts user to confirm deletion. 
- * Handles errors from the API request.
- * Updates component state by filtering out the deleted item.
- * Refetches latest data after successful deletion.
-*/
+     * Deletes an item by ID by making a DELETE request to the API.
+     * Prompts user to confirm deletion.
+     * Handles errors from the API request.
+     * Updates component state by filtering out the deleted item.
+     * Refetches latest data after successful deletion.
+     */
     async deleteItemById(id) {
       if (window.confirm("Are you sure you want to delete this item?")) {
         try {
@@ -219,12 +219,12 @@ export default defineComponent({
     },
 
     /**
- * Opens the detail modal for the row at the given index. 
- * Gets the item ID for that row.
- * Makes API call to get full item data for that ID.
- * Sets detailItem data with relevant fields from response.
- * Shows modal with detailItem data.
-*/
+     * Opens the detail modal for the row at the given index.
+     * Gets the item ID for that row.
+     * Makes API call to get full item data for that ID.
+     * Sets detailItem data with relevant fields from response.
+     * Shows modal with detailItem data.
+     */
     openDetailModal(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
       console.log("Opening detail modal with ID:", selectedItemId);
@@ -258,12 +258,12 @@ export default defineComponent({
     },
 
     /**
- * Prints a row from the table to a PDF.
- * 
- * Fetches the full data for the row from the API using the row ID. 
- * Converts the data into a PDF table using pdfMake. 
- * Opens the PDF for printing or saving.
-*/
+     * Prints a row from the table to a PDF.
+     *
+     * Fetches the full data for the row from the API using the row ID.
+     * Converts the data into a PDF table using pdfMake.
+     * Opens the PDF for printing or saving.
+     */
     async printRow(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
 
