@@ -259,7 +259,7 @@ export default defineComponent({
           this.resetCreatedItem();
         }, 500);
       } catch (error) {
-        console.error("Error adding new item:", error);
+        console.error("Error creating new item:", error);
       }
     },
 
@@ -278,7 +278,7 @@ export default defineComponent({
         // console.log("Edited item:", this.editedItem);
         // console.log("Edited item ID:", this.editedItem.id);
 
-        const response = await axios.put(
+        await axios.put(
           `http://localhost:3000/api/modul/${editedData.id}`,
           editedData,
         );
@@ -379,7 +379,6 @@ export default defineComponent({
 
           const tableBody = [
             [
-              { text: "Sekolah", fontSize: 10, bold: true },
               { text: "Alokasi Waktu", fontSize: 10, bold: true },
               { text: "Kompetensi Awal", fontSize: 10, bold: true },
               { text: "Projek P Pancasila", fontSize: 10, bold: true },
@@ -427,7 +426,6 @@ export default defineComponent({
               },
             ],
             [
-              "sekolah" in data ? data.sekolah : "N/A",
               "alokasiWaktu" in data ? data.alokasiWaktu : "N/A",
               "kompetensiAwal" in data ? data.kompetensiAwal : "N/A",
               "projekPPancasila" in data ? data.projekPPancasila : "N/A",
@@ -461,7 +459,7 @@ export default defineComponent({
             },
             content: [
               {
-                text: "Capaian Pembelajaran",
+                text: "Modul Ajar",
                 fontSize: 12,
                 bold: true,
                 alignment: "center",
@@ -471,7 +469,16 @@ export default defineComponent({
                 table: {
                   headerRows: 1,
                   widths: Array(tableBody[0].length).fill("auto"),
-                  body: tableBody,
+                  body: tableBody.map((row) =>
+                    row.map((cell) => {
+                      // Check if the cell has a 'text' property and adjust the fontSize
+                      if (typeof cell === "object" && cell.text) {
+                        return { ...cell, fontSize: 8 };
+                      }
+                      // If the cell is a string, wrap it in an object with the desired fontSize
+                      return { text: cell, fontSize: 8 };
+                    }),
+                  ),
                 },
                 margin: [0, 0, 0, 20],
               },
@@ -491,6 +498,15 @@ export default defineComponent({
       } catch (error) {
         console.error("Error fetching data for printing:", error);
       }
+    },
+
+    imageFileToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
     },
 
     extractOptions(data, labelProperty) {
@@ -555,7 +571,7 @@ export default defineComponent({
       border-color="#000000"
     >
       <va-button @click="toggleAddModal" preset="secondary" icon="add"
-        >Add Modul Ajar</va-button
+        >Create Modul Ajar</va-button
       >
     </va-button-group>
   </div>
@@ -593,7 +609,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       stripe
-      title="Add Modul Ajar"
+      title="Form Input Modul Ajar"
       size="large"
       :model-value="showModal"
       @ok="addNewItem"

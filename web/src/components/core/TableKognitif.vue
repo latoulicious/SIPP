@@ -418,70 +418,55 @@ export default defineComponent({
 
     async printRow(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
+      console.log(`Selected item ID: ${selectedItemId}`);
 
       try {
-        // Fetch the necessary data directly from the server
         const response = await axios.get(
           `http://localhost:3000/api/kognitif/${selectedItemId}`,
         );
         const data = response.data.data;
 
-        // Log all properties of the data object
-        console.log("Data properties:", Object.keys(data));
+        // Log the entire data object to inspect its structure
+        console.log("Full data object:", data);
 
         if (data) {
-          console.log("Printing row with ID:", selectedItemId);
+          const metadata = {
+            Mapel: data.Mapel.Mapel, // Access the 'Mapel' property within the nested object
+            Kelas: data.Kelas.Kelas, // Access the 'Kelas' property within the nested object
+          };
+          console.log("Extracted metadata:", metadata);
 
-          const tableBody = [
-            [
-              { text: "Judul Capaian", fontSize: 10, bold: true },
-              { text: "Judul Elemen", fontSize: 10, bold: true },
-              { text: "Keterangan Elemen", fontSize: 10, bold: true },
-              { text: "Keterangan Proses Mengamati", fontSize: 10, bold: true },
-              {
-                text: "Keterangan Proses Mempertanyakan",
-                fontSize: 10,
-                bold: true,
-              },
-              {
-                text: "Keterangan Proses Merencanakan",
-                fontSize: 10,
-                bold: true,
-              },
-              { text: "Keterangan Proses Memproses", fontSize: 10, bold: true },
-              {
-                text: "Keterangan Proses Mengevaluasi",
-                fontSize: 10,
-                bold: true,
-              },
-              {
-                text: "Keterangan Proses Mengkomunikasikan",
-                fontSize: 10,
-                bold: true,
-              },
-            ],
-            [
-              "judulCapaian" in data ? data.judulCapaian : "N/A",
-              "judulElemen" in data ? data.judulElemen : "N/A",
-              "ketElemen" in data ? data.ketElemen : "N/A",
-              "ketProsesMengamati" in data ? data.ketProsesMengamati : "N/A",
-              "ketProsesMempertanyakan" in data
-                ? data.ketProsesMempertanyakan
-                : "N/A",
-              "ketProsesMerencanakan" in data
-                ? data.ketProsesMerencanakan
-                : "N/A",
-              "ketProsesMemproses" in data ? data.ketProsesMemproses : "N/A",
-              "ketProsesMengevaluasi" in data
-                ? data.ketProsesMengevaluasi
-                : "N/A",
-              "ketProsesMengkomunikasikan" in data
-                ? data.ketProsesMengkomunikasikan
-                : "N/A",
-            ],
-          ];
+          // Fetch the banksoal data to get the actual options
+          const bankSoalResponse = await axios.get(
+            "http://localhost:3000/api/bank",
+          );
+          const bankSoalData = bankSoalResponse.data.data;
+          console.log("BankSoal data:", bankSoalData);
 
-          console.log("Table Body:", tableBody);
+          // Extract the questions and their corresponding options from DynamicFields
+          const questionsAndOptions = [];
+          data.DynamicFields.forEach((dynamicField) => {
+            // Use the 'value' property as the optionId
+            const optionId = dynamicField.value;
+            // Find the corresponding question in the bankSoalData using the optionId
+            const questionData = bankSoalData.find(
+              (bankSoal) => bankSoal.ID === optionId,
+            );
+            if (questionData) {
+              // Push the question and its options to the questionsAndOptions array
+              questionsAndOptions.push({
+                question: dynamicField.label,
+                options: [
+                  questionData.OptionA,
+                  questionData.OptionB,
+                  questionData.OptionC,
+                  questionData.OptionD,
+                  questionData.OptionE,
+                ],
+              });
+            }
+          });
+          console.log("Extracted questions and options:", questionsAndOptions);
 
           const docDefinition = {
             footer: function (currentPage, pageCount) {
@@ -496,29 +481,54 @@ export default defineComponent({
             },
             content: [
               {
-                text: "Capaian Pembelajaran",
-                fontSize: 12,
+                text: "",
+                fontSize: 14,
                 bold: true,
-                alignment: "center",
                 margin: [0, 20, 0, 20],
               },
+              { text: `Mapel: ${metadata.Mapel}`, fontSize: 10 },
+              { text: `Kelas: ${metadata.Kelas}`, fontSize: 10 },
+              // {
+              //   text: "Questions and Options",
+              //   fontSize: 14,
+              //   bold: true,
+              //   margin: [0, 20, 0, 20],
+              // },
               {
-                table: {
-                  headerRows: 1,
-                  widths: Array(tableBody[0].length).fill("auto"),
-                  body: tableBody,
-                },
-                margin: [0, 0, 0, 20],
+                canvas: [
+                  {
+                    type: "line",
+                    x1: 0,
+                    y1: 0,
+                    x2: 510, // Adjust this value to match the width of your page
+                    y2: 0,
+                    lineWidth: 2,
+                    color: "#000000", // Change the color as needed
+                  },
+                ],
+                margin: [0, 10, 0, 10], // Adjust the margin as needed
               },
+              ...questionsAndOptions.flatMap((item, index) => [
+                {
+                  text: `${index + 1}. ${item.question}`,
+                  fontSize: 10,
+                  margin: [0, 5, 0, 5],
+                },
+                ...item.options.map((option, optionIndex) => ({
+                  text: `${String.fromCharCode(97 + optionIndex)}). ${option}`,
+                  fontSize: 10,
+                  margin: [0, 5, 0, 5],
+                })),
+              ]),
             ],
             pageSize: "A4",
             pageMargins: [20, 20, 20, 20],
-            pageOrientation: "landscape",
+            pageOrientation: "portrait",
           };
 
-          const pdf = pdfMake.createPdf(docDefinition);
+          console.log("Doc definition:", docDefinition);
 
-          // Open the PDF for printing
+          const pdf = pdfMake.createPdf(docDefinition);
           pdf.open();
         } else {
           console.error("No data received from the server");
@@ -701,7 +711,7 @@ export default defineComponent({
       border-color="#000000"
     >
       <va-button @click="toggleAddModal" preset="secondary" icon="add"
-        >Add Capaian Pembelajaran</va-button
+        >Create Asesmen Kognitif</va-button
       >
     </va-button-group>
   </div>
@@ -739,7 +749,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       stripe
-      title="Add Asesmen Kognitif"
+      title="Form Input Asesmen Kognitif"
       size="large"
       :model-value="showModal"
       @ok="addNewItem"
@@ -901,48 +911,6 @@ export default defineComponent({
       <!-- If there are no DynamicFields, display a placeholder message -->
       <div v-else>
         <p>No dynamic fields found.</p>
-      </div>
-
-      <div class="options-container">
-        <div class="top-row">
-          <!-- Option A -->
-          <va-textarea
-            :label="displayNames.OptionA"
-            class="my-6"
-            :value="detailItem.BankSoal.OptionA"
-            readonly
-          />
-          <!-- Option B -->
-          <va-textarea
-            :label="displayNames.OptionB"
-            class="my-6"
-            :value="detailItem.BankSoal.OptionB"
-            readonly
-          />
-          <!-- Option C -->
-          <va-textarea
-            :label="displayNames.OptionC"
-            class="my-6"
-            :value="detailItem.BankSoal.OptionC"
-            readonly
-          />
-        </div>
-        <div class="bottom-row">
-          <!-- Option D -->
-          <va-textarea
-            :label="displayNames.OptionD"
-            class="my-6"
-            :value="detailItem.BankSoal.OptionD"
-            readonly
-          />
-          <!-- Option E -->
-          <va-textarea
-            :label="displayNames.OptionE"
-            class="my-6"
-            :value="detailItem.BankSoal.OptionE"
-            readonly
-          />
-        </div>
       </div>
     </va-modal>
   </div>

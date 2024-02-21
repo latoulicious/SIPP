@@ -16,8 +16,6 @@ type BankSoal struct {
 	Kelas            Kelas     `gorm:"foreignKey:KelasID"`
 	JurusanID        uuid.UUID `gorm:"type:uuid" json:"JurusanID"`
 	Jurusan          Jurusan   `gorm:"foreignKey:JurusanID"`
-	TahunAjarID      uuid.UUID `gorm:"type:uuid" json:"TahunAjarID"`
-	TahunAjar        TahunAjar `gorm:"foreignKey:TahunAjarID"`
 	Soal             string
 	OptionA          string
 	OptionB          string

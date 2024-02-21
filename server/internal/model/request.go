@@ -13,6 +13,7 @@ type CreateSoalItem struct {
 }
 
 type CreateSoalRequest struct {
+	TipeSoal  string           `json:"tipeSoal"`
 	Hari      string           `json:"hari"`
 	Tanggal   string           `json:"tanggal"`
 	Waktu     string           `json:"waktu"`

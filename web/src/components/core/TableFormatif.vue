@@ -311,34 +311,6 @@ export default defineComponent({
       }
     },
 
-    // async openDetailModal(rowIndex) {
-    //   const selectedItemId = this.filteredItems[rowIndex].ID;
-
-    //   try {
-    //     const response = await axios.get(`http://localhost:3000/api/formatif/${selectedItemId}`);
-    //     const serverResponse = response.data; // Correctly declare and initialize serverResponse
-    //     if (serverResponse && serverResponse.data && serverResponse.data.length > 0) {
-    //       // Access the first item in the array
-    //       const item = serverResponse.data[0];
-
-    //       // Extract the Pertanyaan and DynamicFields
-    //       this.detailItem = {
-    //         Pertanyaan: item.Pertanyaan,
-    //         DynamicFields: item.DynamicFields,
-    //       };
-
-    //       // Convert DynamicFields object into an array of keys
-    //       this.filteredDetailFields = Object.keys(this.detailItem.DynamicFields);
-
-    //       this.detailModalVisible = true;
-    //     } else {
-    //       console.error("No data received from the server");
-    //     }
-    //   } catch (error) {
-    //     console.error("Error fetching data for the detail modal:", error);
-    //   }
-    // },
-
     async openDetailModal(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
       console.log("Opening detail modal with ID:", selectedItemId);
@@ -368,63 +340,27 @@ export default defineComponent({
 
     async printRow(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
+      console.log(`Selected item ID: ${selectedItemId}`);
 
       try {
-        // Fetch the necessary data directly from the server
         const response = await axios.get(
           `http://localhost:3000/api/formatif/${selectedItemId}`,
         );
         const data = response.data.data;
 
+        // Log the entire data object to inspect its structure
+        console.log("Full data object:", data);
+
         if (data) {
-          const tableBody = [
-            [
-              { text: "Judul Capaian", fontSize: 10, bold: true },
-              { text: "Judul Elemen", fontSize: 10, bold: true },
-              { text: "Keterangan Elemen", fontSize: 10, bold: true },
-              { text: "Keterangan Proses Mengamati", fontSize: 10, bold: true },
-              {
-                text: "Keterangan Proses Mempertanyakan",
-                fontSize: 10,
-                bold: true,
-              },
-              {
-                text: "Keterangan Proses Merencanakan",
-                fontSize: 10,
-                bold: true,
-              },
-              { text: "Keterangan Proses Memproses", fontSize: 10, bold: true },
-              {
-                text: "Keterangan Proses Mengevaluasi",
-                fontSize: 10,
-                bold: true,
-              },
-              {
-                text: "Keterangan Proses Mengkomunikasikan",
-                fontSize: 10,
-                bold: true,
-              },
-            ],
-            [
-              "judulCapaian" in data ? data.judulCapaian : "N/A",
-              "judulElemen" in data ? data.judulElemen : "N/A",
-              "ketElemen" in data ? data.ketElemen : "N/A",
-              "ketProsesMengamati" in data ? data.ketProsesMengamati : "N/A",
-              "ketProsesMempertanyakan" in data
-                ? data.ketProsesMempertanyakan
-                : "N/A",
-              "ketProsesMerencanakan" in data
-                ? data.ketProsesMerencanakan
-                : "N/A",
-              "ketProsesMemproses" in data ? data.ketProsesMemproses : "N/A",
-              "ketProsesMengevaluasi" in data
-                ? data.ketProsesMengevaluasi
-                : "N/A",
-              "ketProsesMengkomunikasikan" in data
-                ? data.ketProsesMengkomunikasikan
-                : "N/A",
-            ],
-          ];
+          const metadata = {
+            Mapel: data.Mapel.Mapel, // Access the 'Mapel' property within the nested object
+            Kelas: data.Kelas.Kelas, // Access the 'Kelas' property within the nested object
+          };
+          console.log("Extracted metadata:", metadata);
+
+          // Extract the questions from DynamicFields
+          const questions = Object.values(data.DynamicFields);
+          console.log("Extracted questions:", questions);
 
           const docDefinition = {
             footer: function (currentPage, pageCount) {
@@ -439,29 +375,41 @@ export default defineComponent({
             },
             content: [
               {
-                text: "Capaian Pembelajaran",
-                fontSize: 12,
+                text: "",
+                fontSize: 14,
                 bold: true,
-                alignment: "center",
                 margin: [0, 20, 0, 20],
               },
+              { text: `Mapel: ${metadata.Mapel}`, fontSize: 10 },
+              { text: `Kelas: ${metadata.Kelas}`, fontSize: 10 },
               {
-                table: {
-                  headerRows: 1,
-                  widths: Array(tableBody[0].length).fill("auto"),
-                  body: tableBody,
-                },
-                margin: [0, 0, 0, 20],
+                canvas: [
+                  {
+                    type: "line",
+                    x1: 0,
+                    y1: 0,
+                    x2: 510, // Adjust this value to match the width of your page
+                    y2: 0,
+                    lineWidth: 2,
+                    color: "#000000", // Change the color as needed
+                  },
+                ],
+                margin: [0, 10, 0, 10], // Adjust the margin as needed
               },
+              ...questions.map((question, index) => ({
+                text: `${index + 1}. ${question}`,
+                fontSize: 10,
+                margin: [0, 5, 0, 5],
+              })),
             ],
             pageSize: "A4",
             pageMargins: [20, 20, 20, 20],
-            pageOrientation: "landscape",
+            pageOrientation: "portrait",
           };
 
-          const pdf = pdfMake.createPdf(docDefinition);
+          console.log("Doc definition:", docDefinition);
 
-          // Open the PDF for printing
+          const pdf = pdfMake.createPdf(docDefinition);
           pdf.open();
         } else {
           console.error("No data received from the server");
@@ -495,7 +443,7 @@ export default defineComponent({
     addField() {
       // Determine the next number suffix based on the current length of textAreaFields
       const nextNumber = this.textAreaFields.length + 1;
-      const newKey = `pertanyaan${nextNumber}`; // Generate a unique key with the number suffix
+      const newKey = `pertanyaan ${nextNumber}`; // Generate a unique key with the number suffix
 
       // Add the new key to the textAreaFields array
       this.textAreaFields.push(newKey);
@@ -611,7 +559,7 @@ export default defineComponent({
       border-color="#000000"
     >
       <va-button @click="toggleAddModal" preset="secondary" icon="add"
-        >Add Asesmen Formatif</va-button
+        >Create Asesmen Formatif</va-button
       >
     </va-button-group>
   </div>
@@ -649,7 +597,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       stripe
-      title="Add Asesmen Kognitif"
+      title="Form Input Asesmen Formatf"
       size="large"
       :model-value="showModal"
       @ok="addNewItem"

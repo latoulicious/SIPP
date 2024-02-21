@@ -251,7 +251,7 @@ export default defineComponent({
           this.resetCreatedItem();
         }, 500);
       } catch (error) {
-        console.error("Error adding new item:", error);
+        console.error("Error Creating new item:", error);
       }
     },
 
@@ -268,7 +268,7 @@ export default defineComponent({
         delete editedData.Kelas;
         delete editedData.TahunAjar;
 
-        const response = await axios.put(
+        await axios.put(
           `http://localhost:3000/api/capaian/${editedData.id}`,
           editedData,
         );
@@ -436,7 +436,16 @@ export default defineComponent({
                 table: {
                   headerRows: 1,
                   widths: Array(tableBody[0].length).fill("auto"),
-                  body: tableBody,
+                  body: tableBody.map((row) =>
+                    row.map((cell) => {
+                      // Check if the cell has a 'text' property and adjust the fontSize
+                      if (typeof cell === "object" && cell.text) {
+                        return { ...cell, fontSize: 10 };
+                      }
+                      // If the cell is a string, wrap it in an object with the desired fontSize
+                      return { text: cell, fontSize: 10 };
+                    }),
+                  ),
                 },
                 margin: [0, 0, 0, 20],
               },
@@ -526,7 +535,7 @@ export default defineComponent({
       border-color="#000000"
     >
       <va-button @click="toggleAddModal" preset="secondary" icon="add"
-        >Add Capaian Pembelajaran</va-button
+        >Create Capaian Pembelajaran</va-button
       >
     </va-button-group>
   </div>
@@ -564,7 +573,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       stripe
-      title="Add Capaian Pembelajaran"
+      title="Form Input Capaian Pembelajaran"
       size="large"
       :model-value="showModal"
       @ok="addNewItem"

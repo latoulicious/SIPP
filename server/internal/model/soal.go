@@ -16,6 +16,7 @@ type Soal struct {
 	Kelas         Kelas     `gorm:"foreignKey:KelasID"`
 	JurusanID     uuid.UUID `gorm:"type:uuid" json:"jurusanId"`
 	Jurusan       Jurusan   `gorm:"foreignKey:JurusanID"`
+	TipeSoal      string
 	Hari          string
 	Tanggal       string
 	Waktu         string

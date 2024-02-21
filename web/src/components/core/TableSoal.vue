@@ -21,6 +21,7 @@ const defaultItem = {
     OptionD: "",
     OptionE: "",
   },
+  TipeSoal: "",
   Hari: "",
   Tanggal: "",
   Waktu: "",
@@ -38,6 +39,7 @@ const displayNames = {
   OptionC: "Pilihan C",
   OptionD: "Pilihan D",
   OptionE: "Pilihan E",
+  TipeSoal: "Tipe Soal",
   Hari: "Hari",
   Tanggal: "Tanggal",
   Waktu: "Waktu",
@@ -49,6 +51,7 @@ export default defineComponent({
       { key: "User", label: "Nama Penyusun", sortable: false },
       { key: "Mapel", label: "Mata Pelajaran", sortable: false },
       { key: "Kelas", label: "Kelas", sortable: false },
+      { key: "TipeSoal", label: "Tipe Soal", sortable: false },
       { key: "questionCount", label: "Total Soal", sortable: false },
       { key: "actions", label: "Actions", width: 80 },
     ];
@@ -67,6 +70,12 @@ export default defineComponent({
       kelasOptions: [],
       jurusanOptions: [],
       bankSoalOptions: [],
+      tipeSoalOptions: [
+        { label: "Ulangan Harian", value: "Ulangan Harian" },
+        { label: "Ulangan Tengah Semester", value: "Ulangan Tengah Semester" },
+        { label: "Ulangan Akhir Semester", value: "Ulangan Akhir Semester" },
+        // ... add more options as needed
+      ],
       textAreaFields: ["Hari", "Tanggal", "Waktu"],
       showModal: false,
       viewModalVisible: false,
@@ -90,7 +99,8 @@ export default defineComponent({
   computed: {
     filteredDetailFields() {
       return Object.keys(this.detailItem).filter(
-        (key) => !["created_at", "updated_at", "deleted_at", "id"].includes(key)
+        (key) =>
+          !["created_at", "updated_at", "deleted_at", "id"].includes(key),
       );
     },
 
@@ -98,8 +108,8 @@ export default defineComponent({
       return Object.fromEntries(
         Object.entries(this.displayNames).filter(
           ([key]) =>
-            !["created_at", "updated_at", "deleted_at", "id"].includes(key)
-        )
+            !["created_at", "updated_at", "deleted_at", "id"].includes(key),
+        ),
       );
     },
 
@@ -187,44 +197,44 @@ export default defineComponent({
 
         const response = await axios.get("http://localhost:3000/api/soal");
         const userResponse = await axios.get(
-          "http://localhost:3000/api/public/user"
+          "http://localhost:3000/api/public/user",
         );
         const kelasResponse = await axios.get(
-          "http://localhost:3000/api/public/kelas"
+          "http://localhost:3000/api/public/kelas",
         );
         const jurusanResponse = await axios.get(
-          "http://localhost:3000/api/public/jurusan"
+          "http://localhost:3000/api/public/jurusan",
         );
         const mapelResponse = await axios.get(
-          "http://localhost:3000/api/public/mapel"
+          "http://localhost:3000/api/public/mapel",
         );
         const bankResponse = await axios.get("http://localhost:3000/api/bank");
         const questionCountResponse = await axios.get(
-          "http://localhost:3000/api/total/item"
+          "http://localhost:3000/api/total/item",
         );
 
         console.log("Soal response data:", response.data);
         console.log(
           "ItemSoal question counts response data:",
-          questionCountResponse.data
+          questionCountResponse.data,
         );
 
         this.usersOptions = this.extractOptions(userResponse.data.data, "Name");
         this.kelasOptions = this.extractOptions(
           kelasResponse.data.data,
-          "Kelas"
+          "Kelas",
         );
         this.mapelsOptions = this.extractOptions(
           mapelResponse.data.data,
-          "Mapel"
+          "Mapel",
         );
         this.jurusanOptions = this.extractOptions(
           jurusanResponse.data.data,
-          "Jurusan"
+          "Jurusan",
         );
         this.bankSoalOptions = this.extractOptions(
           bankResponse.data.data,
-          "Soal"
+          "Soal",
         );
 
         // Populate questionCountLookup using SoalID
@@ -257,14 +267,14 @@ export default defineComponent({
             "After mapping for Soal ID:",
             soalId,
             "questionCount:",
-            questionCount
+            questionCount,
           );
 
           console.log(
             "After mapping for Soal ID:",
             soalId,
             "Dynamic Fields:",
-            dynamicFields
+            dynamicFields,
           );
 
           return {
@@ -282,6 +292,7 @@ export default defineComponent({
             OptionE: item.BankSoal ? item.BankSoal.OptionE : "",
             DynamicFields: dynamicFields, // Correctly map DynamicFields from the first ItemSoal
             questionCount: questionCount,
+            TipeSoal: item.TipeSoal || "",
             Hari: item.Hari || "",
             Tanggal: item.Tanggal || "",
             Waktu: item.Waktu || "",
@@ -308,7 +319,7 @@ export default defineComponent({
           {
             value: this.createdItem.BankSoalID,
             label: this.bankSoalOptions.find(
-              (opt) => opt.value === this.createdItem.BankSoalID
+              (opt) => opt.value === this.createdItem.BankSoalID,
             ).label,
           },
         ];
@@ -317,7 +328,7 @@ export default defineComponent({
         const dynamicFieldsArray = this.dynamicFieldsArray
           .map((value) => {
             const selectedOption = this.bankSoalOptions.find(
-              (option) => option.value === value
+              (option) => option.value === value,
             );
             return selectedOption
               ? { value: selectedOption.value, label: selectedOption.label }
@@ -331,6 +342,7 @@ export default defineComponent({
         // Include the fields in the payload
         const payload = {
           ...this.createdItem,
+          TipeSoal: this.createdItem.TipeSoal, // Ensure TipeSoal is included in the payload
           DynamicFields: fieldsPayload,
         };
 
@@ -339,7 +351,7 @@ export default defineComponent({
 
         const response = await axios.post(
           "http://localhost:3000/api/soal",
-          payload
+          payload,
         );
 
         this.items.push({
@@ -375,7 +387,7 @@ export default defineComponent({
 
         await axios.put(
           `http://localhost:3000/api/soal/${editedData.id}`,
-          ...editedData
+          ...editedData,
         );
 
         this.resetEditedItem();
@@ -390,7 +402,7 @@ export default defineComponent({
       if (window.confirm("Are you sure you want to delete this item?")) {
         try {
           const response = await axios.delete(
-            `http://localhost:3000/api/soal/${id}`
+            `http://localhost:3000/api/soal/${id}`,
           );
 
           // Check if deletedSoal is not null
@@ -399,7 +411,7 @@ export default defineComponent({
 
             // Remove the item from the items array
             this.items = this.items.filter(
-              (item) => item.id !== deletedSoal.id
+              (item) => item.id !== deletedSoal.id,
             );
           }
 
@@ -420,7 +432,7 @@ export default defineComponent({
 
       try {
         const response = await axios.get(
-          `http://localhost:3000/api/soal/${selectedItemId}`
+          `http://localhost:3000/api/soal/${selectedItemId}`,
         );
         console.log("Response status:", response.status);
         console.log("Response headers:", response.headers);
@@ -442,7 +454,7 @@ export default defineComponent({
           this.detailModalVisible = true;
         } else {
           console.error(
-            "No data received from the server or data is undefined"
+            "No data received from the server or data is undefined",
           );
         }
       } catch (error) {
@@ -452,70 +464,62 @@ export default defineComponent({
 
     async printRow(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
+      console.log(`Selected item ID: ${selectedItemId}`);
 
       try {
-        // Fetch the necessary data directly from the server
         const response = await axios.get(
-          `http://localhost:3000/api/soal/${selectedItemId}`
+          `http://localhost:3000/api/soal/${selectedItemId}`,
         );
         const data = response.data.data;
-
-        // Log all properties of the data object
-        console.log("Data properties:", Object.keys(data));
+        console.log("Data from server:", data);
 
         if (data) {
-          console.log("Printing row with ID:", selectedItemId);
+          const metadata = {
+            TipeSoal: data.TipeSoal,
+            Mapel: data.Mapel.Mapel, // Access the 'Mapel' property within the nested object
+            Kelas: data.Kelas.Kelas, // Access the 'Kelas' property within the nested object
+            Jurusan: data.Jurusan.Jurusan, // Access the 'Jurusan' property within the nested object
+            Tanggal: data.Tanggal,
+            Hari: data.Hari,
+            Waktu: data.Waktu,
+          };
+          console.log("Extracted metadata:", metadata);
 
-          const tableBody = [
-            [
-              { text: "Judul Capaian", fontSize: 10, bold: true },
-              { text: "Judul Elemen", fontSize: 10, bold: true },
-              { text: "Keterangan Elemen", fontSize: 10, bold: true },
-              { text: "Keterangan Proses Mengamati", fontSize: 10, bold: true },
-              {
-                text: "Keterangan Proses Mempertanyakan",
-                fontSize: 10,
-                bold: true,
-              },
-              {
-                text: "Keterangan Proses Merencanakan",
-                fontSize: 10,
-                bold: true,
-              },
-              { text: "Keterangan Proses Memproses", fontSize: 10, bold: true },
-              {
-                text: "Keterangan Proses Mengevaluasi",
-                fontSize: 10,
-                bold: true,
-              },
-              {
-                text: "Keterangan Proses Mengkomunikasikan",
-                fontSize: 10,
-                bold: true,
-              },
-            ],
-            [
-              "judulCapaian" in data ? data.judulCapaian : "N/A",
-              "judulElemen" in data ? data.judulElemen : "N/A",
-              "ketElemen" in data ? data.ketElemen : "N/A",
-              "ketProsesMengamati" in data ? data.ketProsesMengamati : "N/A",
-              "ketProsesMempertanyakan" in data
-                ? data.ketProsesMempertanyakan
-                : "N/A",
-              "ketProsesMerencanakan" in data
-                ? data.ketProsesMerencanakan
-                : "N/A",
-              "ketProsesMemproses" in data ? data.ketProsesMemproses : "N/A",
-              "ketProsesMengevaluasi" in data
-                ? data.ketProsesMengevaluasi
-                : "N/A",
-              "ketProsesMengkomunikasikan" in data
-                ? data.ketProsesMengkomunikasikan
-                : "N/A",
-            ],
-          ];
+          // Fetch the banksoal data to get the actual options
+          const bankSoalResponse = await axios.get(
+            "http://localhost:3000/api/bank",
+          );
+          const bankSoalData = bankSoalResponse.data.data;
+          console.log("BankSoal data:", bankSoalData);
 
-          console.log("Table Body:", tableBody);
+          // Extract the questions and their corresponding options from DynamicFields
+          const questionsAndOptions = [];
+          data.Items.forEach((item) => {
+            if (item.DynamicFields) {
+              Object.entries(item.DynamicFields).forEach(
+                ([question, optionId]) => {
+                  // Find the corresponding question in the bankSoalData using the optionId
+                  const questionData = bankSoalData.find(
+                    (bankSoal) => bankSoal.ID === optionId,
+                  );
+                  if (questionData) {
+                    // Push the question and its options to the questionsAndOptions array
+                    questionsAndOptions.push({
+                      question: question,
+                      options: [
+                        questionData.OptionA,
+                        questionData.OptionB,
+                        questionData.OptionC,
+                        questionData.OptionD,
+                        questionData.OptionE,
+                      ],
+                    });
+                  }
+                },
+              );
+            }
+          });
+          console.log("Extracted questions and options:", questionsAndOptions);
 
           const docDefinition = {
             footer: function (currentPage, pageCount) {
@@ -530,29 +534,58 @@ export default defineComponent({
             },
             content: [
               {
-                text: "Capaian Pembelajaran",
-                fontSize: 12,
+                text: metadata.TipeSoal, // Use data.TipeSoal instead of the static text
+                fontSize: 14,
                 bold: true,
-                alignment: "center",
                 margin: [0, 20, 0, 20],
               },
+              { text: `Mapel: ${metadata.Mapel}`, fontSize: 10 },
+              { text: `Kelas: ${metadata.Kelas}`, fontSize: 10 },
+              { text: `Jurusan: ${metadata.Jurusan}`, fontSize: 10 },
+              { text: `Tanggal: ${metadata.Tanggal}`, fontSize: 10 },
+              { text: `Hari: ${metadata.Hari}`, fontSize: 10 },
+              { text: `Waktu: ${metadata.Waktu}`, fontSize: 10 },
+              // {
+              //   text: "Questions and Options",
+              //   fontSize: 14,
+              //   bold: true,
+              //   margin: [0, 20, 0, 20],
+              // },
               {
-                table: {
-                  headerRows: 1,
-                  widths: Array(tableBody[0].length).fill("auto"),
-                  body: tableBody,
-                },
-                margin: [0, 0, 0, 20],
+                canvas: [
+                  {
+                    type: "line",
+                    x1: 0,
+                    y1: 0,
+                    x2: 510, // Adjust this value to match the width of your page
+                    y2: 0,
+                    lineWidth: 2,
+                    color: "#000000", // Change the color as needed
+                  },
+                ],
+                margin: [0, 10, 0, 10], // Adjust the margin as needed
               },
+              ...questionsAndOptions.flatMap((item, index) => [
+                {
+                  text: `${index + 1}. ${item.question}`,
+                  fontSize: 10,
+                  margin: [0, 5, 0, 5],
+                },
+                ...item.options.map((option, optionIndex) => ({
+                  text: `${String.fromCharCode(97 + optionIndex)}). ${option}`,
+                  fontSize: 10,
+                  margin: [0, 5, 0, 5],
+                })),
+              ]),
             ],
             pageSize: "A4",
             pageMargins: [20, 20, 20, 20],
-            pageOrientation: "landscape",
+            pageOrientation: "portrait",
           };
 
-          const pdf = pdfMake.createPdf(docDefinition);
+          console.log("Doc definition:", docDefinition);
 
-          // Open the PDF for printing
+          const pdf = pdfMake.createPdf(docDefinition);
           pdf.open();
         } else {
           console.error("No data received from the server");
@@ -684,20 +717,6 @@ export default defineComponent({
       // Close the detail modal
       this.detailModalVisible = false;
     },
-
-    handleSelect(selectedValue, index) {
-      // Find the selected option by its value
-      const selectedOption = this.bankSoalOptions.find(
-        (option) => option.value === selectedValue
-      );
-      if (selectedOption) {
-        // Update the label and value of the object at the given index
-        this.$set(this.dynamicFieldsArray, index, {
-          label: selectedOption.label,
-          value: selectedOption.value,
-        });
-      }
-    },
   },
 
   watch: {
@@ -773,7 +792,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       stripe
-      title="Add Asesmen Soal"
+      title="Form Input Soal"
       size="large"
       :model-value="showModal"
       @ok="addNewItem"
@@ -812,7 +831,14 @@ export default defineComponent({
         text-by="label"
         value-by="value"
       />
-
+      <va-select
+        v-model="createdItem.TipeSoal"
+        :label="displayNames.TipeSoal"
+        :options="tipeSoalOptions"
+        class="my-6"
+        text-by="label"
+        value-by="value"
+      />
       <va-textarea
         v-for="key in textAreaFields"
         :key="key"
@@ -830,7 +856,6 @@ export default defineComponent({
         class="my-6"
         text-by="label"
         value-by="value"
-        @change="handleSelect"
         autocomplete
       />
 
@@ -865,7 +890,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       :model-value="!!editedItem"
-      title="Edit Asesmen Soal"
+      title="Edit Soal"
       size="large"
       @ok="editItem"
       @cancel="resetEditedItem"
@@ -921,21 +946,23 @@ export default defineComponent({
       blur
       class="modal-crud"
       stripe
-      title="Detail Asesmen Soal"
+      title="Detail Soal"
       size="large"
       :model-value="detailModalVisible"
       @ok="resetDetailItem"
       @cancel="resetDetailItem"
     >
-    <div
+      <div
         v-for="(value, key, index) in detailItem.DynamicFields"
         :key="key"
         class="textarea-container"
       >
-        <label :for="'textarea-' + index" class="textarea-label">Soal {{ index +   1 }}</label>
+        <label :for="'textarea-' + index" class="textarea-label"
+          >Soal {{ index + 1 }}</label
+        >
         <textarea
           :id="'textarea-' + index"
-          class="my-6"
+          class="detailarea"
           readonly
           :value="key"
         ></textarea>
@@ -944,7 +971,7 @@ export default defineComponent({
       <div
         v-if="
           !detailItem.DynamicFields ||
-          Object.keys(detailItem.DynamicFields).length ===   0
+          Object.keys(detailItem.DynamicFields).length === 0
         "
       >
         <p>No dynamic fields found.</p>
@@ -1019,21 +1046,21 @@ export default defineComponent({
 
 <style scoped>
 .textarea-container {
-  margin-bottom:  1rem;
+  margin-bottom: 1rem;
 }
 
 .textarea-label {
   display: block;
-  margin-bottom:  0.5rem;
+  margin-bottom: 0.5rem;
   font-weight: bold;
 }
 
-.my-6 {
-  width:  100%;
-  min-height:  100px;
-  padding:  0.5rem;
-  border:  1px solid #ccc;
-  border-radius:  4px;
+.detailarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
   resize: vertical;
 }
 </style>

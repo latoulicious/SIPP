@@ -27,22 +27,6 @@ const displayNames = {
   ProjekPPancasila: "Projek Profile Pancasila", // Change to match the server property name
 };
 
-function imageFileToDataUrl(imageFile) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onload = function (event) {
-      resolve(event.target.result);
-    };
-
-    reader.onerror = function (error) {
-      reject(error);
-    };
-
-    reader.readAsDataURL(imageFile);
-  });
-}
-
 export default defineComponent({
   data() {
     const columns = [
@@ -163,8 +147,9 @@ export default defineComponent({
         });
 
         this.resetCreatedItem();
+        await this.fetchData();
       } catch (error) {
-        console.error("Error adding new item:", error);
+        console.error("Error Creating new item:", error);
       }
     },
 
@@ -188,6 +173,7 @@ export default defineComponent({
         );
 
         this.resetEditedItem();
+        await this.fetchData();
       } catch (error) {
         console.error("Error editing item:", error);
       }
@@ -201,6 +187,8 @@ export default defineComponent({
           console.log("After axios.delete");
 
           this.items = this.items.filter((item) => item.id !== id);
+
+          await this.fetchData();
         } catch (error) {
           console.error("Error deleting item:", error);
         }
@@ -252,11 +240,26 @@ export default defineComponent({
         if (data) {
           console.log("Printing row with ID:", selectedItemId);
 
-          const imagePath = "../../src/assets/login.png";
-          const imageFile = await fetch(imagePath).then((response) =>
-            response.blob(),
-          );
-          const logoDataUrl = await imageFileToDataUrl(imageFile);
+          const tableBody = [
+            [
+              { text: "Element", fontSize: 10, bold: true },
+              { text: "Lingkup Materi", fontSize: 10, bold: true },
+              { text: "Tujuan Pembelajaran", fontSize: 10, bold: true },
+              { text: "Kode TP", fontSize: 10, bold: true },
+              { text: "Alokasi Waktu", fontSize: 10, bold: true },
+              { text: "Sumber Belajar", fontSize: 10, bold: true },
+              { text: "Projek Pancasila", fontSize: 10, bold: true },
+            ],
+            [
+              "Elemen" in data ? data.Elemen : "N/A",
+              "LingkupMateri" in data ? data.LingkupMateri : "N/A",
+              "TujuanPembelajaran" in data ? data.TujuanPembelajaran : "N/A",
+              "KodeTP" in data ? data.KodeTP : "N/A",
+              "AlokasiWaktu" in data ? data.AlokasiWaktu : "N/A",
+              "SumberBelajar" in data ? data.SumberBelajar : "N/A",
+              "ProjekPPancasila" in data ? data.ProjekPPancasila : "N/A",
+            ],
+          ];
 
           const docDefinition = {
             footer: function (currentPage, pageCount) {
@@ -269,21 +272,6 @@ export default defineComponent({
                 },
               ];
             },
-            // header: function (currentPage) {
-            //   return [
-            //     {
-            //       stack: [
-            //         {
-            //           image: logoDataUrl,
-            //           fit: [80, 80], // Adjust the width and height as needed
-            //           alignment: currentPage % 2 ? "left" : "right",
-            //         },
-            //         // Add other header elements if needed
-            //       ],
-            //       margin: [10, 20, 10, 10], // Adjust the margins (top, right, bottom, left) for the entire stack
-            //     },
-            //   ];
-            // },
             content: [
               {
                 text: "Alur Tujuan Pembelajaran",
@@ -295,42 +283,25 @@ export default defineComponent({
               {
                 table: {
                   headerRows: 1,
-                  widths: [
-                    "auto",
-                    "auto",
-                    "auto",
-                    "auto",
-                    "auto",
-                    "auto",
-                    "auto",
-                  ],
-                  body: [
-                    [
-                      { text: "Element", fontSize: 10, bold: true },
-                      { text: "Lingkup Materi", fontSize: 10, bold: true },
-                      { text: "Tujuan Pembelajaran", fontSize: 10, bold: true },
-                      { text: "Kode TP", fontSize: 10, bold: true },
-                      { text: "Alokasi Waktu", fontSize: 10, bold: true },
-                      { text: "Sumber Belajar", fontSize: 10, bold: true },
-                      { text: "Projek Pancasila", fontSize: 10, bold: true },
-                    ],
-                    [
-                      data.Elemen,
-                      data.LingkupMateri,
-                      data.TujuanPembelajaran,
-                      data.KodeTP,
-                      data.AlokasiWaktu,
-                      data.SumberBelajar,
-                      data.ProjekPPancasila,
-                    ],
-                  ],
+                  widths: Array(tableBody[0].length).fill("auto"),
+                  body: tableBody.map((row) =>
+                    row.map((cell) => {
+                      // Check if the cell has a 'text' property and adjust the fontSize
+                      if (typeof cell === "object" && cell.text) {
+                        return { ...cell, fontSize: 10 };
+                      }
+                      // If the cell is a string, wrap it in an object with the desired fontSize
+                      return { text: cell, fontSize: 10 };
+                    }),
+                  ),
                 },
                 margin: [0, 0, 0, 20], // Adjust the margin for the table
               },
             ],
 
             pageSize: "A4",
-            pageMargins: [40, 60, 40, 60],
+            pageMargins: [20, 20, 20, 20],
+            pageOrientation: "landscape",
           };
 
           const pdf = pdfMake.createPdf(docDefinition);
@@ -394,7 +365,7 @@ export default defineComponent({
       border-color="#000000"
     >
       <va-button @click="toggleAddModal" preset="secondary" icon="add"
-        >Add Alur Tujuan Pembelajaran</va-button
+        >Create Alur Tujuan Pembelajaran</va-button
       >
     </va-button-group>
   </div>
@@ -427,7 +398,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       stripe
-      title="Add Alur Tujuan Pembelajaran"
+      title="Form Input Alur Tujuan Pembelajaran"
       size="large"
       :model-value="showModal"
       @ok="addNewItem"

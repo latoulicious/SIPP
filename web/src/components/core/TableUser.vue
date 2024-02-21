@@ -35,9 +35,7 @@ export default defineComponent({
   computed: {
     filteredInputFields() {
       // Exclude 'password' and 'role' fields from the inputFields
-      return this.inputFields.filter(
-        (key) => key !== "password" && key !== "role",
-      );
+      return this.inputFields.filter((key) => key !== "role");
     },
     isNewData() {
       return Object.keys(this.createdItem).every(
@@ -178,31 +176,35 @@ export default defineComponent({
     },
 
     async deleteItemById(id) {
-      try {
-        const jwtToken = localStorage.getItem("jwtToken");
+      if (window.confirm("Are you sure you want to delete this item?")) {
+        try {
+          const jwtToken = localStorage.getItem("jwtToken");
 
-        if (!jwtToken) {
-          console.error("JWT token not available");
-          // Handle the case where the token is not available (e.g., redirect to login)
-          return;
+          if (!jwtToken) {
+            console.error("JWT token not available");
+            // Handle the case where the token is not available (e.g., redirect to login)
+            return;
+          }
+
+          // Add headers with the authentication token
+          const headers = {
+            Authorization: `Bearer ${jwtToken}`,
+          };
+
+          // Make the DELETE request with headers
+          await axios.delete(
+            `http://localhost:3000/api/user/${this.items[id].id}`,
+            { headers },
+          );
+
+          // Remove the item from the array
+          this.items.splice(id, 1);
+          await this.fetchData();
+          // Optionally, you can show a success message
+          alert("Item deleted successfully");
+        } catch (error) {
+          console.error("Error deleting item:", error);
         }
-
-        // Add headers with the authentication token
-        const headers = {
-          Authorization: `Bearer ${jwtToken}`,
-        };
-
-        // Make the DELETE request with headers
-        await axios.delete(
-          `http://localhost:3000/api/user/${this.items[id].id}`,
-          { headers },
-        );
-
-        // Remove the item from the array
-        this.items.splice(id, 1);
-        await this.fetchData();
-      } catch (error) {
-        console.error("Error deleting item:", error);
       }
     },
 
@@ -328,6 +330,10 @@ export default defineComponent({
 
 .modal-crud {
   .va-input {
+    display: block;
+    margin-bottom: 10px;
+  }
+  .va-select {
     display: block;
     margin-bottom: 10px;
   }

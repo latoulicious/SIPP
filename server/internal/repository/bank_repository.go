@@ -18,7 +18,7 @@ func NewBankRepository(db *gorm.DB) *BankRepository {
 
 func (repository *BankRepository) GetBank() ([]model.BankSoal, error) {
 	var bank []model.BankSoal
-	if err := repository.DB.Preload("User").Preload("Mapel").Preload("Kelas").Preload("TahunAjar").Preload("Jurusan").Find(&bank).Error; err != nil {
+	if err := repository.DB.Preload("User").Preload("Mapel").Preload("Kelas").Preload("Jurusan").Find(&bank).Error; err != nil {
 		return nil, err
 	}
 	return bank, nil
@@ -26,7 +26,7 @@ func (repository *BankRepository) GetBank() ([]model.BankSoal, error) {
 
 func (repository *BankRepository) GetBankByID(bankID uuid.UUID) (*model.BankSoal, error) {
 	var bank model.BankSoal
-	if err := repository.DB.Preload("User").Preload("Mapel").Preload("Kelas").Preload("TahunAjar").Preload("Jurusan").First(&bank, "id = ?", bankID).Error; err != nil {
+	if err := repository.DB.Preload("User").Preload("Mapel").Preload("Kelas").Preload("Jurusan").First(&bank, "id = ?", bankID).Error; err != nil {
 		return nil, err
 	}
 	return &bank, nil
@@ -37,7 +37,7 @@ func (repository *BankRepository) CreateBank(bank *model.BankSoal) error {
 	if err := repository.DB.Create(bank).Error; err != nil {
 		return err
 	}
-	return repository.DB.Preload("User").Preload("Mapel").Preload("Kelas").Preload("TahunAjar").Preload("Jurusan").First(bank, "id = ?", bank.ID).Error
+	return repository.DB.Preload("User").Preload("Mapel").Preload("Kelas").Preload("Jurusan").First(bank, "id = ?", bank.ID).Error
 }
 
 func (repository *BankRepository) UpdateBank(bank *model.BankSoal) error {
@@ -48,7 +48,6 @@ func (repository *BankRepository) UpdateBank(bank *model.BankSoal) error {
 	log.Printf("Mapel: %+v\n", bank.Mapel)
 	log.Printf("Kelas: %+v\n", bank.Kelas)
 	log.Printf("Jurusan: %+v\n", bank.Jurusan)
-	log.Printf("TahunAjar: %+v\n", bank.TahunAjar)
 
 	if err := repository.DB.Save(bank).Error; err != nil {
 		log.Printf("Error saving bank: %+v\n", err)
@@ -59,7 +58,7 @@ func (repository *BankRepository) UpdateBank(bank *model.BankSoal) error {
 
 func (repository *BankRepository) DeleteBank(bankID uuid.UUID) (*model.BankSoal, error) {
 	var bank model.BankSoal
-	if err := repository.DB.Preload("User").Preload("Mapel").Preload("Kelas").Preload("TahunAjar").Preload("Jurusan").First(&bank, "id = ?", bankID).Error; err != nil {
+	if err := repository.DB.Preload("User").Preload("Mapel").Preload("Kelas").Preload("Jurusan").First(&bank, "id = ?", bankID).Error; err != nil {
 		return nil, err
 	}
 	if err := repository.DB.Unscoped().Delete(&bank).Error; err != nil {

@@ -17,6 +17,7 @@ type CreateSoalPayload struct {
 	Jurusan       model.Jurusan   `json:"Jurusan"`
 	TahunAjar     model.TahunAjar `json:"TahunAjar"`
 	BankSoal      model.BankSoal  `json:"BankSoal"`
+	TipeSoal      string          `json:"TipeSoal"`
 	Hari          string          `json:"Hari"`
 	Tanggal       string          `json:"Tanggal"`
 	Waktu         string          `json:"Waktu"`
@@ -85,6 +86,7 @@ func (handler *SoalHandler) CreateSoal(c *fiber.Ctx) error {
 		MapelID:   payload.MapelID,
 		KelasID:   payload.KelasID,
 		JurusanID: payload.JurusanID,
+		TipeSoal:  payload.TipeSoal,
 		Hari:      payload.Hari,
 		Tanggal:   payload.Tanggal,
 		Waktu:     payload.Waktu,
