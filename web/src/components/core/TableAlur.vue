@@ -345,6 +345,11 @@ export default defineComponent({
       this.detailItem = null;
       this.detailModalVisible = false;
     },
+
+    resetDetailItem() {
+      this.detailItem = null;
+      this.detailModalVisible = false;
+    },
   },
 
   mounted() {

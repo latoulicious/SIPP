@@ -33,11 +33,6 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	tahunRepository := repository.NewTahunRepository(database.DB)
 	tahunService := service.NewTahunService(tahunRepository)
 	tahunHandler := handler.NewTahunHandler(tahunService)
-	jurusanRepository := repository.NewJurusanRepository(database.DB)
-	jurusanService := service.NewJurusanService(jurusanRepository)
-	jurusanHandler := handler.NewJurusanHandler(jurusanService)
-
-	// General Usage
 	capaianRepository := repository.NewCapaianRepository(database.DB)
 	capaianService := service.NewCapaianService(capaianRepository)
 	capaianHandler := handler.NewCapaianHandler(capaianService)

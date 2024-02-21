@@ -763,6 +763,7 @@ export default defineComponent({
       :items="filteredItems"
       :columns="columns"
       striped
+      striped
       :loading="loading"
     >
       <template #cell(actions)="{ rowIndex }">
@@ -982,7 +983,14 @@ export default defineComponent({
 
 <style>
 .action-buttons {
+.action-buttons {
   display: flex;
+  gap: 8px;
+  /* Adjust the gap to your preference */
+}
+
+.va-input {
+  display: block;
   gap: 8px;
   /* Adjust the gap to your preference */
 }
@@ -1042,7 +1050,6 @@ export default defineComponent({
   max-width: calc(20% - 10px);
   /* Limit the width to 20% minus the gap size */
 }
-</style>
 
 <style scoped>
 .textarea-container {
