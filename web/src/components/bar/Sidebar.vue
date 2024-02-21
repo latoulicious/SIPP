@@ -81,7 +81,7 @@ function decodeJwt(jwtToken: string) {
             <VaSidebarItemContent>
               <VaIcon name="assessment" />
               <VaSidebarItemTitle
-                >Penilaian Ranah Pengetahuan</VaSidebarItemTitle
+                >Penilaian</VaSidebarItemTitle
               >
               <VaSpacer />
               <VaIcon :name="isCollapsed ? 'va-arrow-up' : 'va-arrow-down'" />
