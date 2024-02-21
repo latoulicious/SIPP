@@ -12,6 +12,7 @@ const defaultItem = {
   Mapel: {}, // Initialize as an empty object
   Kelas: {}, // Initialize as an empty object
   TahunAjar: {}, // Initialize as an empty object
+  questionCount: "",
   Pertanyaan: "",
 };
 
@@ -20,6 +21,7 @@ const displayNames = {
   Mapel: "Mata Pelajaran",
   Kelas: "Kelas",
   TahunAjar: "Tahun Ajar",
+  questionCount: "Total Soal",
   Pertanyaan: "Pertanyaan",
 };
 
@@ -30,6 +32,7 @@ export default defineComponent({
       { key: "Mapel", label: "Mata Pelajaran", sortable: false },
       { key: "Kelas", label: "Kelas", sortable: false },
       { key: "TahunAjar", label: "Tahun Ajar", sortable: false },
+      { key: "questionCount", label: "Total Soal", sortable: false },
       { key: "actions", label: "Actions", width: 80 },
     ];
 
@@ -37,7 +40,9 @@ export default defineComponent({
       columns,
       editedItemId: null,
       editedItem: null,
-      createdItem: { ...defaultItem },
+      createdItem: {},
+      dynamicFields: {},
+      textAreaFields: ["Pertanyaan"],
       input: ref({ value: "" }),
       items: [],
       usersOptions: [],
@@ -45,7 +50,7 @@ export default defineComponent({
       kelasOptions: [],
       tahunAjarOptions: [],
       bankSoalOptions: [],
-      textAreaFields: ["Pertanyaan"],
+      // textAreaFields: ["Pertanyaan"],
       showModal: false,
       viewModalVisible: false,
       detailItem: null,
@@ -98,8 +103,12 @@ export default defineComponent({
     },
 
     isNewData() {
-      return Object.keys(this.createdItem).every(
-        (key) => !!this.createdItem[key],
+      return (
+        this.createdItem.UserID &&
+        this.createdItem.MapelID &&
+        this.createdItem.KelasID &&
+        this.createdItem.TahunAjarID &&
+        this.createdItem.Pertanyaan
       );
     },
 
@@ -109,6 +118,15 @@ export default defineComponent({
   },
 
   methods: {
+    /**
+     * Fetches remedial data from the API and processes it:
+     * - Fetches remedial, user, kelas, mapel, tahun, and question count data from API
+     * - Extracts user, kelas, mapel, tahun options from responses
+     * - Creates question count lookup from question count response
+     * - Merges question counts into remedial data
+     * - Handles loading state
+     * - Catches errors
+     */
     async fetchData() {
       this.loading = true;
 
@@ -130,46 +148,57 @@ export default defineComponent({
           "http://localhost:3000/api/public/tahun",
         );
 
-        // Process the data and update the UI
-        console.log("Response from server (Kognitif):", response.data);
-        console.log("Response from server (Users):", userResponse.data);
-        console.log("Response from server (Kelas):", kelasResponse.data);
-        console.log("Response from server (Mapel):", mapelResponse.data);
-        console.log("Response from server (Tahun):", tahunResponse.data);
+        const questionCountResponse = await axios.get(
+          "http://localhost:3000/api/total/remedial",
+        );
+
+        console.log(
+          "Question count response data:",
+          questionCountResponse.data,
+        );
+
+        console.log("Server response:", response);
 
         // Populate usersOptions, mapelsOptions, kelasOptions, tahunAjarOptions
         this.usersOptions = this.extractOptions(userResponse.data.data, "Name");
-        // console.log("Users options:", this.usersOptions);
 
         this.kelasOptions = this.extractOptions(
           kelasResponse.data.data,
           "Kelas",
         );
-        // console.log("Kelas options:", this.kelasOptions);
 
         this.mapelsOptions = this.extractOptions(
           mapelResponse.data.data,
           "Mapel",
         );
-        // console.log("Mapels options:", this.mapelsOptions);
 
         this.tahunAjarOptions = this.extractOptions(
           tahunResponse.data.data,
           "Tahun",
         );
-        // console.log("Tahun Ajar options:", this.tahunAjarOptions);
 
-        this.items = response.data.data.map((item) => ({
-          ...item,
-          ID: item?.ID || "", // Use 'ID' instead of 'id'
-          User: item?.User.Name || "",
-          Mapel: item?.Mapel.Mapel || "",
-          Kelas: item?.Kelas.Kelas || "",
-          TahunAjar: item?.TahunAjar.Tahun || "",
-          Pertanyaan: item?.pertanyaan || "",
-        }));
+        // Create a lookup object for quick access to question counts by ID
+        const questionCountLookup = {};
+        questionCountResponse.data.data.forEach((item) => {
+          questionCountLookup[item.ID] = item.questionCount;
+        });
 
-        console.log("Kognitif items:", this.items);
+        // Merge the question counts with the base data
+        this.items = response.data.data.map((item) => {
+          // Retrieve the question count using the item's ID
+          const questionCount = questionCountLookup[item.ID] || 0;
+
+          return {
+            ...item,
+            ID: item?.ID || "",
+            User: item?.User.Name || "",
+            Mapel: item?.Mapel.Mapel || "",
+            Kelas: item?.Kelas.Kelas || "",
+            TahunAjar: item?.TahunAjar.Tahun || "",
+            Pertanyaan: item?.Pertanyaan || "",
+            questionCount: questionCount, // Set the question count
+          };
+        });
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -177,44 +206,85 @@ export default defineComponent({
       }
     },
 
+    /**
+     * Adds a new item to the list.
+     *
+     * Collects the static and dynamic fields from the form data, constructs a newItem object,
+     * logs it, makes a POST request to the API to add it, pushes the new item into the local list,
+     * refetches the data to refresh the table, and resets the form.
+     *
+     * Handles errors from the API request.
+     */
     async addNewItem() {
       if (!this.isNewData) {
         alert("Please fill in all fields.");
         return;
       }
 
+      // Collect static fields
+      const dynamicFields = {
+        Pertanyaan: this.createdItem.Pertanyaan,
+      };
+
+      // Collect dynamic fields
+      this.textAreaFields.forEach((fieldKey) => {
+        dynamicFields[fieldKey] = this.createdItem[fieldKey];
+      });
+
+      // Construct the newItem object without the questionCount field
+      const newItem = {
+        ...this.createdItem,
+        DynamicFields: dynamicFields,
+      };
+
+      // Explicitly remove the questionCount field from the newItem object
+      delete newItem.questionCount;
+
+      // Remove the individual dynamic fields from the main object
+      this.textAreaFields.forEach((fieldKey) => {
+        delete newItem[fieldKey];
+      });
+
+      // Log the newItem before sending the request
+      console.log("New Item:", newItem);
+
       try {
-        console.log("Creating new item with data:", this.createdItem);
-
-        const response = await axios.post(
-          "http://localhost:3000/api/remedial",
-          {
-            userID: this.createdItem.UserID,
-            mapelId: this.createdItem.MapelID,
-            kelasId: this.createdItem.KelasID,
-            tahunAjarId: this.createdItem.TahunAjarID,
-            pertanyaan: this.createdItem.Pertanyaan,
-          },
-        );
-
+        await axios.post("http://localhost:3000/api/remedial", newItem);
         this.items.push({
-          ...this.createdItem,
+          ...newItem,
         });
 
-        console.log("Server Response:", response.data);
-
-        this.resetCreatedItem();
         // Re-fetch the data to refresh the table
         await this.fetchData();
+
+        setTimeout(() => {
+          this.resetCreatedItem();
+        }, 500);
       } catch (error) {
         console.error("Error adding new item:", error);
       }
     },
 
+    /**
+     * Edits an existing item.
+     *
+     * Collects the dynamic form fields and includes them in the item to edit.
+     * Sends a PUT request to update the item on the server.
+     * Refreshes the table data after successfully updating.
+     */
     async editItem() {
+      // Collect dynamic fields from the form
+      const dynamicFields = this.collectDynamicFields();
+
+      // Create the item to edit with dynamic fields included
+      const itemToEdit = {
+        ...this.editedItem,
+        DynamicFields: dynamicFields, // Include dynamic fields in the object
+      };
+
       try {
         // Create a deep copy of the edited item
-        const editedData = JSON.parse(JSON.stringify(this.editedItem));
+        const editedData = JSON.parse(JSON.stringify(itemToEdit));
 
         // Change 'ID' to 'id'
         editedData.id = editedData.ID;
@@ -224,28 +294,11 @@ export default defineComponent({
         delete editedData.Kelas;
         delete editedData.TahunAjar;
 
-        const response = await axios.put(
+        // Send the PUT request with the edited data
+        await axios.put(
           `http://localhost:3000/api/remedial/${this.editedItem.id}`,
-          ...editedData,
+          editedData,
         );
-
-        // Handle the response from the server
-        if (response.status === 200) {
-          // Update the local item with the edited data
-          const itemIndex = this.items.findIndex(
-            (item) => item.id === this.editedItem.id,
-          );
-          if (itemIndex !== -1) {
-            this.$set(this.items, itemIndex, {
-              ...editedData,
-              id: this.editedItem.id,
-            });
-          }
-
-          console.log("Item updated successfully");
-        } else {
-          console.error("Failed to update item", response.data);
-        }
 
         this.resetEditedItem();
         // Re-fetch the data to refresh the table
@@ -255,6 +308,16 @@ export default defineComponent({
       }
     },
 
+    /**
+     * Deletes a remedial item by ID.
+     *
+     * Prompts user to confirm deletion.
+     * Makes API call to delete remedial item.
+     * Removes deleted item from items array.
+     * Refreshes data table after deletion.
+     * Shows alert on success.
+     * Logs error on failure.
+     */
     async deleteItemById(id) {
       if (window.confirm("Are you sure you want to delete this item?")) {
         try {
@@ -283,97 +346,67 @@ export default defineComponent({
       }
     },
 
+    /**
+     * Opens the detail modal popup to show details for the item at the specified row index.
+     * Retrieves the item data from the API and populates the modal with it.
+     */
     async openDetailModal(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
       console.log("Opening detail modal with ID:", selectedItemId);
 
-      axios
-        .get(`http://localhost:3000/api/remedial/${selectedItemId}`)
-        .then((response) => {
-          const data = response.data.data;
-          if (data) {
-            this.detailItem = {
-              Pertanyaan: data.pertanyaan || "",
-            };
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/api/remedial/${selectedItemId}`,
+        );
+        const data = response.data.data;
+        if (data) {
+          console.log("Retrieved data:", data);
 
-            console.log("Detail item:", this.detailItem); // Log the detail item
+          // Use only the DynamicFields object
+          this.detailItem = {
+            DynamicFields: data.DynamicFields || {},
+          };
 
-            this.detailModalVisible = true;
-          } else {
-            console.error("No data received from the server");
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching data for the detail modal:", error);
-        });
+          console.log("Detail item:", this.detailItem);
+          this.detailModalVisible = true;
+        } else {
+          console.error("No data received from the server");
+        }
+      } catch (error) {
+        console.error("Error fetching data for the detail modal:", error);
+      }
     },
 
+    /**
+     * Prints a PDF report for the remedial item with the given row index.
+     *
+     * Fetches the full remedial item data for the row from the API.
+     * Extracts the subject, class, and question text into a PDF document definition.
+     * Uses pdfMake to generate and open the PDF report.
+     */
     async printRow(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
+      console.log(`Selected item ID: ${selectedItemId}`);
 
       try {
-        // Fetch the necessary data directly from the server
         const response = await axios.get(
           `http://localhost:3000/api/remedial/${selectedItemId}`,
         );
         const data = response.data.data;
 
-        // Log all properties of the data object
-        console.log("Data properties:", Object.keys(data));
+        // Log the entire data object to inspect its structure
+        console.log("Full data object:", data);
 
         if (data) {
-          console.log("Printing row with ID:", selectedItemId);
+          const metadata = {
+            Mapel: data.Mapel.Mapel, // Access the 'Mapel' property within the nested object
+            Kelas: data.Kelas.Kelas, // Access the 'Kelas' property within the nested object
+          };
+          console.log("Extracted metadata:", metadata);
 
-          const tableBody = [
-            [
-              { text: "Judul Capaian", fontSize: 10, bold: true },
-              { text: "Judul Elemen", fontSize: 10, bold: true },
-              { text: "Keterangan Elemen", fontSize: 10, bold: true },
-              { text: "Keterangan Proses Mengamati", fontSize: 10, bold: true },
-              {
-                text: "Keterangan Proses Mempertanyakan",
-                fontSize: 10,
-                bold: true,
-              },
-              {
-                text: "Keterangan Proses Merencanakan",
-                fontSize: 10,
-                bold: true,
-              },
-              { text: "Keterangan Proses Memproses", fontSize: 10, bold: true },
-              {
-                text: "Keterangan Proses Mengevaluasi",
-                fontSize: 10,
-                bold: true,
-              },
-              {
-                text: "Keterangan Proses Mengkomunikasikan",
-                fontSize: 10,
-                bold: true,
-              },
-            ],
-            [
-              "judulCapaian" in data ? data.judulCapaian : "N/A",
-              "judulElemen" in data ? data.judulElemen : "N/A",
-              "ketElemen" in data ? data.ketElemen : "N/A",
-              "ketProsesMengamati" in data ? data.ketProsesMengamati : "N/A",
-              "ketProsesMempertanyakan" in data
-                ? data.ketProsesMempertanyakan
-                : "N/A",
-              "ketProsesMerencanakan" in data
-                ? data.ketProsesMerencanakan
-                : "N/A",
-              "ketProsesMemproses" in data ? data.ketProsesMemproses : "N/A",
-              "ketProsesMengevaluasi" in data
-                ? data.ketProsesMengevaluasi
-                : "N/A",
-              "ketProsesMengkomunikasikan" in data
-                ? data.ketProsesMengkomunikasikan
-                : "N/A",
-            ],
-          ];
-
-          console.log("Table Body:", tableBody);
+          // Extract the questions from DynamicFields
+          const questions = Object.values(data.DynamicFields);
+          console.log("Extracted questions:", questions);
 
           const docDefinition = {
             footer: function (currentPage, pageCount) {
@@ -388,29 +421,41 @@ export default defineComponent({
             },
             content: [
               {
-                text: "Capaian Pembelajaran",
-                fontSize: 12,
+                text: "",
+                fontSize: 14,
                 bold: true,
-                alignment: "center",
                 margin: [0, 20, 0, 20],
               },
+              { text: `Mapel: ${metadata.Mapel}`, fontSize: 10 },
+              { text: `Kelas: ${metadata.Kelas}`, fontSize: 10 },
               {
-                table: {
-                  headerRows: 1,
-                  widths: Array(tableBody[0].length).fill("auto"),
-                  body: tableBody,
-                },
-                margin: [0, 0, 0, 20],
+                canvas: [
+                  {
+                    type: "line",
+                    x1: 0,
+                    y1: 0,
+                    x2: 510, // Adjust this value to match the width of your page
+                    y2: 0,
+                    lineWidth: 2,
+                    color: "#000000", // Change the color as needed
+                  },
+                ],
+                margin: [0, 10, 0, 10], // Adjust the margin as needed
               },
+              ...questions.map((question, index) => ({
+                text: `${index + 1}. ${question}`,
+                fontSize: 10,
+                margin: [0, 5, 0, 5],
+              })),
             ],
             pageSize: "A4",
             pageMargins: [20, 20, 20, 20],
-            pageOrientation: "landscape",
+            pageOrientation: "portrait",
           };
 
-          const pdf = pdfMake.createPdf(docDefinition);
+          console.log("Doc definition:", docDefinition);
 
-          // Open the PDF for printing
+          const pdf = pdfMake.createPdf(docDefinition);
           pdf.open();
         } else {
           console.error("No data received from the server");
@@ -429,14 +474,28 @@ export default defineComponent({
       return data.map((item) => ({
         label: item[labelProperty] ? item[labelProperty] : "", // Use '' if labelProperty is null or undefined
         value: item.ID, // Use 'ID' instead of 'id'
-        options: {
-          OptionA: item.OptionA,
-          OptionB: item.OptionB,
-          OptionC: item.OptionC,
-          OptionD: item.OptionD,
-          OptionE: item.OptionE,
-        },
       }));
+    },
+
+    collectDynamicFields() {
+      // Collect dynamic fields from textAreaFields and createdItem
+      const dynamicFields = {};
+      this.textAreaFields.forEach((fieldKey) => {
+        dynamicFields[fieldKey] = this.createdItem[fieldKey];
+      });
+      return dynamicFields;
+    },
+
+    addField() {
+      // Determine the next number suffix based on the current length of textAreaFields
+      const nextNumber = this.textAreaFields.length + 1;
+      const newKey = `pertanyaan ${nextNumber}`; // Generate a unique key with the number suffix
+
+      // Add the new key to the textAreaFields array
+      this.textAreaFields.push(newKey);
+
+      // Use Vue's $set to reactively add the new field to createdItem with an empty string as the value
+      this.$set(this.createdItem, newKey, "");
     },
 
     resetEditedItem() {
@@ -445,16 +504,63 @@ export default defineComponent({
     },
 
     resetCreatedItem() {
+      // Reset the createdItem to the default values
       this.createdItem = { ...defaultItem };
+
+      // Reset the dynamicFields to an empty object
+      this.dynamicFields = {};
+
+      // Preserve the Pertanyaan field in textAreaFields
+      this.textAreaFields = ["Pertanyaan"];
+
+      // Close the modal
       this.showModal = false;
+
+      // Optionally, reset any form validation states
+      // For example, if using Vuelidate:
+      // this.$v.$reset();
+    },
+
+    resetAddState() {
+      // Reset the createdItem to the default values
+      this.createdItem = { ...defaultItem };
+
+      // Reset the dynamicFields to an empty object
+      this.dynamicFields = {};
+
+      // Reset the textAreaFields array to its initial state
+      this.textAreaFields = ["Pertanyaan"];
+
+      // Optionally, reset any form validation states
+      // For example, if using Vuelidate:
+      // this.$v.$reset();
     },
 
     openModalToEditItemById(id) {
-      this.editedItemId = id;
-      this.editedItem = { ...this.items[id], id: this.items[id].ID }; // Use 'id' instead of 'ID'
+      // Find the item by its ID
+      const item = this.items.find((item) => item.ID === id);
+
+      // Check if the item exists
+      if (item) {
+        // Set the editedItem to the found item
+        this.editedItem = { ...item };
+
+        // Log the editedItem to check the Pertanyaan value
+        console.log("Edited item:", this.editedItem);
+
+        // Populate textAreaFields with the keys of the dynamic fields
+        this.textAreaFields = Object.keys(this.editedItem.DynamicFields || {});
+
+        // Open the modal
+        this.showEditModal = true;
+      } else {
+        console.error(`Item with ID ${id} not found.`);
+      }
     },
 
     toggleAddModal() {
+      this.resetAddState();
+
       this.showModal = !this.showModal;
       if (!this.showModal) {
         this.resetCreatedItem();
@@ -462,26 +568,18 @@ export default defineComponent({
     },
 
     resetDetailItem() {
-      this.detailItem = null;
+      // Reset the detailItem to its initial state
+      this.detailItem = {};
+
+      // Reset the filteredDetailFields array to its initial state
+      this.filteredDetailFields = [];
+
+      // Close the detail modal
       this.detailModalVisible = false;
     },
 
     handleSelect(selectedOption) {
       this.createdItem.BankSoalID = selectedOption.value;
-    },
-  },
-
-  watch: {
-    BankSoalID(newVal) {
-      // Find the selected BankSoal
-      const selectedBankSoal = this.bankSoalOptions.find(
-        (option) => option.value === newVal,
-      );
-
-      // Filter the bankSoalOptions based on the selected Soal
-      this.bankSoalOptions = this.bankSoalOptions.filter(
-        (option) => option.label === selectedBankSoal.label,
-      );
     },
   },
 
@@ -507,7 +605,7 @@ export default defineComponent({
       border-color="#000000"
     >
       <va-button @click="toggleAddModal" preset="secondary" icon="add"
-        >Add Asesmen Remedial</va-button
+        >Create Remedial</va-button
       >
     </va-button-group>
   </div>
@@ -526,11 +624,11 @@ export default defineComponent({
             icon="remove_red_eye"
             @click="openDetailModal(rowIndex)"
           />
-          <va-button
+          <!-- <va-button
             preset="plain"
             icon="edit"
-            @click="openModalToEditItemById(rowIndex)"
-          />
+            @click="openModalToEditItemById(filteredItems[rowIndex].ID)"
+          /> -->
           <va-button
             preset="plain"
             icon="delete"
@@ -545,7 +643,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       stripe
-      title="Add Asesmen Kognitif"
+      title="Form Input Remedial"
       size="large"
       :model-value="showModal"
       @ok="addNewItem"
@@ -586,12 +684,25 @@ export default defineComponent({
       />
 
       <va-textarea
-        v-for="key in textAreaFields"
-        :key="key"
-        :label="displayNames[key]"
-        v-model="createdItem[key]"
+        v-for="(fieldKey, index) in textAreaFields"
+        :key="index"
+        :label="displayNames[fieldKey] || fieldKey"
+        v-model="createdItem[fieldKey]"
         class="my-6"
       />
+
+      <va-button
+        class="my-6"
+        color="primary"
+        @click="addField"
+        style="
+          width: 100%;
+          display: flex;
+          box-sizing: border-box;
+          margin-bottom: 10px;
+        "
+        >Add Fields
+      </va-button>
     </va-modal>
 
     <va-modal
@@ -636,13 +747,36 @@ export default defineComponent({
         value-by="value"
       />
 
+      <!-- Static 'pertanyaan' field -->
       <va-textarea
-        v-for="key in textAreaFields"
-        :key="key"
-        :label="displayNames[key]"
-        v-model="editedItem[key]"
+        :label="displayNames.Pertanyaanertanyaan || 'Pertanyaan'"
+        v-model="editedItem.Pertanyaan"
         class="my-6"
       />
+
+      <!-- Dynamic fields area -->
+      <div v-for="(fieldKey, index) in textAreaFields" :key="index">
+        <va-textarea
+          :label="displayNames[fieldKey] || fieldKey"
+          v-model="editedItem.DynamicFields[fieldKey]"
+          class="my-6"
+        />
+      </div>
+
+      <!-- Button to add more dynamic fields -->
+      <va-button
+        class="my-6"
+        color="primary"
+        @click="addField"
+        style="
+          width: 100%;
+          display: flex;
+          box-sizing: border-box;
+          margin-bottom: 10px;
+        "
+      >
+        Add Fields
+      </va-button>
     </va-modal>
 
     <va-modal
@@ -655,11 +789,20 @@ export default defineComponent({
       @ok="resetDetailItem"
       @cancel="resetDetailItem"
     >
+      <!-- Display the Pertanyaan field
       <va-textarea
-        v-for="key in filteredDetailFields"
+        :label="'Pertanyaan'"
+        v-model="detailItem.Pertanyaan"
+        class="my-6"
+        readonly
+      /> -->
+
+      <!-- Display dynamic fields -->
+      <va-textarea
+        v-for="(value, key) in detailItem.DynamicFields"
         :key="key"
-        :label="filteredDisplayNames[key]"
-        v-model="detailItem[key]"
+        :label="key"
+        v-model="detailItem.DynamicFields[key]"
         class="my-6"
         readonly
       />

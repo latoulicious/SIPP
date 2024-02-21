@@ -30,14 +30,12 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	kelasRepository := repository.NewKelasRepository(database.DB)
 	kelasService := service.NewKelasService(kelasRepository)
 	kelasHandler := handler.NewKelasHandler(kelasService)
-	tahunRepository := repository.NewTahunRepository(database.DB)
-	tahunService := service.NewTahunService(tahunRepository)
-	tahunHandler := handler.NewTahunHandler(tahunService)
 	jurusanRepository := repository.NewJurusanRepository(database.DB)
 	jurusanService := service.NewJurusanService(jurusanRepository)
 	jurusanHandler := handler.NewJurusanHandler(jurusanService)
-
-	// General Usage
+	tahunRepository := repository.NewTahunRepository(database.DB)
+	tahunService := service.NewTahunService(tahunRepository)
+	tahunHandler := handler.NewTahunHandler(tahunService)
 	capaianRepository := repository.NewCapaianRepository(database.DB)
 	capaianService := service.NewCapaianService(capaianRepository)
 	capaianHandler := handler.NewCapaianHandler(capaianService)
@@ -47,9 +45,6 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	modulRepository := repository.NewModulRepository(database.DB)
 	modulService := service.NewModulService(modulRepository)
 	modulHandler := handler.NewModulHandler(modulService)
-	// penilaianRepository := repository.NewPenilaianRepository(database.DB)
-	// penilaianService := service.NewPenilaianService(penilaianRepository)
-	// penilaianHandler := handler.NewPenilaianHandler(penilaianService)
 	kognitifRepository := repository.NewKognitifRepository(database.DB)
 	kognitifService := service.NewKognitifService(kognitifRepository)
 	kognitifHandler := handler.NewKognitifHandler(kognitifService)
@@ -68,9 +63,9 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	soalRepository := repository.NewSoalRepository(database.DB)
 	soalService := service.NewSoalService(soalRepository)
 	soalHandler := handler.NewSoalHandler(soalService)
-	itemRepository := repository.NewItemRepository(database.DB)
-	itemService := service.NewItemService(itemRepository)
-	itemHandler := handler.NewItemHandler(itemService)
+	itemRepository := repository.NewItemSoalRepository(database.DB)
+	itemService := service.NewItemSoalService(itemRepository)
+	itemHandler := handler.NewItemSoalHandler(itemService)
 	bankRepository := repository.NewBankRepository(database.DB)
 	bankService := service.NewBankService(bankRepository)
 	bankHandler := handler.NewBankHandler(bankService)
@@ -155,14 +150,6 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	modulRoutes.Put("/:id", modulHandler.UpdateModul)
 	modulRoutes.Delete("/:id", modulHandler.DeleteModul)
 
-	// Penilaian routes
-	// penilaianRoutes := api.Group("/penilaian")
-	// penilaianRoutes.Get("/", penilaianHandler.GetPenilaian)
-	// penilaianRoutes.Get("/:id", penilaianHandler.GetPenilaianByID)
-	// penilaianRoutes.Post("/", penilaianHandler.CreatePenilaian)
-	// penilaianRoutes.Put("/:id", penilaianHandler.UpdatePenilaian)
-	// penilaianRoutes.Delete("/:id", penilaianHandler.DeletePenilaian)
-
 	// Kognitif routes
 	kognitifRoutes := api.Group("/kognitif")
 	kognitifRoutes.Get("/", kognitifHandler.GetKognitif)
@@ -212,12 +199,9 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	soalRoutes.Delete("/:id", soalHandler.DeleteSoal)
 
 	// ItemSoal routes
-	itemRoutes := api.Group("/item")
-	itemRoutes.Get("/", itemHandler.GetItem)
-	itemRoutes.Get("/:id", itemHandler.GetItemByID)
-	itemRoutes.Post("/", itemHandler.CreateItem)
-	itemRoutes.Put("/:id", itemHandler.UpdateItem)
-	itemRoutes.Delete("/:id", itemHandler.DeleteItem)
+	itemSoalRoutes := api.Group("/item")
+	itemSoalRoutes.Get("/", itemHandler.GetItemSoal)
+	itemSoalRoutes.Get("/:id", itemHandler.GetItemSoalByID)
 
 	// BankSoal routes
 	bankRoutes := api.Group("/bank")
@@ -234,6 +218,15 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	publicRoutes.Get("/kelas", kelasHandler.GetKelasPublic)
 	publicRoutes.Get("/mapel", mapelHandler.GetMapelPublic)
 	publicRoutes.Get("/jurusan", jurusanHandler.GetJurusanPublic)
+
+	// total count routes
+	totalCountRoutes := api.Group("/total")
+	totalCountRoutes.Get("/kognitif", kognitifHandler.CountRelatedQuestionsHandler)
+	totalCountRoutes.Get("/formatif", formatifHandler.CountRelatedQuestionsHandler)
+	totalCountRoutes.Get("/sumatif", sumatifHandler.CountRelatedQuestionsHandler)
+	totalCountRoutes.Get("/pengayaan", pengayaanHandler.CountRelatedQuestionsHandler)
+	totalCountRoutes.Get("/remedial", remedialHandler.CountRelatedQuestionsHandler)
+	totalCountRoutes.Get("/item", itemHandler.CountRelatedQuestionsHandler)
 
 	// misc routes
 	app.Get("/api/get-jwt-secret", func(c *fiber.Ctx) error {

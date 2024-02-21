@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"errors"
-	"fmt"
 	"log"
 
 	"github.com/google/uuid"
@@ -35,25 +33,27 @@ func (repository *RemedialRepository) GetRemedialByID(remedialID uuid.UUID) (*mo
 }
 
 func (repository *RemedialRepository) CreateRemedial(remedial *model.Remedial) error {
-	// Check if user_id exists in users table
-	var user model.Users
-	if err := repository.DB.First(&user, "id = ?", remedial.UserID).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return fmt.Errorf("user with id %s does not exist", remedial.UserID)
-		}
-		return err
-	}
+	// Log the remedial object before saving to the database
+	log.Printf("Creating Remedial with DynamicFields: %+v\n", remedial.DynamicFields)
 
+	// Assign a new UUID to the remedial object
 	remedial.ID = uuid.New()
+
+	// Save the remedial to the database
 	if err := repository.DB.Create(&remedial).Error; err != nil {
 		return err
 	}
+
+	// Log the created remedial object
+	log.Printf("Created Remedial object: %+v\n", remedial)
+
 	return nil
 }
 
 func (repository *RemedialRepository) UpdateRemedial(remedial *model.Remedial) error {
 	log.Printf("Updating Remedial with ID: %s\n", remedial.ID)
 
+	// Assuming remedial.DynamicFields is populated with the updated dynamic fields
 	if err := repository.DB.Save(remedial).Error; err != nil {
 		log.Printf("Error saving remedial: %+v\n", err)
 		return err

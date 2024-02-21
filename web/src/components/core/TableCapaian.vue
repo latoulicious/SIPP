@@ -135,12 +135,20 @@ export default defineComponent({
   },
 
   methods: {
+    /**
+     * Fetches capaian data from the API and populates component state.
+     *
+     * Makes requests to the API to get capaian, user, kelas, mapel, and
+     * tahun ajar data. Processes the responses to extract options for
+     * selects/filters. Updates component state with capaian items and
+     * options for selects/filters. Handles loading state.
+     */
     async fetchData() {
       this.loading = true;
 
       try {
-        // Simulate a delay
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        // // Simulate a delay
+        // await new Promise((resolve) => setTimeout(resolve, 2000));
 
         const response = await axios.get("http://localhost:3000/api/capaian");
         const userResponse = await axios.get(
@@ -212,6 +220,17 @@ export default defineComponent({
       }
     },
 
+    /**
+     * Adds a new capaian item by making a POST request to the API.
+     *
+     * Maps the form data from createdItem to the expected API payload format.
+     * Makes the POST request to the /capaian endpoint.
+     * Pushes the new item into the items array.
+     * Refetches the data to refresh the table after creating.
+     * Resets the form after a timeout.
+     *
+     * Handles any errors from the API request.
+     */
     async addNewItem() {
       if (!this.isNewData) {
         alert("Please fill in all fields.");
@@ -244,20 +263,29 @@ export default defineComponent({
 
         console.log("Server Response:", response.data);
 
-        this.resetCreatedItem();
         // Re-fetch the data to refresh the table
         await this.fetchData();
-      } catch (error) {
-        console.error("Error adding new item:", error);
-      }
 
-      // // Defer the closing of the modal until the next DOM update cycle
-      // nextTick(() => {
-      //   // Close the modal regardless of whether the data fetch was successful
-      //   this.resetCreatedItem();
-      // });
+        setTimeout(() => {
+          this.resetCreatedItem();
+        }, 500);
+      } catch (error) {
+        console.error("Error Creating new item:", error);
+      }
     },
 
+    /**
+     * Edits an existing capaian item.
+     *
+     * Makes a copy of the edited item data.
+     * Converts the 'ID' field to 'id' to match the API.
+     * Removes unneeded fields.
+     * Makes a PUT request to update the item on the server.
+     * Resets the edited item.
+     * Refetches the data to refresh the table.
+     *
+     * Handles any errors from the API request.
+     */
     async editItem() {
       try {
         // Create a deep copy of the edited item
@@ -271,28 +299,10 @@ export default defineComponent({
         delete editedData.Kelas;
         delete editedData.TahunAjar;
 
-        const response = await axios.put(
-          `http://localhost:3000/api/capaian/${this.editedItem.id}`,
+        await axios.put(
+          `http://localhost:3000/api/capaian/${editedData.id}`,
           editedData,
         );
-
-        // Handle the response from the server
-        if (response.status === 200) {
-          // Update the local item with the edited data
-          const itemIndex = this.items.findIndex(
-            (item) => item.id === this.editedItem.id,
-          );
-          if (itemIndex !== -1) {
-            this.$set(this.items, itemIndex, {
-              ...editedData,
-              id: this.editedItem.id,
-            });
-          }
-
-          console.log("Item updated successfully");
-        } else {
-          console.error("Failed to update item", response.data);
-        }
 
         this.resetEditedItem();
         // Re-fetch the data to refresh the table
@@ -300,15 +310,16 @@ export default defineComponent({
       } catch (error) {
         console.error("Error editing item:", error);
       }
-      // finally {
-      //   // Defer the closing of the modal until the next DOM update cycle
-      //   nextTick(() => {
-      //     // Close the modal regardless of whether the data fetch was successful
-      //     this.editedItem = null;
-      //   });
-      // }
     },
 
+    /**
+     * Deletes a capaian item by ID.
+     *
+     * Prompts user to confirm deletion.
+     * Makes API call to delete item on server.
+     * Removes item from local items array.
+     * Refetches data to refresh table.
+     */
     async deleteItemById(id) {
       if (window.confirm("Are you sure you want to delete this item?")) {
         try {
@@ -337,30 +348,42 @@ export default defineComponent({
       }
     },
 
-    async openDetailModal(rowIndex) {
+    /**
+     * Opens the detail modal for the capaian item at the given row index.
+     *
+     * Gets the item ID from the filtered items array.
+     * Makes API call to fetch the item data.
+     * Populates the detailItem data for the modal.
+     * Shows the detail modal.
+     */
+    openDetailModal(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
       console.log("Opening detail modal with ID:", selectedItemId);
 
       axios
-        .get(`http://localhost:3000/api/kognitif/${selectedItemId}`)
+        .get(`http://localhost:3000/api/capaian/${selectedItemId}`)
         .then((response) => {
           const data = response.data.data;
           if (data) {
-            console.log("Data:", data); // Log the data
-
-            this.detailItem = reactive({
-              BankSoalID: data.BankSoalID || "",
-              Soal: data.BankSoal.Soal || "",
-              OptionA: data.BankSoal.OptionA || "",
-              OptionB: data.BankSoal.OptionB || "",
-              OptionC: data.BankSoal.OptionC || "",
-              OptionD: data.BankSoal.OptionD || "",
-              OptionE: data.BankSoal.OptionE || "",
-            });
-
-            console.log("Detail item:", this.detailItem); // Log the detail item
+            this.detailItem = {
+              JudulCapaian: data.judulCapaian || "",
+              JudulElemen: data.judulElemen || "",
+              KetElemen: data.ketElemen || "",
+              KetProsesMengamati: data.ketProsesMengamati || "",
+              KetProsesMempertanyakan: data.ketProsesMempertanyakan || "",
+              KetProsesMerencanakan: data.ketProsesMerencanakan || "",
+              KetProsesMemproses: data.ketProsesMemproses || "",
+              KetProsesMengevaluasi: data.ketProsesMengevaluasi || "",
+              KetProsesMengkomunikasikan: data.ketProsesMengkomunikasikan || "",
+              // id: selectedItemId,
+              // User: data.User ? data.User.Name || "" : "",
+              // Mapel: data.Mapel ? data.Mapel.Mapel || "" : "",
+              // Kelas: data.Kelas ? data.Kelas.Kelas || "" : "",
+              // TahunAjar: data.TahunAjar ? data.TahunAjar.Tahun || "" : "",
+            };
 
             this.detailModalVisible = true;
+            console.log("Detail modal data:", this.detailItem);
           } else {
             console.error("No data received from the server");
           }
@@ -370,6 +393,14 @@ export default defineComponent({
         });
     },
 
+    /**
+     * Prints a row from the table to a PDF.
+     *
+     * Fetches the data for the row from the API using the row ID.
+     * Logs the data properties received.
+     * Generates a PDF with the row data in a table.
+     * Opens the PDF for printing.
+     */
     async printRow(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
 
@@ -460,7 +491,16 @@ export default defineComponent({
                 table: {
                   headerRows: 1,
                   widths: Array(tableBody[0].length).fill("auto"),
-                  body: tableBody,
+                  body: tableBody.map((row) =>
+                    row.map((cell) => {
+                      // Check if the cell has a 'text' property and adjust the fontSize
+                      if (typeof cell === "object" && cell.text) {
+                        return { ...cell, fontSize: 10 };
+                      }
+                      // If the cell is a string, wrap it in an object with the desired fontSize
+                      return { text: cell, fontSize: 10 };
+                    }),
+                  ),
                 },
                 margin: [0, 0, 0, 20],
               },
@@ -506,7 +546,9 @@ export default defineComponent({
 
     openModalToEditItemById(id) {
       this.editedItemId = id;
-      this.editedItem = { ...this.items[id], id: this.items[id].ID }; // Use 'id' instead of 'ID'
+      this.editedItem = { ...this.items[id] }; // Use 'id' instead of 'ID'
+      console.log("Edited Data:", this.editedItem);
+      console.log("Items:", this.items);
     },
 
     toggleAddModal() {
@@ -548,7 +590,7 @@ export default defineComponent({
       border-color="#000000"
     >
       <va-button @click="toggleAddModal" preset="secondary" icon="add"
-        >Add Capaian Pembelajaran</va-button
+        >Create Capaian Pembelajaran</va-button
       >
     </va-button-group>
   </div>
@@ -586,7 +628,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       stripe
-      title="Add Capaian Pembelajaran"
+      title="Form Input Capaian Pembelajaran"
       size="large"
       :model-value="showModal"
       @ok="addNewItem"

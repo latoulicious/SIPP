@@ -1,45 +1,54 @@
+<script>
+export default {
+  data() {
+    return {
+      information: [
+        {
+          text: "Perayaan Hari Guru Nasional (HGN) di SMAN 3 Subang.",
+        },
+        {
+          text: "Juara Harapan 1 Pasanggiri Gamelan Degung Klasik Antar SMK/SMK Tingkat Propinsi.",
+        },
+        {
+          text: "LDKS SMAN 3 Subang 2023.",
+        },
+        {
+          text: "Siswi SMAN 3 Subang Aisyah Ditasya Putri Wakili Indonesia di event Internasional",
+        },
+      ],
+    };
+  },
+};
+</script>
+
 <template>
   <div class="container">
-    <va-card class="card-container">
-      <div class="row">
-        <div class="flex flex-col md4">
-          <div class="item">
-            <va-card>
-              <va-image
-                :ratio="16 / 9"
-                src="https://opendoodles.s3-us-west-1.amazonaws.com/sprinting.gif"
-              />
-              <va-card-title>lorem ipsum</va-card-title>
-              <va-card-content> asd </va-card-content>
-            </va-card>
-          </div>
-        </div>
-        <div class="flex flex-col md4">
-          <div class="item">
-            <va-card>
-              <va-image
-                :ratio="16 / 9"
-                src="https://opendoodles.s3-us-west-1.amazonaws.com/selfie.png"
-              />
-              <va-card-title>lorem ipsum</va-card-title>
-              <va-card-content> asd </va-card-content>
-            </va-card>
-          </div>
-        </div>
-        <div class="flex flex-col md4">
-          <div class="item">
-            <va-card>
-              <va-image
-                :ratio="16 / 9"
-                src="https://opendoodles.s3-us-west-1.amazonaws.com/clumsy.png"
-              />
-              <va-card-title>lorem ipsum</va-card-title>
-              <va-card-content> asd </va-card-content>
-            </va-card>
-          </div>
-        </div>
-      </div>
-    </va-card>
+    <VaCard stripe stripe-color="primary">
+      <VaCardTitle>Informasi Umum</VaCardTitle>
+      <va-card-content>
+        <va-list fit>
+          <VaListItem
+            v-for="(information, index) in information"
+            :key="index"
+            class="list__item"
+          >
+            <VaListItemSection avatar>
+              <VaSkeleton variant="circle" height="4rem" />
+            </VaListItemSection>
+
+            <VaListItemSection>
+              <VaListItemLabel
+                caption
+                :lines="index + 1"
+                class="text-black text-justify"
+              >
+                {{ information.text }}
+              </VaListItemLabel>
+            </VaListItemSection>
+          </VaListItem>
+        </va-list>
+      </va-card-content>
+    </VaCard>
   </div>
 </template>
 
@@ -47,10 +56,23 @@
 @import "vuestic-ui/styles/grid";
 
 .item {
-  border: 1.5px dashed;
+  border: 1.5px;
   border-color: shadow black;
-  text-align: center;
   margin: 5px;
+}
+
+.text-black {
+  color: black;
+}
+
+.text-justify {
+  text-align: justify;
+}
+</style>
+
+<style lang="scss">
+.list__item + .list__item {
+  margin-top: 20px;
 }
 </style>
 

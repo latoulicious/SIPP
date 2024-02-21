@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"errors"
-	"fmt"
 	"log"
 
 	"github.com/google/uuid"
@@ -35,25 +33,27 @@ func (repository *PengayaanRepository) GetPengayaanByID(pengayaanID uuid.UUID) (
 }
 
 func (repository *PengayaanRepository) CreatePengayaan(pengayaan *model.Pengayaan) error {
-	// Check if user_id exists in users table
-	var user model.Users
-	if err := repository.DB.First(&user, "id = ?", pengayaan.UserID).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return fmt.Errorf("user with id %s does not exist", pengayaan.UserID)
-		}
-		return err
-	}
+	// Log the pengayaan object before saving to the database
+	log.Printf("Creating Pengayaan with DynamicFields: %+v\n", pengayaan.DynamicFields)
 
+	// Assign a new UUID to the pengayaan object
 	pengayaan.ID = uuid.New()
+
+	// Save the pengayaan to the database
 	if err := repository.DB.Create(&pengayaan).Error; err != nil {
 		return err
 	}
+
+	// Log the created pengayaan object
+	log.Printf("Created Pengayaan object: %+v\n", pengayaan)
+
 	return nil
 }
 
 func (repository *PengayaanRepository) UpdatePengayaan(pengayaan *model.Pengayaan) error {
 	log.Printf("Updating Pengayaan with ID: %s\n", pengayaan.ID)
 
+	// Assuming pengayaan.DynamicFields is populated with the updated dynamic fields
 	if err := repository.DB.Save(pengayaan).Error; err != nil {
 		log.Printf("Error saving pengayaan: %+v\n", err)
 		return err

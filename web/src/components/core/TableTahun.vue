@@ -20,6 +20,7 @@ export default defineComponent({
       createdItem: { ...defaultItem },
       items: [],
       showModal: false,
+      loading: false,
     };
   },
 
@@ -38,7 +39,16 @@ export default defineComponent({
   },
 
   methods: {
+    /**
+     * Fetches data from the API and updates the items array.
+     *
+     * Makes an authenticated request to the API endpoint to get the data.
+     * Updates the component's items array with the response data.
+     * Handles loading state and errors.
+     */
     async fetchData() {
+      this.loading = true;
+
       try {
         const jwtToken = localStorage.getItem("jwtToken");
 
@@ -65,9 +75,18 @@ export default defineComponent({
         }));
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        this.loading = false;
       }
     },
 
+    /**
+     * Adds a new item to the API.
+     *
+     * Makes an authenticated POST request to the API endpoint to add a new item.
+     * Updates the component's items array with the new item.
+     * Handles loading state and errors.
+     */
     async addNewItem() {
       try {
         const jwtToken = localStorage.getItem("jwtToken");
@@ -102,6 +121,13 @@ export default defineComponent({
       }
     },
 
+    /**
+     * Edits an existing item via the API.
+     *
+     * Makes an authenticated PUT request to the API endpoint to update the item.
+     * Updates the component's items array with the edited item.
+     * Handles loading state and errors.
+     */
     async editItem() {
       try {
         const jwtToken = localStorage.getItem("jwtToken");
@@ -139,31 +165,47 @@ export default defineComponent({
       }
     },
 
+    /**
+     * Deletes an item by ID.
+     *
+     * Prompts user for confirmation before deleting.
+     * Retrieves JWT token from local storage.
+     * Makes DELETE request to API with authentication header.
+     * Removes item from items array.
+     * Refetches data from API after deleting.
+     * Shows alert on success.
+     * Logs error on failure.
+     */
     async deleteItemById(id) {
-      try {
-        const jwtToken = localStorage.getItem("jwtToken");
+      if (window.confirm("Are you sure you want to delete this item?")) {
+        try {
+          const jwtToken = localStorage.getItem("jwtToken");
 
-        if (!jwtToken) {
-          console.error("JWT token not available");
-          // Handle the case where the token is not available (e.g., redirect to login)
-          return;
+          if (!jwtToken) {
+            console.error("JWT token not available");
+            // Handle the case where the token is not available (e.g., redirect to login)
+            return;
+          }
+
+          // Add headers with the authentication token
+          const headers = {
+            Authorization: `Bearer ${jwtToken}`,
+          };
+
+          // Make the DELETE request with headers
+          await axios.delete(
+            `http://localhost:3000/api/tahun/${this.items[id].id}`,
+            { headers },
+          );
+
+          // Remove the item from the array
+          this.items.splice(id, 1);
+          await this.fetchData();
+          // Optionally, you can show a success message
+          alert("Item deleted successfully");
+        } catch (error) {
+          console.error("Error deleting item:", error);
         }
-
-        // Add headers with the authentication token
-        const headers = {
-          Authorization: `Bearer ${jwtToken}`,
-        };
-
-        // Make the DELETE request with headers
-        await axios.delete(
-          `http://localhost:3000/api/tahun/${this.items[id].id}`,
-          { headers },
-        );
-
-        // Remove the item from the array
-        this.items.splice(id, 1);
-      } catch (error) {
-        console.error("Error deleting item:", error);
       }
     },
 
@@ -213,7 +255,7 @@ export default defineComponent({
     </va-button-group>
   </div>
   <div>
-    <va-data-table :items="items" :columns="columns" striped>
+    <va-data-table :items="items" :columns="columns" :loading="loading" striped>
       <template #cell(actions)="{ rowIndex }">
         <div class="action-buttons">
           <!--<va-button

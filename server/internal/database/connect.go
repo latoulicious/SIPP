@@ -51,13 +51,13 @@ func ConnectDB() error {
 		&model.Capaian{},
 		&model.AlurTP{},
 		&model.ModulAjar{},
-		// &model.Penilaian{},
 		&model.Kognitif{},
 		&model.Formatif{},
 		&model.Sumatif{},
 		&model.Pengayaan{},
 		&model.Remedial{},
 		&model.Soal{},
+		&model.ItemSoal{},
 		&model.BankSoal{},
 	)
 	if err != nil {

@@ -20,6 +20,7 @@ export default defineComponent({
       createdItem: { ...defaultItem },
       items: [],
       showModal: false,
+      loading: false,
     };
   },
 
@@ -38,7 +39,18 @@ export default defineComponent({
   },
 
   methods: {
+    /**
+     * Fetches mapel data from the API and updates component state.
+     *
+     * Gets JWT token from local storage.
+     * Makes authorized API request to get mapel.
+     * Maps response data to array of objects with id and name.
+     * Updates component items state with new data array.
+     * Handles loading state.
+     */
     async fetchData() {
+      this.loading = true;
+
       try {
         const jwtToken = localStorage.getItem("jwtToken");
 
@@ -65,9 +77,20 @@ export default defineComponent({
         }));
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        this.loading = false;
       }
     },
 
+    /**
+     * Adds a new mapel by making an authorized API request.
+     *
+     * Gets the JWT token from local storage.
+     * Makes a POST request to the mapel API endpoint to create the new mapel.
+     * Handles success and error cases.
+     * Updates component state by pushing new mapel onto items array.
+     * Calls fetchData() to refresh data after adding.
+     */
     async addNewItem() {
       try {
         const jwtToken = localStorage.getItem("jwtToken");
@@ -96,12 +119,22 @@ export default defineComponent({
 
         this.items.push(newMapel);
         this.resetCreatedItem();
-        this.fetchData();
+        await this.fetchData();
       } catch (error) {
         console.error("Error adding new item:", error);
       }
     },
 
+    /**
+     * Edits an existing item.
+     *
+     * Fetches a JWT token from local storage.
+     * Sends a PUT request to the API to update the item.
+     * Updates the item directly in the items array.
+     * Refetches the data after editing to update the UI.
+     *
+     * @throws {Error} If the request fails.
+     */
     async editItem() {
       try {
         const jwtToken = localStorage.getItem("jwtToken");
@@ -133,37 +166,55 @@ export default defineComponent({
         };
 
         this.resetEditedItem();
-        this.fetchData();
+        await this.fetchData();
       } catch (error) {
         console.error("Error editing item:", error);
       }
     },
 
+    /**
+     * Deletes an item by ID.
+     *
+     * Prompts user to confirm deletion.
+     * Fetches JWT token from local storage.
+     * Makes DELETE request to API with authentication header.
+     * Removes item from items array.
+     * Refetches data to update UI.
+     * Shows success message.
+     *
+     * @param {number} id - The ID of the item to delete.
+     * @throws {Error} If the request fails.
+     */
     async deleteItemById(id) {
-      try {
-        const jwtToken = localStorage.getItem("jwtToken");
+      if (window.confirm("Are you sure you want to delete this item?")) {
+        try {
+          const jwtToken = localStorage.getItem("jwtToken");
 
-        if (!jwtToken) {
-          console.error("JWT token not available");
-          // Handle the case where the token is not available (e.g., redirect to login)
-          return;
+          if (!jwtToken) {
+            console.error("JWT token not available");
+            // Handle the case where the token is not available (e.g., redirect to login)
+            return;
+          }
+
+          // Add headers with the authentication token
+          const headers = {
+            Authorization: `Bearer ${jwtToken}`,
+          };
+
+          // Make the DELETE request with headers
+          await axios.delete(
+            `http://localhost:3000/api/mapel/${this.items[id].id}`,
+            { headers },
+          );
+
+          // Remove the item from the array
+          this.items.splice(id, 1);
+          await this.fetchData();
+          // Optionally, you can show a success message
+          alert("Item deleted successfully");
+        } catch (error) {
+          console.error("Error deleting item:", error);
         }
-
-        // Add headers with the authentication token
-        const headers = {
-          Authorization: `Bearer ${jwtToken}`,
-        };
-
-        // Make the DELETE request with headers
-        await axios.delete(
-          `http://localhost:3000/api/mapel/${this.items[id].id}`,
-          { headers },
-        );
-
-        // Remove the item from the array
-        this.items.splice(id, 1);
-      } catch (error) {
-        console.error("Error deleting item:", error);
       }
     },
 

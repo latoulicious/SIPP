@@ -50,6 +50,7 @@ func (repository *JurusanRepository) GetJurusanPublic() ([]model.Jurusan, error)
 }
 
 func (repository *JurusanRepository) CreateJurusan(jurusan *model.Jurusan) error {
+	jurusan.ID = uuid.New()
 	return repository.DB.Create(jurusan).Error
 }
 

@@ -12,7 +12,6 @@ const defaultItem = {
   Mapel: {}, // Initialize as an empty object
   Kelas: {}, // Initialize as an empty object
   Jurusan: {}, // Initialize as an empty object
-  TahunAjar: {}, // Initialize as an empty object
   Soal: "",
   OptionA: "",
   OptionB: "",
@@ -30,7 +29,6 @@ const displayNames = {
   Mapel: "Mata Pelajaran",
   Kelas: "Kelas",
   Jurusan: "Jurusan",
-  TahunAjar: "Tahun Ajar",
   Soal: "Soal",
   OptionA: "Pilihan A",
   OptionB: "Pilihan B",
@@ -50,7 +48,6 @@ export default defineComponent({
       { key: "Mapel", label: "Mata Pelajaran", sortable: false },
       { key: "Kelas", label: "Kelas", sortable: false },
       { key: "Jurusan", label: "Jurusan", sortable: false },
-      { key: "TahunAjar", label: "Tahun Ajar", sortable: false },
       { key: "Materi", label: "Materi", sortable: false },
       { key: "actions", label: "Actions", width: 80 },
     ];
@@ -66,7 +63,6 @@ export default defineComponent({
       mapelsOptions: [],
       kelasOptions: [],
       jurusanOptions: [],
-      tahunAjarOptions: [],
       textAreaFields: [
         "Soal",
         "OptionA",
@@ -142,6 +138,14 @@ export default defineComponent({
   },
 
   methods: {
+    /**
+     * Fetches BankSoal data from the API.
+     *
+     * Makes requests to the API to get BankSoal and related data.
+     * Processes the responses to extract useful options for dropdowns
+     * and constructs the items array with formatted BankSoal data.
+     * Handles loading state and errors.
+     */
     async fetchData() {
       this.loading = true;
 
@@ -161,9 +165,6 @@ export default defineComponent({
         );
         const mapelResponse = await axios.get(
           "http://localhost:3000/api/public/mapel",
-        );
-        const tahunResponse = await axios.get(
-          "http://localhost:3000/api/public/tahun",
         );
 
         // Process the data and update the UI
@@ -196,12 +197,6 @@ export default defineComponent({
         );
         // console.log("Mapels options:", this.mapelsOptions);
 
-        this.tahunAjarOptions = this.extractOptions(
-          tahunResponse.data.data,
-          "Tahun",
-        );
-        // console.log("Tahun Ajar options:", this.tahunAjarOptions);
-
         // Update the items array with BankSoal data
         this.items = response.data.data.map((item) => ({
           ...item,
@@ -210,7 +205,6 @@ export default defineComponent({
           Mapel: item?.Mapel.Mapel || "",
           Kelas: item?.Kelas.Kelas || "",
           Jurusan: item?.Jurusan.Jurusan || "",
-          TahunAjar: item?.TahunAjar.Tahun || "",
           Soal: item?.Soal || "",
           OptionA: item?.OptionA || "",
           OptionB: item?.OptionB || "",
@@ -231,6 +225,12 @@ export default defineComponent({
       }
     },
 
+    /**
+     * Adds a new bank soal item by making a POST request to the API.
+     *
+     * The new item data is taken from the component's createdItem property.
+     * After successfully adding the item, the items array is updated and the table refreshed.
+     */
     async addNewItem() {
       if (!this.isNewData) {
         alert("Please fill in all fields.");
@@ -245,7 +245,6 @@ export default defineComponent({
           MapelID: this.createdItem.MapelID.toString(),
           KelasID: this.createdItem.KelasID.toString(),
           JurusanID: this.createdItem.JurusanID.toString(),
-          TahunAjarID: this.createdItem.TahunAjarID.toString(),
           Soal: this.createdItem.Soal,
           OptionA: this.createdItem.OptionA,
           OptionB: this.createdItem.OptionB,
@@ -264,14 +263,25 @@ export default defineComponent({
 
         console.log("Server Response:", response.data);
 
-        this.resetCreatedItem();
         // Re-fetch the data to refresh the table
         await this.fetchData();
+
+        setTimeout(() => {
+          this.resetCreatedItem();
+        }, 500);
       } catch (error) {
         console.error("Error adding new item:", error);
       }
     },
 
+    /**
+     * Edits an existing bank soal item by making a PUT request to the API.
+     *
+     * Takes the edited item data from the component's editedItem property.
+     * Converts the 'ID' field to 'id' and removes other unneeded fields.
+     * Makes the PUT request to update the item on the server.
+     * Refreshes the data table after successfully updating.
+     */
     async editItem() {
       try {
         // Create a deep copy of the edited item
@@ -284,30 +294,11 @@ export default defineComponent({
         delete editedData.Mapel;
         delete editedData.Kelas;
         delete editedData.Jurusan;
-        delete editedData.TahunAjar;
 
-        const response = await axios.put(
-          `http://localhost:3000/api/bank/${this.editedItem.id}`,
+        await axios.put(
+          `http://localhost:3000/api/bank/${editedData.id}`,
           editedData,
         );
-
-        // Handle the response from the server
-        if (response.status === 200) {
-          // Update the local item with the edited data
-          const itemIndex = this.items.findIndex(
-            (item) => item.id === this.editedItem.id,
-          );
-          if (itemIndex !== -1) {
-            this.$set(this.items, itemIndex, {
-              ...editedData,
-              id: this.editedItem.id,
-            });
-          }
-
-          console.log("Item updated successfully");
-        } else {
-          console.error("Failed to update item", response.data);
-        }
 
         this.resetEditedItem();
         // Re-fetch the data to refresh the table
@@ -317,6 +308,16 @@ export default defineComponent({
       }
     },
 
+    /**
+     * Deletes a bank soal item by ID.
+     *
+     * Prompts user to confirm deletion.
+     * Makes a DELETE request to the API to delete the item.
+     * Removes the deleted item from the local items array.
+     * Refreshes the data table after deleting.
+     * Shows success message.
+     * Handles errors from the API request.
+     */
     async deleteItemById(id) {
       if (window.confirm("Are you sure you want to delete this item?")) {
         try {
@@ -345,105 +346,116 @@ export default defineComponent({
       }
     },
 
+    /**
+     * Opens the detail modal popup to show details for the bank soal item
+     * at the specified row index.
+     *
+     * Makes API call to get full data for the item.
+     * Populates the detailItem object with the data.
+     * Shows the modal popup.
+     * Handles errors from API call.
+     */
     async openDetailModal(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
       console.log("Opening detail modal with ID:", selectedItemId);
 
-      axios
-        .get(`http://localhost:3000/api/kognitif/${selectedItemId}`)
-        .then((response) => {
-          const data = response.data.data;
-          if (data) {
-            console.log("Data:", data); // Log the data
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/api/bank/${selectedItemId}`,
+        );
+        const data = response.data.data; // Access the data object directly
+        console.log("Full response data:", data); // Log the full response data
 
-            this.detailItem = reactive({
-              BankSoalID: data.BankSoalID || "",
-              Soal: data.BankSoal.Soal || "",
-              OptionA: data.BankSoal.OptionA || "",
-              OptionB: data.BankSoal.OptionB || "",
-              OptionC: data.BankSoal.OptionC || "",
-              OptionD: data.BankSoal.OptionD || "",
-              OptionE: data.BankSoal.OptionE || "",
-            });
+        if (data) {
+          console.log("Data:", data);
 
-            console.log("Detail item:", this.detailItem); // Log the detail item
+          this.detailItem = {
+            ...defaultItem,
+            BankSoal: {
+              Soal: data.Soal || "",
+              OptionA: data.OptionA || "",
+              OptionB: data.OptionB || "",
+              OptionC: data.OptionC || "",
+              OptionD: data.OptionD || "",
+              OptionE: data.OptionE || "",
+            },
+            // If you need to include DynamicFields, you can add it here
+            // DynamicFields: data.DynamicFields || [],
+          };
 
-            this.detailModalVisible = true;
-          } else {
-            console.error("No data received from the server");
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching data for the detail modal:", error);
-        });
+          console.log("Soal:", this.detailItem.BankSoal.Soal);
+          console.log(
+            "Option Values:",
+            ["OptionA", "OptionB", "OptionC", "OptionD", "OptionE"].map(
+              (option) => this.detailItem.BankSoal[option],
+            ),
+          );
+
+          console.log("Detail item:", this.detailItem);
+          this.detailModalVisible = true;
+        } else {
+          console.error("No data received from the server");
+        }
+      } catch (error) {
+        console.error("Error fetching data for the detail modal:", error);
+      }
     },
 
+    /**
+     * Prints a row from the table by fetching the full data for that row from the API.
+     *
+     * It gets the ID of the selected row, makes a request to the API to get the full data,
+     * extracts the relevant question and option data, and uses pdfMake to generate a PDF
+     * with the question and options formatted properly.
+     *
+     * The PDF is generated with page numbers, and the metadata like subject and class is included.
+     *
+     * Handles any errors from the API request.
+     */
     async printRow(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
+      console.log(`Selected item ID: ${selectedItemId}`);
 
       try {
-        // Fetch the necessary data directly from the server
         const response = await axios.get(
           `http://localhost:3000/api/bank/${selectedItemId}`,
         );
         const data = response.data.data;
 
-        // Log all properties of the data object
-        console.log("Data properties:", Object.keys(data));
+        // Log the entire data object to inspect its structure
+        console.log("Full data object:", data);
 
         if (data) {
-          console.log("Printing row with ID:", selectedItemId);
+          const metadata = {
+            Mapel: data.Mapel.Mapel, // Access the 'Mapel' property within the nested object
+            Kelas: data.Kelas.Kelas, // Access the 'Kelas' property within the nested object
+          };
+          console.log("Extracted metadata:", metadata);
 
-          const tableBody = [
-            [
-              { text: "Judul BankSoal", fontSize: 10, bold: true },
-              { text: "Judul Elemen", fontSize: 10, bold: true },
-              { text: "Keterangan Elemen", fontSize: 10, bold: true },
-              { text: "Keterangan Proses Mengamati", fontSize: 10, bold: true },
-              {
-                text: "Keterangan Proses Mempertanyakan",
-                fontSize: 10,
-                bold: true,
-              },
-              {
-                text: "Keterangan Proses Merencanakan",
-                fontSize: 10,
-                bold: true,
-              },
-              { text: "Keterangan Proses Memproses", fontSize: 10, bold: true },
-              {
-                text: "Keterangan Proses Mengevaluasi",
-                fontSize: 10,
-                bold: true,
-              },
-              {
-                text: "Keterangan Proses Mengkomunikasikan",
-                fontSize: 10,
-                bold: true,
-              },
-            ],
-            [
-              "judulBankSoal" in data ? data.judulBankSoal : "N/A",
-              "judulElemen" in data ? data.judulElemen : "N/A",
-              "ketElemen" in data ? data.ketElemen : "N/A",
-              "ketProsesMengamati" in data ? data.ketProsesMengamati : "N/A",
-              "ketProsesMempertanyakan" in data
-                ? data.ketProsesMempertanyakan
-                : "N/A",
-              "ketProsesMerencanakan" in data
-                ? data.ketProsesMerencanakan
-                : "N/A",
-              "ketProsesMemproses" in data ? data.ketProsesMemproses : "N/A",
-              "ketProsesMengevaluasi" in data
-                ? data.ketProsesMengevaluasi
-                : "N/A",
-              "ketProsesMengkomunikasikan" in data
-                ? data.ketProsesMengkomunikasikan
-                : "N/A",
-            ],
+          // Fetch the banksoal data to get the actual options
+          const bankSoalResponse = await axios.get(
+            "http://localhost:3000/api/bank",
+          );
+          const bankSoalData = bankSoalResponse.data.data;
+          console.log("BankSoal data:", bankSoalData);
+
+          // Extract the question and options from the data object
+          const question = data.Soal;
+          const options = [
+            data.OptionA,
+            data.OptionB,
+            data.OptionC,
+            data.OptionD,
+            data.OptionE,
           ];
 
-          console.log("Table Body:", tableBody);
+          // Create an array with the question and its options
+          const questionsAndOptions = [
+            {
+              question: question,
+              options: options,
+            },
+          ];
 
           const docDefinition = {
             footer: function (currentPage, pageCount) {
@@ -458,29 +470,54 @@ export default defineComponent({
             },
             content: [
               {
-                text: "BankSoal Pembelajaran",
-                fontSize: 12,
+                text: "",
+                fontSize: 14,
                 bold: true,
-                alignment: "center",
                 margin: [0, 20, 0, 20],
               },
+              { text: `Mapel: ${metadata.Mapel}`, fontSize: 10 },
+              { text: `Kelas: ${metadata.Kelas}`, fontSize: 10 },
+              // {
+              //   text: "Questions and Options",
+              //   fontSize: 14,
+              //   bold: true,
+              //   margin: [0, 20, 0, 20],
+              // },
               {
-                table: {
-                  headerRows: 1,
-                  widths: Array(tableBody[0].length).fill("auto"),
-                  body: tableBody,
-                },
-                margin: [0, 0, 0, 20],
+                canvas: [
+                  {
+                    type: "line",
+                    x1: 0,
+                    y1: 0,
+                    x2: 510, // Adjust this value to match the width of your page
+                    y2: 0,
+                    lineWidth: 2,
+                    color: "#000000", // Change the color as needed
+                  },
+                ],
+                margin: [0, 10, 0, 10], // Adjust the margin as needed
               },
+              ...questionsAndOptions.flatMap((item, index) => [
+                {
+                  text: `${index + 1}. ${item.question}`,
+                  fontSize: 10,
+                  margin: [0, 5, 0, 5],
+                },
+                ...item.options.map((option, optionIndex) => ({
+                  text: `${String.fromCharCode(97 + optionIndex)}). ${option}`,
+                  fontSize: 10,
+                  margin: [0, 5, 0, 5],
+                })),
+              ]),
             ],
             pageSize: "A4",
             pageMargins: [20, 20, 20, 20],
-            pageOrientation: "landscape",
+            pageOrientation: "portrait",
           };
 
-          const pdf = pdfMake.createPdf(docDefinition);
+          console.log("Doc definition:", docDefinition);
 
-          // Open the PDF for printing
+          const pdf = pdfMake.createPdf(docDefinition);
           pdf.open();
         } else {
           console.error("No data received from the server");
@@ -514,7 +551,7 @@ export default defineComponent({
 
     openModalToEditItemById(id) {
       this.editedItemId = id;
-      this.editedItem = { ...this.items[id], id: this.items[id].ID }; // Use 'id' instead of 'ID'
+      this.editedItem = { ...this.items[id] };
     },
 
     toggleAddModal() {
@@ -556,7 +593,7 @@ export default defineComponent({
       border-color="#000000"
     >
       <va-button @click="toggleAddModal" preset="secondary" icon="add"
-        >Add BankSoal Pembelajaran</va-button
+        >Create Bank Soal</va-button
       >
     </va-button-group>
   </div>
@@ -594,7 +631,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       stripe
-      title="Add Bank Soal"
+      title="Form Input Bank Soal"
       size="large"
       :model-value="showModal"
       @ok="addNewItem"
@@ -629,14 +666,6 @@ export default defineComponent({
         v-model="createdItem.JurusanID"
         :label="displayNames.Jurusan"
         :options="jurusanOptions"
-        class="my-6"
-        text-by="label"
-        value-by="value"
-      />
-      <va-select
-        v-model="createdItem.TahunAjarID"
-        :label="displayNames.TahunAjar"
-        :options="tahunAjarOptions"
         class="my-6"
         text-by="label"
         value-by="value"
@@ -693,14 +722,6 @@ export default defineComponent({
         text-by="label"
         value-by="value"
       />
-      <va-select
-        v-model="editedItem.TahunAjarID"
-        :label="displayNames.TahunAjar"
-        :options="tahunAjarOptions"
-        class="my-6"
-        text-by="label"
-        value-by="value"
-      />
 
       <!-- Using va-textarea for other fields -->
       <va-textarea
@@ -722,14 +743,34 @@ export default defineComponent({
       @ok="resetDetailItem"
       @cancel="resetDetailItem"
     >
-      <va-textarea
-        v-for="key in filteredDetailFields"
-        :key="key"
-        :label="filteredDisplayNames[key]"
-        v-model="detailItem[key]"
-        class="my-6"
-        readonly
-      />
+      <!-- Display the Soal -->
+      <div class="textarea-container">
+        <label>Soal</label>
+        <textarea
+          class="detailarea"
+          readonly
+          :value="detailItem.BankSoal.Soal"
+        ></textarea>
+      </div>
+      <!-- Display the options -->
+      <div
+        v-for="(option, index) in [
+          'OptionA',
+          'OptionB',
+          'OptionC',
+          'OptionD',
+          'OptionE',
+        ]"
+        :key="index"
+        class="textarea-container"
+      >
+        <label>{{ `Option ${String.fromCharCode(65 + index)}` }}</label>
+        <textarea
+          class="detailarea"
+          readonly
+          :value="detailItem.BankSoal[option]"
+        ></textarea>
+      </div>
     </va-modal>
   </div>
 </template>
@@ -761,5 +802,26 @@ export default defineComponent({
     box-sizing: border-box;
     margin-bottom: 20px;
   }
+}
+</style>
+
+<style scoped>
+.textarea-container {
+  margin-bottom: 1rem;
+}
+
+.textarea-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.detailarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: vertical;
 }
 </style>

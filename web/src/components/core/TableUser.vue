@@ -8,7 +8,6 @@ const defaultItem = {
   name: "",
   nip: "",
   golongan: "",
-  role: "",
 };
 
 export default defineComponent({
@@ -29,13 +28,14 @@ export default defineComponent({
       createdItem: { ...defaultItem },
       items: [],
       showModal: false,
+      loading: false,
     };
   },
 
   computed: {
     filteredInputFields() {
-      // Exclude 'password' field from the inputFields
-      return this.inputFields.filter((key) => key !== "password");
+      // Exclude 'password' and 'role' fields from the inputFields
+      return this.inputFields.filter((key) => key !== "role");
     },
     isNewData() {
       return Object.keys(this.createdItem).every(
@@ -48,7 +48,17 @@ export default defineComponent({
   },
 
   methods: {
+    /**
+     * Fetches user data from the API.
+     *
+     * Gets the JWT token from local storage.
+     * Makes a request to the /api/user endpoint using Axios.
+     * Maps the response data to the required schema.
+     * Handles loading state and errors.
+     */
     async fetchData() {
+      this.loading = true;
+
       try {
         const jwtToken = localStorage.getItem("jwtToken");
 
@@ -59,6 +69,8 @@ export default defineComponent({
         }
 
         console.log("Token:", jwtToken); // Log the token for debugging
+
+        await new Promise((resolve) => setTimeout(resolve, 2000));
 
         const response = await this.$axios.get(
           "http://localhost:3000/api/user",
@@ -80,9 +92,20 @@ export default defineComponent({
         }));
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        this.loading = false;
       }
     },
 
+    /**
+     * Adds a new user item by making a POST request to the API.
+     *
+     * Authenticates using a JWT token from local storage.
+     * Pushes the new user object returned from the API onto the items array.
+     * Refetches the data after adding the new item.
+     *
+     * @throws {Error} If the API request fails
+     */
     async addNewItem() {
       try {
         const jwtToken = localStorage.getItem("jwtToken");
@@ -116,12 +139,22 @@ export default defineComponent({
 
         this.items.push(newUser);
         this.resetCreatedItem();
-        this.fetchData();
+        await this.fetchData();
       } catch (error) {
         console.error("Error adding new item:", error);
       }
     },
 
+    /**
+     * Edits an existing user item by making a PUT request to the API.
+     *
+     * Authenticates using a JWT token from local storage.
+     * Sends the edited user data to the API.
+     * Directly updates the edited item in the items array with the response.
+     * Refetches the data after editing the item.
+     *
+     * @throws {Error} If the API request fails
+     */
     async editItem() {
       try {
         const jwtToken = localStorage.getItem("jwtToken");
@@ -163,37 +196,51 @@ export default defineComponent({
         };
 
         this.resetEditedItem();
-        this.fetchData();
+        await this.fetchData();
       } catch (error) {
         console.error("Error editing item:", error);
       }
     },
 
+    /**
+     * Deletes a user by ID.
+     *
+     * Prompts for confirmation before deleting.
+     * Retrieves JWT token from localStorage to authenticate request.
+     * Makes DELETE request to API with authentication header.
+     * Removes deleted user from items array.
+     * Refetches data after deleting to update list.
+     */
     async deleteItemById(id) {
-      try {
-        const jwtToken = localStorage.getItem("jwtToken");
+      if (window.confirm("Are you sure you want to delete this item?")) {
+        try {
+          const jwtToken = localStorage.getItem("jwtToken");
 
-        if (!jwtToken) {
-          console.error("JWT token not available");
-          // Handle the case where the token is not available (e.g., redirect to login)
-          return;
+          if (!jwtToken) {
+            console.error("JWT token not available");
+            // Handle the case where the token is not available (e.g., redirect to login)
+            return;
+          }
+
+          // Add headers with the authentication token
+          const headers = {
+            Authorization: `Bearer ${jwtToken}`,
+          };
+
+          // Make the DELETE request with headers
+          await axios.delete(
+            `http://localhost:3000/api/user/${this.items[id].id}`,
+            { headers },
+          );
+
+          // Remove the item from the array
+          this.items.splice(id, 1);
+          await this.fetchData();
+          // Optionally, you can show a success message
+          alert("Item deleted successfully");
+        } catch (error) {
+          console.error("Error deleting item:", error);
         }
-
-        // Add headers with the authentication token
-        const headers = {
-          Authorization: `Bearer ${jwtToken}`,
-        };
-
-        // Make the DELETE request with headers
-        await axios.delete(
-          `http://localhost:3000/api/user/${this.items[id].id}`,
-          { headers },
-        );
-
-        // Remove the item from the array
-        this.items.splice(id, 1);
-      } catch (error) {
-        console.error("Error deleting item:", error);
       }
     },
 
@@ -243,14 +290,9 @@ export default defineComponent({
     </va-button-group>
   </div>
   <div>
-    <va-data-table :items="items" :columns="columns" striped>
+    <va-data-table :items="items" :columns="columns" :loading="loading" striped>
       <template #cell(actions)="{ rowIndex }">
         <div class="action-buttons">
-          <!-- <va-button
-            preset="plain"
-            icon="remove_red_eye"
-            @click="deleteItemById(rowIndex)"
-          /> -->
           <va-button
             preset="plain"
             icon="edit"
@@ -266,21 +308,26 @@ export default defineComponent({
     </va-data-table>
     <!-- Modal Content -->
     <va-modal
+      blur
       class="modal-crud"
-      stripe
+      :model-value="showModal"
       title="Add user"
       size="small"
-      blur
-      :model-value="showModal"
       @ok="addNewItem"
       @cancel="resetCreatedItem"
     >
       <va-input
-        v-for="key in Object.keys(createdItem)"
+        v-for="key in filteredInputFields"
         :key="key"
         :label="key"
         :type="key === 'password' ? 'password' : 'text'"
         v-model="createdItem[key]"
+        class="my-6"
+      />
+      <va-select
+        label="Role"
+        v-model="createdItem.role"
+        :options="['Admin', 'Guru', 'Wakil Kepala Sekolah', 'Kepala Sekolah']"
         class="my-6"
       />
     </va-modal>
@@ -301,6 +348,12 @@ export default defineComponent({
         :label="key"
         :type="key === 'password' ? 'password' : 'text'"
       />
+      <va-select
+        label="Role"
+        v-model="editedItem.role"
+        :options="['Admin', 'Guru', 'Wakil Kepala Sekolah', 'Kepala Sekolah']"
+        class="my-6"
+      />
     </va-modal>
   </div>
 </template>
@@ -313,6 +366,10 @@ export default defineComponent({
 
 .modal-crud {
   .va-input {
+    display: block;
+    margin-bottom: 10px;
+  }
+  .va-select {
     display: block;
     margin-bottom: 10px;
   }

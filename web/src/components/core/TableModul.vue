@@ -146,6 +146,14 @@ export default defineComponent({
   },
 
   methods: {
+    /**
+     * Fetches modul data from the API and populates component state.
+     *
+     * Calls the API to get modul, user, kelas, and tahun data.
+     * Processes the responses to extract useful options for dropdowns.
+     * Maps the modul data into a cleaned format for display in the table.
+     * Handles loading state and errors.
+     */
     async fetchData() {
       this.loading = true;
 
@@ -217,6 +225,14 @@ export default defineComponent({
       }
     },
 
+    /**
+     * Adds a new item to the database.
+     *
+     * Makes a POST request to the API to create a new item,
+     * then updates the local items array and table.
+     *
+     * Handles error catching and resetting the form on success.
+     */
     async addNewItem() {
       if (!this.isNewData) {
         alert("Please fill in all fields.");
@@ -252,20 +268,25 @@ export default defineComponent({
 
         console.log("Server Response:", response.data);
 
-        this.resetCreatedItem();
         // Re-fetch the data to refresh the table
         await this.fetchData();
-      } catch (error) {
-        console.error("Error adding new item:", error);
-      }
 
-      // // Defer the closing of the modal until the next DOM update cycle
-      // nextTick(() => {
-      //   // Close the modal regardless of whether the data fetch was successful
-      //   this.resetCreatedItem();
-      // });
+        setTimeout(() => {
+          this.resetCreatedItem();
+        }, 500);
+      } catch (error) {
+        console.error("Error creating new item:", error);
+      }
     },
 
+    /**
+     * Updates an existing item in the database.
+     *
+     * Makes a copy of the edited item data, converts the ID to lowercase id,
+     * removes unnecessary fields, then makes a PUT request to update the item.
+     *
+     * Handles any errors from the API request.
+     */
     async editItem() {
       try {
         // Create a deep copy of the edited item
@@ -281,32 +302,10 @@ export default defineComponent({
         // console.log("Edited item:", this.editedItem);
         // console.log("Edited item ID:", this.editedItem.id);
 
-        const response = await axios.put(
-          `http://localhost:3000/api/modul/${this.editedItem.id}`,
+        await axios.put(
+          `http://localhost:3000/api/modul/${editedData.id}`,
           editedData,
         );
-
-        // Handle the response from the server
-        if (response.status === 200) {
-          // Update the local item with the edited data
-          const itemIndex = this.items.findIndex(
-            (item) => item.id === this.editedItem.id,
-          );
-          if (itemIndex !== -1) {
-            this.$set(this.items, itemIndex, {
-              ...editedData,
-              id: this.editedItem.id,
-            });
-          }
-
-          this.items = this.items.map((item) =>
-            item.id === this.editedItem.id ? { ...item, ...editedData } : item,
-          );
-
-          console.log("Item updated successfully");
-        } else {
-          console.error("Failed to update item", response.data);
-        }
 
         this.resetEditedItem();
         // Re-fetch the data to refresh the table
@@ -314,15 +313,18 @@ export default defineComponent({
       } catch (error) {
         console.error("Error editing item:", error);
       }
-      // finally {
-      //   // Defer the closing of the modal until the next DOM update cycle
-      //   nextTick(() => {
-      //     // Close the modal regardless of whether the data fetch was successful
-      //     this.editedItem = null;
-      //   });
-      // }
     },
 
+    /**
+     * Deletes a modul by ID.
+     *
+     * Prompts user to confirm deletion.
+     * Calls API to delete modul by ID.
+     * Removes deleted modul from items array.
+     * Refetches data to refresh table.
+     * Shows success message.
+     * Handles errors.
+     */
     async deleteItemById(id) {
       if (window.confirm("Are you sure you want to delete this item?")) {
         try {
@@ -393,6 +395,16 @@ export default defineComponent({
         });
     },
 
+    /**
+     * Prints a row from the table.
+     *
+     * Fetches the data for the row from the API using the row index.
+     * Logs the data properties.
+     * Generates a PDF document with a header and table body containing the row data.
+     * Opens the PDF for printing.
+     *
+     * @param {number} rowIndex - The index of the row to print
+     */
     async printRow(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
 
@@ -411,7 +423,6 @@ export default defineComponent({
 
           const tableBody = [
             [
-              { text: "Sekolah", fontSize: 10, bold: true },
               { text: "Alokasi Waktu", fontSize: 10, bold: true },
               { text: "Kompetensi Awal", fontSize: 10, bold: true },
               { text: "Projek P Pancasila", fontSize: 10, bold: true },
@@ -459,7 +470,6 @@ export default defineComponent({
               },
             ],
             [
-              "sekolah" in data ? data.sekolah : "N/A",
               "alokasiWaktu" in data ? data.alokasiWaktu : "N/A",
               "kompetensiAwal" in data ? data.kompetensiAwal : "N/A",
               "projekPPancasila" in data ? data.projekPPancasila : "N/A",
@@ -493,7 +503,7 @@ export default defineComponent({
             },
             content: [
               {
-                text: "Capaian Pembelajaran",
+                text: "Modul Ajar",
                 fontSize: 12,
                 bold: true,
                 alignment: "center",
@@ -503,7 +513,16 @@ export default defineComponent({
                 table: {
                   headerRows: 1,
                   widths: Array(tableBody[0].length).fill("auto"),
-                  body: tableBody,
+                  body: tableBody.map((row) =>
+                    row.map((cell) => {
+                      // Check if the cell has a 'text' property and adjust the fontSize
+                      if (typeof cell === "object" && cell.text) {
+                        return { ...cell, fontSize: 8 };
+                      }
+                      // If the cell is a string, wrap it in an object with the desired fontSize
+                      return { text: cell, fontSize: 8 };
+                    }),
+                  ),
                 },
                 margin: [0, 0, 0, 20],
               },
@@ -549,7 +568,7 @@ export default defineComponent({
 
     openModalToEditItemById(id) {
       this.editedItemId = id;
-      this.editedItem = { ...this.items[id], id: this.items[id].ID }; // Use 'id' instead of 'ID'
+      this.editedItem = { ...this.items[id] };
     },
 
     toggleAddModal() {
@@ -587,7 +606,7 @@ export default defineComponent({
       border-color="#000000"
     >
       <va-button @click="toggleAddModal" preset="secondary" icon="add"
-        >Add Modul Ajar</va-button
+        >Create Modul Ajar</va-button
       >
     </va-button-group>
   </div>
@@ -625,7 +644,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       stripe
-      title="Add Modul Ajar"
+      title="Form Input Modul Ajar"
       size="large"
       :model-value="showModal"
       @ok="addNewItem"

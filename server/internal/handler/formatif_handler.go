@@ -43,28 +43,50 @@ func (handler *FormatifHandler) GetFormatifByID(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Formatif retrieved successfully", "data": formatif})
 }
 
+// CountRelatedQuestionsHandler handles requests to get the total count of related questions for all Formatif records
+func (handler *FormatifHandler) CountRelatedQuestionsHandler(c *fiber.Ctx) error {
+	// Log the start of the handler
+	log.Println("CountRelatedQuestionsHandler started")
+
+	// Call the service method to get the formatifs with question counts
+	formatifsWithQuestionCounts, err := handler.FormatifService.CountRelatedQuestionsForAll()
+	if err != nil {
+		// Log the error
+		log.Printf("Error in CountRelatedQuestionsHandler: %v\n", err)
+
+		// Handle error, e.g., write an error response
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting formatif question counts", "data": err})
+	}
+
+	// Log the successful retrieval of formatifs with question counts
+	log.Println("Successfully retrieved formatifs with question counts")
+
+	// Serialize the formatifs with question counts to JSON and write the response
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Formatif question counts retrieved successfully", "data": formatifsWithQuestionCounts})
+}
+
 func (handler *FormatifHandler) CreateFormatif(c *fiber.Ctx) error {
+	rawBody := c.Body()
+	log.Printf("Raw Request Body: %s\n", rawBody)
 
 	formatif := new(model.Formatif)
 
-	// Log request body for debugging purposes
-	log.Printf("Request Body: %+v\n", formatif)
-	log.Printf("Received Formatif object: %+v\n", formatif)
-
-	err := c.BodyParser(formatif)
-	if err != nil {
-		// Log parsing error for debugging purposes
+	// Parse the request body into the formatif struct
+	if err := c.BodyParser(formatif); err != nil {
 		log.Printf("Error parsing request body: %v\n", err)
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Review your input", "data": err})
 	}
 
-	err = handler.FormatifService.CreateFormatif(formatif)
-	if err != nil {
-		// Log creation error for debugging purposes
+	// Log the parsed formatif object
+	log.Printf("Parsed Formatif object: %+v\n", formatif)
+
+	// Call the repository method to create the formatif
+	if err := handler.FormatifService.CreateFormatif(formatif); err != nil {
 		log.Printf("Error creating formatif: %v\n", err)
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Couldn't create formatif", "data": err})
 	}
 
+	// Return the created formatif as the response
 	return c.JSON(fiber.Map{"status": "success", "message": "Formatif created", "data": formatif})
 }
 

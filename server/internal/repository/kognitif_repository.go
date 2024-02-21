@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -53,12 +54,29 @@ func (repository *KognitifRepository) CreateKognitif(kognitif *model.Kognitif) e
 		return err
 	}
 
-	// Add similar checks for mapel_id, kelas_id, tahun_ajar_id
+	// Unmarshal the DynamicFields JSON into a slice of maps
+	var dynamicFields []map[string]interface{}
+	if err := json.Unmarshal(kognitif.DynamicFields, &dynamicFields); err != nil {
+		return err
+	}
 
+	// Extract the labels from the DynamicFields array
+	var dynamicFieldsLabels []string
+	for _, field := range dynamicFields {
+		// Access the 'label' key from the map
+		if label, ok := field["label"].(string); ok {
+			dynamicFieldsLabels = append(dynamicFieldsLabels, label)
+		}
+	}
+
+	// Assign a new UUID to the kognitif object
 	kognitif.ID = uuid.New()
+
+	// Save the kognitif to the database
 	if err := repository.DB.Create(&kognitif).Error; err != nil {
 		return err
 	}
+
 	return nil
 }
 

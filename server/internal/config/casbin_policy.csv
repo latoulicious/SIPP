@@ -3,6 +3,8 @@
 # Define roles
 g, Admin, Admin
 g, Guru, Guru
+g, Wakasek, Wakasek
+g, Kepsek, Kepsek
 
 # Define permissions for roles
 p, Admin, /api/user, GET

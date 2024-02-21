@@ -20,6 +20,7 @@ export default defineComponent({
       createdItem: { ...defaultItem },
       items: [],
       showModal: false,
+      loading: false,
     };
   },
 
@@ -38,7 +39,14 @@ export default defineComponent({
   },
 
   methods: {
+    /**
+     * Fetches jurusan data from the API and updates component state.
+     * Requires valid JWT token with Authorization header.
+     * Handles loading state and errors.
+     */
     async fetchData() {
+      this.loading = true;
+
       try {
         const jwtToken = localStorage.getItem("jwtToken");
 
@@ -65,9 +73,17 @@ export default defineComponent({
         }));
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        this.loading = false;
       }
     },
 
+    /**
+     * Adds a new jurusan item by making a POST request to the API.
+     * Requires valid JWT token.
+     * Handles API response and updates component state on success.
+     * Logs errors on failure.
+     */
     async addNewItem() {
       try {
         const jwtToken = localStorage.getItem("jwtToken");
@@ -96,12 +112,18 @@ export default defineComponent({
 
         this.items.push(newJurusan);
         this.resetCreatedItem();
-        this.fetchData();
+        await this.fetchData();
       } catch (error) {
         console.error("Error adding new item:", error);
       }
     },
 
+    /**
+     * Edits an existing jurusan item by making a PUT request to the API.
+     * Requires valid JWT token.
+     * Handles API response and updates component state on success.
+     * Logs errors on failure.
+     */
     async editItem() {
       try {
         const jwtToken = localStorage.getItem("jwtToken");
@@ -133,37 +155,48 @@ export default defineComponent({
         };
 
         this.resetEditedItem();
-        this.fetchData();
+        await this.fetchData();
       } catch (error) {
         console.error("Error editing item:", error);
       }
     },
 
+    /**
+     * Deletes a jurusan item by ID by making a DELETE request to the API.
+     * Requires valid JWT token.
+     * Removes the deleted item from component state on success.
+     * Logs errors on failure.
+     */
     async deleteItemById(id) {
-      try {
-        const jwtToken = localStorage.getItem("jwtToken");
+      if (window.confirm("Are you sure you want to delete this item?")) {
+        try {
+          const jwtToken = localStorage.getItem("jwtToken");
 
-        if (!jwtToken) {
-          console.error("JWT token not available");
-          // Handle the case where the token is not available (e.g., redirect to login)
-          return;
+          if (!jwtToken) {
+            console.error("JWT token not available");
+            // Handle the case where the token is not available (e.g., redirect to login)
+            return;
+          }
+
+          // Add headers with the authentication token
+          const headers = {
+            Authorization: `Bearer ${jwtToken}`,
+          };
+
+          // Make the DELETE request with headers
+          await axios.delete(
+            `http://localhost:3000/api/jurusan/${this.items[id].id}`,
+            { headers },
+          );
+
+          // Remove the item from the array
+          this.items.splice(id, 1);
+          await this.fetchData();
+          // Optionally, you can show a success message
+          alert("Item deleted successfully");
+        } catch (error) {
+          console.error("Error deleting item:", error);
         }
-
-        // Add headers with the authentication token
-        const headers = {
-          Authorization: `Bearer ${jwtToken}`,
-        };
-
-        // Make the DELETE request with headers
-        await axios.delete(
-          `http://localhost:3000/api/jurusan/${this.items[id].id}`,
-          { headers },
-        );
-
-        // Remove the item from the array
-        this.items.splice(id, 1);
-      } catch (error) {
-        console.error("Error deleting item:", error);
       }
     },
 

@@ -8,11 +8,11 @@ import (
 type ModulAjar struct {
 	gorm.Model
 	ID                   uuid.UUID `gorm:"type:uuid;primary_key"`
-	UserID               uuid.UUID `gorm:"type:uuid" json:"userID"`
+	UserID               uuid.UUID `gorm:"type:uuid" json:"UserID"`
 	User                 Users     `gorm:"foreignKey:UserID"`
-	TahunAjarID          uuid.UUID `gorm:"type:uuid" json:"tahunAjarId"`
+	TahunAjarID          uuid.UUID `gorm:"type:uuid" json:"TahunAjarID"`
 	TahunAjar            TahunAjar `gorm:"foreignKey:TahunAjarID"`
-	KelasID              uuid.UUID `gorm:"type:uuid" json:"kelasId"`
+	KelasID              uuid.UUID `gorm:"type:uuid" json:"KelasID"`
 	Kelas                Kelas     `gorm:"foreignKey:KelasID"`
 	Sekolah              string    `json:"sekolah"`
 	AlokasiWaktu         string    `json:"alokasiWaktu"`

@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"errors"
-	"fmt"
 	"log"
 
 	"github.com/google/uuid"
@@ -35,25 +33,27 @@ func (repository *FormatifRepository) GetFormatifByID(formatifID uuid.UUID) (*mo
 }
 
 func (repository *FormatifRepository) CreateFormatif(formatif *model.Formatif) error {
-	// Check if user_id exists in users table
-	var user model.Users
-	if err := repository.DB.First(&user, "id = ?", formatif.UserID).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return fmt.Errorf("user with id %s does not exist", formatif.UserID)
-		}
-		return err
-	}
+	// Log the formatif object before saving to the database
+	log.Printf("Creating Formatif with DynamicFields: %+v\n", formatif.DynamicFields)
 
+	// Assign a new UUID to the formatif object
 	formatif.ID = uuid.New()
+
+	// Save the formatif to the database
 	if err := repository.DB.Create(&formatif).Error; err != nil {
 		return err
 	}
+
+	// Log the created formatif object
+	log.Printf("Created Formatif object: %+v\n", formatif)
+
 	return nil
 }
 
 func (repository *FormatifRepository) UpdateFormatif(formatif *model.Formatif) error {
 	log.Printf("Updating Formatif with ID: %s\n", formatif.ID)
 
+	// Assuming formatif.DynamicFields is populated with the updated dynamic fields
 	if err := repository.DB.Save(formatif).Error; err != nil {
 		log.Printf("Error saving formatif: %+v\n", err)
 		return err

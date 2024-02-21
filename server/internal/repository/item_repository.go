@@ -6,39 +6,27 @@ import (
 	"gorm.io/gorm"
 )
 
-type ItemRepository struct {
+type ItemSoalRepository struct {
 	DB *gorm.DB
 }
 
-func NewItemRepository(db *gorm.DB) *ItemRepository {
-	return &ItemRepository{DB: db}
+func NewItemSoalRepository(db *gorm.DB) *ItemSoalRepository {
+	return &ItemSoalRepository{DB: db}
 }
 
-func (repository *ItemRepository) GetItem() ([]model.ItemSoal, error) {
-	var item []model.ItemSoal
-	if err := repository.DB.Find(&item).Error; err != nil {
+func (repository *ItemSoalRepository) GetItemSoal() ([]model.ItemSoal, error) {
+	var itemsoal []model.ItemSoal
+	if err := repository.DB.Find(&itemsoal).Error; err != nil {
 		return nil, err
 	}
-	return item, nil
+
+	return itemsoal, nil
 }
 
-func (repository *ItemRepository) GetItemByID(itemID uuid.UUID) (*model.ItemSoal, error) {
-	var item model.ItemSoal
-	if err := repository.DB.First(&item, "id = ?", itemID).Error; err != nil {
+func (repository *ItemSoalRepository) GetItemSoalByID(itemsoalID uuid.UUID) (*model.ItemSoal, error) {
+	var itemsoal model.ItemSoal
+	if err := repository.DB.First(&itemsoal, "id = ?", itemsoalID).Error; err != nil {
 		return nil, err
 	}
-	return &item, nil
-}
-
-func (repository *ItemRepository) CreateItem(item *model.ItemSoal) error {
-	item.ID = uuid.New()
-	return repository.DB.Create(item).Error
-}
-
-func (repository *ItemRepository) UpdateItem(item *model.ItemSoal) error {
-	return repository.DB.Save(item).Error
-}
-
-func (repository *ItemRepository) DeleteItem(itemID uuid.UUID) error {
-	return repository.DB.Delete(&model.ItemSoal{}, "id = ?", itemID).Error
+	return &itemsoal, nil
 }
