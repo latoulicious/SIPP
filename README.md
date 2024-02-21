@@ -54,14 +54,19 @@ Navigate to the web folder:
 
 ```sh
 cd web
+cd web
 ```
+
+Install dependencies:
 
 Install dependencies:
 
 ```sh
 pnpm install
+pnpm install
 ```
 
+Development mode (with hot reloading):
 Development mode (with hot reloading):
 
 ```sh
@@ -69,11 +74,13 @@ pnpm dev
 ```
 
 Production build:
+Production build:
 
 ```sh
 pnpm build
 ```
 
+Linting:
 Linting:
 
 ```sh
@@ -81,10 +88,57 @@ pnpm lint
 ```
 
 Formatting:
+Formatting:
 
 ```sh
 pnpm format
 ```
+
+> Server Setup
+
+Navigate to the server folder:
+
+```sh
+cd server
+```
+
+Download dependencies:
+
+```sh
+go mod tidy
+```
+
+Development mode (with hot reloading):
+
+* Set up environment variables for Air (refer to [Air documentation](https://github.com/cosmtrek/air) )
+
+```sh
+air
+```
+
+Running without hot reloading:
+
+```sh
+go run cmd/main.go
+```
+
+> Additional Notes:
+
+* The server will typically connect to a PostgreSQL database. Setup your database and configure connection settings in the server's environment.
+
+## Contributing
+
+We greatly appreciate contributions to this project! If you have improvements, bug fixes, or new features you'd like to suggest, please:
+
+* Open an issue: Describe the proposed change or issue in detail. This helps us track discussions and understand the context for potential contributions.
+
+* Submit a pull request: Fork the repository, make your changes, and submit a pull request for review. Be sure to follow any established coding standards and conventions.
+
+For more detailed guidelines on our contribution process, please refer to our [CONTRIBUTING.md](https://github.com/latoulicious/SIPP/blob/server/CONTRIBUTING.md).
+
+## License
+
+This project is licensed under the  MIT license. For the full license text, please see the [LICENSE](https://github.com/latoulicious/SIPP/blob/main/LICENSE).
 
 > Server Setup
 
