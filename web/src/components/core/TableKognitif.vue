@@ -169,6 +169,15 @@ export default defineComponent({
   },
 
   methods: {
+    /**
+ * Fetches kognitif data from the API and processes it:
+ * - Makes requests to the API endpoints to get kognitif, user, kelas, mapel, 
+ *   tahun, bank, and question count data
+ * - Extracts options from the user, kelas, mapel, tahun, and bank data
+ * - Creates a question count lookup object
+ * - Merges the question count into each kognitif item
+ * - Returns the processed kognitif data array
+ */
     async fetchData() {
       this.loading = true;
 
@@ -259,6 +268,14 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Adds a new item to the list of items.
+ * 
+ * Makes a POST request to the API to add the new item. 
+ * Constructs the request payload from the createdItem state and dynamicFieldsArray.
+ * Updates the local items array and refetches data after successful add.
+ * Handles errors and resets state after add is complete.
+ */
     async addNewItem() {
       if (!this.isNewData) {
         alert("Please fill in all fields.");
@@ -322,6 +339,17 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Edits an existing item in the data table.
+ * 
+ * Makes a deep copy of the edited item object to avoid mutating the original.
+ * Renames the 'ID' property to 'id' and removes unneeded properties.
+ * Calls the API endpoint to update the item data in the database.
+ * Refetches the data to refresh the table after updating.
+ * Resets the editedItem after successful update.
+ * 
+ * @throws {Error} If the API call fails.
+*/
     async editItem() {
       try {
         // Create a deep copy of the edited item
@@ -349,6 +377,16 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Deletes a kognitif item by ID.
+ * 
+ * Prompts user to confirm deletion. 
+ * Makes API call to delete item on server.
+ * Removes item from local items array.
+ * Refreshes data table after deletion by calling fetchData().
+ * Shows alert on success.
+ * Logs error on failure.
+*/
     async deleteItemById(id) {
       if (window.confirm("Are you sure you want to delete this item?")) {
         try {
@@ -377,6 +415,15 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Opens the detail modal for the row at the given index. 
+ * 
+ * Fetches the full data for the item from the API using the ID.
+ * Sets the detailItem data with the fetched data.
+ * Shows the modal.
+ * 
+ * Logs and handles any errors.
+*/
     async openDetailModal(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
       console.log("Opening detail modal with ID:", selectedItemId);
@@ -416,6 +463,16 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Prints a PDF report for the row at the given index.
+ * 
+ * Fetches the full data for the row from the API using the ID.
+ * Extracts relevant metadata and questions/options from the response.
+ * Generates a PDF using pdfMake with the extracted data.
+ * Opens the PDF.
+ * 
+ * Logs and handles any errors.
+*/
     async printRow(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
       console.log(`Selected item ID: ${selectedItemId}`);

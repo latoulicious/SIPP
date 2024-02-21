@@ -48,6 +48,14 @@ export default defineComponent({
   },
 
   methods: {
+    /**
+ * Fetches user data from the API.
+ * 
+ * Gets the JWT token from local storage.
+ * Makes a request to the /api/user endpoint using Axios.
+ * Maps the response data to the required schema.
+ * Handles loading state and errors.
+ */
     async fetchData() {
       this.loading = true;
 
@@ -89,6 +97,15 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Adds a new user item by making a POST request to the API.
+ * 
+ * Authenticates using a JWT token from local storage.
+ * Pushes the new user object returned from the API onto the items array.
+ * Refetches the data after adding the new item.
+ * 
+ * @throws {Error} If the API request fails
+*/
     async addNewItem() {
       try {
         const jwtToken = localStorage.getItem("jwtToken");
@@ -128,6 +145,16 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Edits an existing user item by making a PUT request to the API.
+ * 
+ * Authenticates using a JWT token from local storage.
+ * Sends the edited user data to the API.
+ * Directly updates the edited item in the items array with the response.
+ * Refetches the data after editing the item.
+ * 
+ * @throws {Error} If the API request fails
+*/
     async editItem() {
       try {
         const jwtToken = localStorage.getItem("jwtToken");
@@ -175,6 +202,15 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Deletes a user by ID.
+ * 
+ * Prompts for confirmation before deleting.
+ * Retrieves JWT token from localStorage to authenticate request.
+ * Makes DELETE request to API with authentication header.
+ * Removes deleted user from items array.
+ * Refetches data after deleting to update list.
+ */
     async deleteItemById(id) {
       if (window.confirm("Are you sure you want to delete this item?")) {
         try {

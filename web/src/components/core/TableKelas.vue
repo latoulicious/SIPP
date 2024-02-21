@@ -39,6 +39,13 @@ export default defineComponent({
   },
 
   methods: {
+    /**
+ * Fetches kelas data from the API and updates component state.
+ * 
+ * Makes authenticated request to API endpoint using stored JWT token.
+ * Handles loading state and errors.
+ * Maps API response data to format needed for component state.
+ */
     async fetchData() {
       this.loading = true;
 
@@ -72,6 +79,15 @@ export default defineComponent({
         this.loading = false;
       }
     },
+    /**
+     * Adds a new kelas item by making a POST request to the API.
+     * - Gets the JWT token from localStorage.
+     * - Makes a POST request to the API with the new item data. 
+     * - Handles API response and adds new item to component's items array.
+     * - Resets the component's createdItem data.
+     * - Refetches latest data from API after adding new item.
+     * - Handles any errors from the API request.
+     */
 
     async addNewItem() {
       try {
@@ -107,6 +123,18 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Edit an existing kelas item by making a PUT request.
+ * 
+ * Fetch the JWT token from localStorage to authenticate the request.
+ * Construct the edited kelas data object to send in the request body.
+ * Make the PUT request to the kelas API endpoint with the item ID.
+ * Update the item in the local items array with the response data.
+ * Reset the editedItem state.
+ * Refetch the kelas data.
+ * 
+ * @throws {Error} If the request fails.
+ */
     async editItem() {
       try {
         const jwtToken = localStorage.getItem("jwtToken");
@@ -145,6 +173,17 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Deletes a kelas by ID.
+ * 
+ * Prompts user to confirm deletion. 
+ * Checks for JWT token and adds authorization header.
+ * Makes DELETE request to API with kelas ID.
+ * Removes kelas from items array.
+ * Refetches data from API after deletion.
+ * Shows alert on success.
+ * Logs error on failure.
+*/
     async deleteItemById(id) {
       if (window.confirm("Are you sure you want to delete this item?")) {
         try {

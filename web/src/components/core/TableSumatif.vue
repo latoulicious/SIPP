@@ -169,6 +169,14 @@ export default defineComponent({
   },
 
   methods: {
+    /**
+ * Fetches sumatif data from the API and processes it:
+ * - Makes requests to the API endpoints to get the sumatif data and related entities. 
+ * - Extracts options for select inputs from the entity data.
+ * - Gets question counts for each sumatif and merges into the data.
+ * - Transforms the raw API data into a cleaned up array for the component.
+ * - Catches any errors and sets the loading state.
+*/
     async fetchData() {
       this.loading = true;
 
@@ -259,6 +267,13 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Adds a new item to the list of sumatif items. 
+ * 
+ * Constructs a payload object containing the new item data, including static fields like 
+ * BankSoalID and dynamic fields from the dynamicFieldsArray. Sends the payload to the API 
+ * to add the new item. Updates the local items array and resets the form.
+ */
     async addNewItem() {
       if (!this.isNewData) {
         alert("Please fill in all fields.");
@@ -322,6 +337,16 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Edits an existing item in the data table.
+ * 
+ * Makes a deep copy of the edited item object. 
+ * Renames the 'ID' property to 'id'.
+ * Removes unwanted properties from the copied object.
+ * Sends a PUT request to update the item on the server.
+ * Resets the editedItem data after update.
+ * Refetches data to refresh the table after update.
+ */
     async editItem() {
       try {
         // Create a deep copy of the edited item
@@ -349,6 +374,16 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Deletes an item by ID.
+ * 
+ * Prompts user to confirm deletion.
+ * Sends DELETE request to server.
+ * Removes item from items array.
+ * Refetches data to refresh table.
+ * Shows success message.
+ * Handles errors.
+ */
     async deleteItemById(id) {
       if (window.confirm("Are you sure you want to delete this item?")) {
         try {
@@ -377,6 +412,15 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Opens the detail modal for the row at the given index.
+ * 
+ * Gets the item ID from the filtered items array.
+ * Makes API call to get full item data.
+ * Maps response data to detailItem object.
+ * Shows modal with detailItem data.
+ * Handles errors.
+ */
     async openDetailModal(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
       console.log("Opening detail modal with ID:", selectedItemId);
@@ -416,6 +460,17 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Prints a row from the table by fetching the data for the given row index.
+ * 
+ * It makes API calls to fetch the full data for the row, extracts relevant metadata, 
+ * fetches additional data from another API endpoint, extracts questions and options,
+ * generates a PDF definition, and opens the PDF.
+ * 
+ * The PDF contains the metadata, questions and options extracted from the data.
+ * 
+ * @param {number} rowIndex - The index of the row to print
+ */
     async printRow(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
       console.log(`Selected item ID: ${selectedItemId}`);

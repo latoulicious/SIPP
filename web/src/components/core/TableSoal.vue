@@ -188,6 +188,16 @@ export default defineComponent({
   },
 
   methods: {
+    /**
+ * Fetches data from API endpoints and processes response to populate table. 
+ * 
+ * Makes requests to API endpoints to get soal, user, kelas, jurusan, mapel, bank soal, 
+ * and question count data. 
+ * 
+ * Maps question count and dynamic fields to soal items after fetching all data.
+ * 
+ * Returns processed list of items to display in table.
+*/
     async fetchData() {
       this.loading = true;
 
@@ -307,6 +317,16 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Adds a new item to the list of items.
+ * 
+ * Makes a POST request to the API to add the new item. 
+ * Constructs the payload from the static BankSoalID field and 
+ * dynamic fields selected by the user.
+ * 
+ * Updates the local items array and table after successful 
+ * addition.
+*/
     async addNewItem() {
       if (!this.isNewData) {
         alert("Please fill in all fields.");
@@ -371,6 +391,14 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Edits an existing item in the list.
+ * 
+ * Makes a deep copy of the edited item to avoid mutating the original.
+ * Converts the 'ID' field to 'id' and removes unneeded fields.
+ * Sends a PUT request to update the item on the server.
+ * Refetches the data to refresh the table after updating.
+ */
     async editItem() {
       try {
         // Create a deep copy of the edited item
@@ -398,6 +426,16 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Deletes a soal item by ID.
+ * 
+ * Prompts user to confirm deletion. 
+ * Makes API call to delete soal item.
+ * Removes deleted item from items array.
+ * Refreshes data table after deletion.
+ * Shows alert on success.
+ * Logs error on failure.
+*/
     async deleteItemById(id) {
       if (window.confirm("Are you sure you want to delete this item?")) {
         try {
@@ -425,7 +463,10 @@ export default defineComponent({
         }
       }
     },
-
+        /**
+     * Opens the detail modal for the row at the given index. 
+ * Fetches the data for that row from the API and populates the modal with it.
+ */
     async openDetailModal(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
       console.log("Opening detail modal with ID:", selectedItemId);
@@ -462,6 +503,13 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Prints a PDF report for the row at the given index.
+ * 
+ * Fetches the data for the row from the API and extracts the metadata and questions/options. 
+ * Uses pdfMake to generate a PDF report with the metadata, questions, and options formatted.
+ * Opens the generated PDF in the browser for previewing/printing.
+ */
     async printRow(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
       console.log(`Selected item ID: ${selectedItemId}`);

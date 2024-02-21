@@ -118,6 +118,16 @@ export default defineComponent({
   },
 
   methods: {
+    /**
+ * Fetches data from the API and populates component state.
+ * 
+ * Makes requests to multiple API endpoints to get users, classes, 
+ * subjects, academic years, and formative assessment data. 
+ * 
+ * Merges question count data into the formative assessment items.
+ * 
+ * Handles loading state and errors.
+*/
     async fetchData() {
       this.loading = true;
 
@@ -197,6 +207,15 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Adds a new item to the list of items.
+ * 
+ * Collects the static and dynamic fields from the form data, constructs a newItem object,
+ * logs it, makes a POST request to the API to add it, pushes the new item into the local list,
+ * refetches the data to refresh the table, and resets the form.
+ * 
+ * Handles errors from the API request.
+*/
     async addNewItem() {
       if (!this.isNewData) {
         alert("Please fill in all fields.");
@@ -247,6 +266,14 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Edits an existing item.
+ * 
+ * Collects the dynamic fields from the form.
+ * Creates an item to edit with the dynamic fields included.
+ * Sends a PUT request to update the item on the server.
+ * Refreshes the data table after updating.
+ */
     async editItem() {
       // Collect dynamic fields from the form
       const dynamicFields = this.collectDynamicFields();
@@ -283,6 +310,14 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Deletes an item by ID.
+ * 
+ * Prompts the user to confirm deletion. 
+ * Sends a DELETE request to the API to delete the item.
+ * Removes the deleted item from the local items array.
+ * Refetches the data to refresh the table.
+ */
     async deleteItemById(id) {
       if (window.confirm("Are you sure you want to delete this item?")) {
         try {
@@ -311,6 +346,10 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Opens the detail modal to show more info about the item at the given row index. 
+ * Fetches the full item data from the API and populates the modal with it.
+*/
     async openDetailModal(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
       console.log("Opening detail modal with ID:", selectedItemId);
@@ -338,6 +377,12 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Prints a row from the table by fetching the full data for that row from the API. 
+ * Extracts relevant metadata and question data, and generates a PDF document containing the metadata and questions.
+ * 
+ * @param {number} rowIndex - The index of the row in the filtered items array to print.
+ */
     async printRow(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
       console.log(`Selected item ID: ${selectedItemId}`);

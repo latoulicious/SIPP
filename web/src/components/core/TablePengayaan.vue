@@ -118,6 +118,15 @@ export default defineComponent({
   },
 
   methods: {
+    /**
+ * Fetches Pengayaan data from the API and processes it:
+ * - Makes requests to the API endpoints to get Pengayaan, user, kelas, mapel, and tahun data 
+ * - Extracts user, kelas, mapel, and tahun options from the responses
+ * - Gets total question counts for each Pengayaan item
+ * - Merges the question counts into the Pengayaan data
+ * 
+ * Returns a Promise that resolves to the processed Pengayaan data array.
+ */
     async fetchData() {
       this.loading = true;
 
@@ -197,6 +206,14 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Adds a new item to the API.
+ * 
+ * Collects the static and dynamic fields from the form data. 
+ * Constructs a newItem object without the questionCount field.
+ * Sends a POST request to the API to add the new item.
+ * Re-fetches the data to refresh the table after adding.
+ */
     async addNewItem() {
       if (!this.isNewData) {
         alert("Please fill in all fields.");
@@ -247,6 +264,13 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Edits an existing item in the Pengayaan collection.
+ * 
+ * Collects the dynamic form fields and includes them in the item to edit.
+ * Sends a PUT request to update the item in the API.
+ * Refreshes the table data after successfully updating.
+ */
     async editItem() {
       // Collect dynamic fields from the form
       const dynamicFields = this.collectDynamicFields();
@@ -283,6 +307,16 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Deletes an item by ID.
+ * 
+ * Prompts user to confirm deletion. 
+ * Makes API call to delete item.
+ * Removes item from items array.
+ * Refreshes data table after deletion.
+ * Shows alert on success.
+ * Logs error on failure.
+*/
     async deleteItemById(id) {
       if (window.confirm("Are you sure you want to delete this item?")) {
         try {
@@ -311,6 +345,15 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Opens the detail modal for the item at the given row index.
+ * 
+ * Gets the item ID from the filtered items array.
+ * Makes API call to get item data by ID. 
+ * Sets detailItem to the retrieved data.
+ * Opens the modal.
+ * Logs errors if data cannot be retrieved.
+*/
     async openDetailModal(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
       console.log("Opening detail modal with ID:", selectedItemId);
@@ -338,6 +381,17 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Prints a row from the filtered items array.
+ * 
+ * Gets the item ID for the row index.
+ * Makes API call to get full item data.
+ * Logs the full data object.
+ * Extracts metadata and questions from the data.
+ * Generates a PDF definition with metadata, divider, and questions.
+ * Opens the PDF.
+ * Logs errors if data cannot be retrieved.
+*/
     async printRow(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
       console.log(`Selected item ID: ${selectedItemId}`);

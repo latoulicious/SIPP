@@ -146,6 +146,14 @@ export default defineComponent({
   },
 
   methods: {
+    /**
+ * Fetches modul data from the API and populates component state.
+ * 
+ * Calls the API to get modul, user, kelas, and tahun data. 
+ * Processes the responses to extract useful options for dropdowns.
+ * Maps the modul data into a cleaned format for display in the table.
+ * Handles loading state and errors.
+ */
     async fetchData() {
       this.loading = true;
 
@@ -217,6 +225,14 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Adds a new item to the database.
+ * 
+ * Makes a POST request to the API to create a new item, 
+ * then updates the local items array and table.
+ * 
+ * Handles error catching and resetting the form on success.
+*/
     async addNewItem() {
       if (!this.isNewData) {
         alert("Please fill in all fields.");
@@ -263,6 +279,14 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Updates an existing item in the database.
+ * 
+ * Makes a copy of the edited item data, converts the ID to lowercase id,
+ * removes unnecessary fields, then makes a PUT request to update the item.
+ * 
+ * Handles any errors from the API request.
+*/
     async editItem() {
       try {
         // Create a deep copy of the edited item
@@ -291,6 +315,16 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Deletes a modul by ID.
+ * 
+ * Prompts user to confirm deletion. 
+ * Calls API to delete modul by ID.
+ * Removes deleted modul from items array.
+ * Refetches data to refresh table.
+ * Shows success message.
+ * Handles errors.
+ */
     async deleteItemById(id) {
       if (window.confirm("Are you sure you want to delete this item?")) {
         try {
@@ -361,6 +395,16 @@ export default defineComponent({
         });
     },
 
+    /**
+ * Prints a row from the table.
+ * 
+ * Fetches the data for the row from the API using the row index. 
+ * Logs the data properties.
+ * Generates a PDF document with a header and table body containing the row data.
+ * Opens the PDF for printing.
+ * 
+ * @param {number} rowIndex - The index of the row to print
+ */
     async printRow(rowIndex) {
       const selectedItemId = this.filteredItems[rowIndex].ID;
 
@@ -498,15 +542,6 @@ export default defineComponent({
       } catch (error) {
         console.error("Error fetching data for printing:", error);
       }
-    },
-
-    imageFileToDataUrl(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
     },
 
     extractOptions(data, labelProperty) {

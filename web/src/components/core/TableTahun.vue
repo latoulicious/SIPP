@@ -39,6 +39,13 @@ export default defineComponent({
   },
 
   methods: {
+    /**
+ * Fetches data from the API and updates the items array.
+ * 
+ * Makes an authenticated request to the API endpoint to get the data.
+ * Updates the component's items array with the response data.
+ * Handles loading state and errors.
+ */
     async fetchData() {
       this.loading = true;
 
@@ -73,6 +80,13 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Adds a new item to the API.
+ * 
+ * Makes an authenticated POST request to the API endpoint to add a new item. 
+ * Updates the component's items array with the new item.
+ * Handles loading state and errors.
+*/
     async addNewItem() {
       try {
         const jwtToken = localStorage.getItem("jwtToken");
@@ -107,6 +121,13 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Edits an existing item via the API.
+ * 
+ * Makes an authenticated PUT request to the API endpoint to update the item.
+ * Updates the component's items array with the edited item.
+ * Handles loading state and errors.
+*/
     async editItem() {
       try {
         const jwtToken = localStorage.getItem("jwtToken");
@@ -144,6 +165,17 @@ export default defineComponent({
       }
     },
 
+    /**
+ * Deletes an item by ID.
+ * 
+ * Prompts user for confirmation before deleting.
+ * Retrieves JWT token from local storage.
+ * Makes DELETE request to API with authentication header.
+ * Removes item from items array.
+ * Refetches data from API after deleting.
+ * Shows alert on success.
+ * Logs error on failure.
+ */
     async deleteItemById(id) {
       if (window.confirm("Are you sure you want to delete this item?")) {
         try {
