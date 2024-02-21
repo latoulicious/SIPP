@@ -12,14 +12,16 @@ type MapelHandler struct {
 }
 
 func NewMapelHandler(mapelService *service.MapelService) *MapelHandler {
-	return &MapelHandler{MapelService: mapelService}
+	return &MapelHandler{
+		MapelService: mapelService,
+	}
 }
 
 func (handler *MapelHandler) GetMapel(c *fiber.Ctx) error {
 	mapel, err := handler.MapelService.GetMapel()
 
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting users", "data": err})
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting mapel", "data": err})
 	}
 
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Mapels retrieved successfully", "data": mapel})
@@ -32,6 +34,16 @@ func (handler *MapelHandler) GetMapelByID(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{"status": "success", "message": "Mapel retrieved successfully", "data": mapelID})
+}
+
+func (handler *MapelHandler) GetMapelPublic(c *fiber.Ctx) error {
+	// Implement logic to fetch all mapel without requiring JWT authentication
+	mapel, err := handler.MapelService.GetMapelPublic()
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Error getting mapel", "data": err})
+	}
+
+	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Mapels retrieved successfully", "data": mapel})
 }
 
 func (handler *MapelHandler) CreateMapel(c *fiber.Ctx) error {

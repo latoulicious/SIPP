@@ -1,391 +1,783 @@
 <script>
 import { defineComponent } from "vue";
-import { useModal } from "vuestic-ui";
+import { ref } from "vue";
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+import axios from "axios";
+
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
+
+const defaultItem = {
+  User: {}, // Initialize as an empty object
+  Kelas: {}, // Initialize as an empty object
+  TahunAjar: {}, // Initialize as an empty object
+  Sekolah: "",
+  AlokasiWaktu: "",
+  KompetensiAwal: "",
+  ProjekPPancasila: "",
+  SaranaPrasarana: "",
+  TargetPesertaDidik: "",
+  ModelPembelajaran: "",
+  TujuanPembelajaran: "",
+  PemahamanBermakna: "",
+  PertanyaanPemantik: "",
+  KegiatanPembelajaran: "",
+  Refleksi: "",
+  Glosarium: "",
+  DaftarPustaka: "",
+};
+
+const displayNames = {
+  User: "Nama Penyusun",
+  TahunAjar: "Tahun Ajar",
+  Kelas: "Kelas",
+  Sekolah: "Sekolah",
+  AlokasiWaktu: "Alokasi Waktu",
+  KompetensiAwal: "Kompetensi Awal",
+  ProjekPPancasila: "Projek P Pancasila",
+  SaranaPrasarana: "Sarana Prasarana",
+  TargetPesertaDidik: "Target Peserta Didik",
+  ModelPembelajaran: "Model Pembelajaran",
+  TujuanPembelajaran: "Tujuan Pembelajaran",
+  PemahamanBermakna: "Pemahaman Bermakna",
+  PertanyaanPemantik: "Pertanyaan Pemantik",
+  KegiatanPembelajaran: "Kegiatan Pembelajaran",
+  Refleksi: "Refleksi",
+  Glosarium: "Glosarium",
+  DaftarPustaka: "Daftar Pustaka",
+};
 
 export default defineComponent({
   data() {
-    const { confirm } = useModal();
-
-    const generateItems = (count) => {
-      const users = [
-        {
-          id: 1,
-          nama_penyusun: "Leanne Graham",
-          mata_pelajaran: "Kimia",
-          kelas: "10",
-          tahun_ajaran: "Ganjil",
-        },
-        {
-          id: 2,
-          nama_penyusun: "Ervin Howell",
-          mata_pelajaran: "Kimia",
-          kelas: "11",
-          tahun_ajaran: "Genap",
-        },
-        {
-          id: 3,
-          nama_penyusun: "Clementine Bauch",
-          mata_pelajaran: "Kimia",
-          kelas: "12",
-          tahun_ajaran: "Ganjil & Genap",
-        },
-        // Add more users if needed
-      ];
-
-      // Generate user Array
-      return new Array(count).fill(null).map((_, idx) => {
-        const user = { ...users[idx % users.length] };
-        user.id = idx + 1;
-        return user;
-      });
-    };
-
-    const onButtonClick = () => {
-      confirm({
-        blur: true,
-        title: "Confirm",
-        message: "Are you sure you want to delete this item?",
-      });
-    };
-
     const columns = [
-      { key: "id", sortable: false },
-      { key: "nama_penyusun", sortable: false },
-      { key: "mata_pelajaran", sortable: false },
-      { key: "kelas", sortable: false },
-      { key: "tahun_ajaran", sortable: false },
+      { key: "User", label: "Nama Penyusun", sortable: false },
+      { key: "Kelas", label: "Kelas", sortable: false },
+      { key: "TahunAjar", label: "Tahun Ajar", sortable: false },
+      { key: "AlokasiWaktu", label: "Alokasi Waktu", sortable: false },
+      { key: "actions", label: "Actions", width: 80 },
     ];
-    const items = generateItems(50); // Adjust the count as needed
-    const filtered = items.map((item) => item.id);
 
     return {
-      items,
       columns,
-      perPage: 3,
-      currentPage: 1,
-      isTableStriped: true,
-      animated: true,
-      selectedRows: [],
-      rowEventType: "",
-      rowId: "",
-      filtered,
-      loading: true,
+      editedItemId: null,
+      editedItem: null,
+      createdItem: { ...defaultItem },
+      input: ref({ value: "" }),
+      items: [],
+      usersOptions: [],
+      kelasOptions: [],
+      tahunAjarOptions: [],
+      textAreaFields: [
+        "Sekolah",
+        "AlokasiWaktu",
+        "KompetensiAwal",
+        "ProjekPPancasila",
+        "SaranaPrasarana",
+        "TargetPesertaDidik",
+        "ModelPembelajaran",
+        "TujuanPembelajaran",
+        "PemahamanBermakna",
+        "PertanyaanPemantik",
+        "KegiatanPembelajaran",
+        "Refleksi",
+        "Glosarium",
+        "DaftarPustaka",
+      ],
       showModal: false,
-      input: "",
-      onButtonClick,
+      viewModalVisible: false,
+      detailItem: null,
+      detailModalVisible: false,
+      displayNames,
+      loading: false,
     };
   },
 
   computed: {
-    pages() {
-      return this.perPage && this.perPage !== 0
-        ? Math.ceil(this.filtered.length / this.perPage)
-        : this.filtered.length;
+    filteredDetailFields() {
+      return Object.keys(this.detailItem).filter(
+        (key) =>
+          !["created_at", "updated_at", "deleted_at", "id"].includes(key),
+      );
+    },
+
+    filteredDisplayNames() {
+      return Object.fromEntries(
+        Object.entries(this.displayNames).filter(
+          ([key]) =>
+            !["created_at", "updated_at", "deleted_at", "id"].includes(key),
+        ),
+      );
+    },
+
+    filteredInputFields() {
+      return this.inputFields.filter((key) => key);
+    },
+
+    isViewModalVisible() {
+      return this.viewModalVisible;
+    },
+
+    filteredItems() {
+      const searchTerms = this.input.value.toLowerCase().trim().split(/\s+/);
+
+      if (searchTerms.length === 0) {
+        return this.items; // No search term, return all items
+      } else {
+        return this.items.filter((item) => {
+          return searchTerms.every((term) => {
+            return Object.values(item).some((value) => {
+              // Check if any property value contains the search term
+              return String(value).toLowerCase().includes(term);
+            });
+          });
+        });
+      }
+    },
+
+    isNewData() {
+      return Object.keys(this.createdItem).every(
+        (key) => !!this.createdItem[key],
+      );
+    },
+
+    inputFields() {
+      return Object.keys(this.createdItem);
     },
   },
 
   methods: {
-    fetchData() {
-      // Simulate a delay and then set loading to false
-      setTimeout(() => {
+    /**
+     * Fetches modul data from the API and populates component state.
+     *
+     * Calls the API to get modul, user, kelas, and tahun data.
+     * Processes the responses to extract useful options for dropdowns.
+     * Maps the modul data into a cleaned format for display in the table.
+     * Handles loading state and errors.
+     */
+    async fetchData() {
+      this.loading = true;
+
+      try {
+        // Simulate a delay
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        const response = await axios.get("http://localhost:3000/api/modul");
+        const userResponse = await axios.get(
+          "http://localhost:3000/api/public/user",
+        );
+        const kelasResponse = await axios.get(
+          "http://localhost:3000/api/public/kelas",
+        );
+        const tahunResponse = await axios.get(
+          "http://localhost:3000/api/public/tahun",
+        );
+
+        // Process the data and update the UI
+        console.log("Response from server (Modul):", response.data);
+        // console.log("Response from server (Users):", userResponse.data);
+        // console.log("Response from server (Kelas):", kelasResponse.data);
+        // console.log("Response from server (Tahun):", tahunResponse.data);
+
+        // Populate usersOptions, mapelsOptions, kelasOptions, tahunAjarOptions
+        this.usersOptions = this.extractOptions(userResponse.data.data, "Name");
+        // console.log("Users options:", this.usersOptions);
+
+        this.kelasOptions = this.extractOptions(
+          kelasResponse.data.data,
+          "Kelas",
+        );
+        // console.log("Kelas options:", this.kelasOptions);
+
+        this.tahunAjarOptions = this.extractOptions(
+          tahunResponse.data.data,
+          "Tahun",
+        );
+        // console.log("Tahun Ajar options:", this.tahunAjarOptions);
+
+        // Update the items array with Modul data
+        this.items = response.data.data.map((item) => ({
+          ...item,
+          ID: item.ID || "", // Use 'ID' instead of 'id'
+          User: item.User.Name || "",
+          Kelas: item.Kelas.Kelas || "",
+          TahunAjar: item.TahunAjar.Tahun || "",
+          Sekolah: item.sekolah || "",
+          AlokasiWaktu: item.alokasiWaktu || "",
+          KompetensiAwal: item.kompetensiAwal || "",
+          ProjekPPancasila: item.projekPPancasila || "",
+          SaranaPrasarana: item.saranaPrasarana || "",
+          TargetPesertaDidik: item.targetPesertaDidik || "",
+          ModelPembelajaran: item.modelPembelajaran || "",
+          TujuanPembelajaran: item.tujuanPembelajaran || "",
+          PemahamanBermakna: item.pemahamanBermakna || "",
+          PertanyaanPemantik: item.pertanyaanPemantik || "",
+          KegiatanPembelajaran: item.kegiatanPembelajaran || "",
+          Refleksi: item.refleksi || "",
+          Glosarium: item.glosarium || "",
+          DaftarPustaka: item.daftarPustaka || "",
+        }));
+
+        console.log("modul Items:", this.items);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
         this.loading = false;
-      }, 600); // Adjust the delay value (in milliseconds) as needed
-    },
-  },
-
-  watch: {
-    currentPage(newPage, oldPage) {
-      // Watch for changes in currentPage and update loading state
-      if (newPage !== oldPage) {
-        this.loading = true;
-
-        // Simulate fetching data and set loading to false after a delay
-        this.fetchData();
       }
+    },
+
+    /**
+     * Adds a new item to the database.
+     *
+     * Makes a POST request to the API to create a new item,
+     * then updates the local items array and table.
+     *
+     * Handles error catching and resetting the form on success.
+     */
+    async addNewItem() {
+      if (!this.isNewData) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      try {
+        console.log("Creating new item with data:", this.createdItem);
+
+        const response = await axios.post("http://localhost:3000/api/modul", {
+          UserID: this.createdItem.UserID.toString(),
+          KelasID: this.createdItem.KelasID.toString(),
+          TahunAjarID: this.createdItem.TahunAjarID.toString(),
+          Sekolah: this.createdItem.Sekolah,
+          AlokasiWaktu: this.createdItem.AlokasiWaktu,
+          KompetensiAwal: this.createdItem.KompetensiAwal,
+          ProjekPPancasila: this.createdItem.ProjekPPancasila,
+          SaranaPrasarana: this.createdItem.SaranaPrasarana,
+          TargetPesertaDidik: this.createdItem.TargetPesertaDidik,
+          ModelPembelajaran: this.createdItem.ModelPembelajaran,
+          TujuanPembelajaran: this.createdItem.TujuanPembelajaran,
+          PemahamanBermakna: this.createdItem.PemahamanBermakna,
+          PertanyaanPemantik: this.createdItem.PertanyaanPemantik,
+          KegiatanPembelajaran: this.createdItem.KegiatanPembelajaran,
+          Refleksi: this.createdItem.Refleksi,
+          Glosarium: this.createdItem.Glosarium,
+          DaftarPustaka: this.createdItem.DaftarPustaka,
+        });
+
+        this.items.push({
+          ...this.createdItem,
+        });
+
+        console.log("Server Response:", response.data);
+
+        // Re-fetch the data to refresh the table
+        await this.fetchData();
+
+        setTimeout(() => {
+          this.resetCreatedItem();
+        }, 500);
+      } catch (error) {
+        console.error("Error creating new item:", error);
+      }
+    },
+
+    /**
+     * Updates an existing item in the database.
+     *
+     * Makes a copy of the edited item data, converts the ID to lowercase id,
+     * removes unnecessary fields, then makes a PUT request to update the item.
+     *
+     * Handles any errors from the API request.
+     */
+    async editItem() {
+      try {
+        // Create a deep copy of the edited item
+        const editedData = JSON.parse(JSON.stringify(this.editedItem));
+
+        /// Change 'ID' to 'id'
+        editedData.id = editedData.ID;
+        delete editedData.ID;
+        delete editedData.User;
+        delete editedData.Kelas;
+        delete editedData.TahunAjar;
+
+        // console.log("Edited item:", this.editedItem);
+        // console.log("Edited item ID:", this.editedItem.id);
+
+        await axios.put(
+          `http://localhost:3000/api/modul/${editedData.id}`,
+          editedData,
+        );
+
+        this.resetEditedItem();
+        // Re-fetch the data to refresh the table
+        await this.fetchData();
+      } catch (error) {
+        console.error("Error editing item:", error);
+      }
+    },
+
+    /**
+     * Deletes a modul by ID.
+     *
+     * Prompts user to confirm deletion.
+     * Calls API to delete modul by ID.
+     * Removes deleted modul from items array.
+     * Refetches data to refresh table.
+     * Shows success message.
+     * Handles errors.
+     */
+    async deleteItemById(id) {
+      if (window.confirm("Are you sure you want to delete this item?")) {
+        try {
+          const response = await axios.delete(
+            `http://localhost:3000/api/modul/${id}`,
+          );
+
+          // Check if deletedModul is not null
+          if (response.data && response.data.data) {
+            const deletedModul = response.data.data;
+
+            // Remove the item from the items array
+            this.items = this.items.filter(
+              (item) => item.id !== deletedModul.id,
+            );
+          }
+
+          // Re-fetch the data to refresh the table
+          await this.fetchData();
+
+          // Optionally, you can show a success message
+          alert("Item deleted successfully");
+        } catch (error) {
+          console.error("Error deleting item:", error);
+        }
+      }
+    },
+
+    openDetailModal(rowIndex) {
+      const selectedItemId = this.filteredItems[rowIndex].ID;
+      console.log("Opening detail modal with ID:", selectedItemId);
+
+      axios
+        .get(`http://localhost:3000/api/modul/${selectedItemId}`)
+        .then((response) => {
+          const data = response.data.data;
+          if (data) {
+            this.detailItem = {
+              Sekolah: data.sekolah || "",
+              AlokasiWaktu: data.alokasiWaktu || "",
+              KompetensiAwal: data.kompetensiAwal || "",
+              ProjekPPancasila: data.projekPPancasila || "",
+              SaranaPrasarana: data.saranaPrasarana || "",
+              TargetPesertaDidik: data.targetPesertaDidik || "",
+              ModelPembelajaran: data.modelPembelajaran || "",
+              TujuanPembelajaran: data.tujuanPembelajaran || "",
+              PemahamanBermakna: data.pemahamanBermakna || "",
+              PertanyaanPemantik: data.pertanyaanPemantik || "",
+              KegiatanPembelajaran: data.kegiatanPembelajaran || "",
+              Refleksi: data.refleksi || "",
+              Glosarium: data.glosarium || "",
+              DaftarPustaka: data.daftarPustaka || "",
+              // id: selectedItemId,
+              // User: data.User ? data.User.Name || "" : "",
+              // Mapel: data.Mapel ? data.Mapel.Mapel || "" : "",
+              // Kelas: data.Kelas ? data.Kelas.Kelas || "" : "",
+              // TahunAjar: data.TahunAjar ? data.TahunAjar.Tahun || "" : "",
+            };
+
+            this.detailModalVisible = true;
+            console.log("Detail modal data:", this.detailItem);
+          } else {
+            console.error("No data received from the server");
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching data for the detail modal:", error);
+        });
+    },
+
+    /**
+     * Prints a row from the table.
+     *
+     * Fetches the data for the row from the API using the row index.
+     * Logs the data properties.
+     * Generates a PDF document with a header and table body containing the row data.
+     * Opens the PDF for printing.
+     *
+     * @param {number} rowIndex - The index of the row to print
+     */
+    async printRow(rowIndex) {
+      const selectedItemId = this.filteredItems[rowIndex].ID;
+
+      try {
+        // Fetch the necessary data directly from the server
+        const response = await axios.get(
+          `http://localhost:3000/api/modul/${selectedItemId}`,
+        );
+        const data = response.data.data;
+
+        // Log all properties of the data object
+        console.log("Data properties:", Object.keys(data));
+
+        if (data) {
+          console.log("Printing row with ID:", selectedItemId);
+
+          const tableBody = [
+            [
+              { text: "Alokasi Waktu", fontSize: 10, bold: true },
+              { text: "Kompetensi Awal", fontSize: 10, bold: true },
+              { text: "Projek P Pancasila", fontSize: 10, bold: true },
+              { text: "Sarana Prasarana", fontSize: 10, bold: true },
+              {
+                text: "Target Peserta Didik",
+                fontSize: 10,
+                bold: true,
+              },
+              { text: "Model Pembelajaran", fontSize: 10, bold: true },
+              {
+                text: "Tujuan Pembelajaran",
+                fontSize: 10,
+                bold: true,
+              },
+              {
+                text: "Pemahaman Bermakna",
+                fontSize: 10,
+                bold: true,
+              },
+              {
+                text: "Pertanyaan Pemantik",
+                fontSize: 10,
+                bold: true,
+              },
+              {
+                text: "Kegiatan Pembelajaran",
+                fontSize: 10,
+                bold: true,
+              },
+              {
+                text: "Refleksi",
+                fontSize: 10,
+                bold: true,
+              },
+              {
+                text: "Glosarium",
+                fontSize: 10,
+                bold: true,
+              },
+              {
+                text: "Daftar Pustaka",
+                fontSize: 10,
+                bold: true,
+              },
+            ],
+            [
+              "alokasiWaktu" in data ? data.alokasiWaktu : "N/A",
+              "kompetensiAwal" in data ? data.kompetensiAwal : "N/A",
+              "projekPPancasila" in data ? data.projekPPancasila : "N/A",
+              "saranaPrasarana" in data ? data.saranaPrasarana : "N/A",
+              "targetPesertaDidik" in data ? data.targetPesertaDidik : "N/A",
+              "modelPembelajaran" in data ? data.modelPembelajaran : "N/A",
+              "tujuanPembelajaran" in data ? data.tujuanPembelajaran : "N/A",
+              "pemahamanBermakna" in data ? data.pemahamanBermakna : "N/A",
+              "pertanyaanPemantik" in data ? data.pertanyaanPemantik : "N/A",
+              "kegiatanPembelajaran" in data
+                ? data.kegiatanPembelajaran
+                : "N/A",
+              "refleksi" in data ? data.refleksi : "N/A",
+              "glosarium" in data ? data.glosarium : "N/A",
+              "daftarPustaka" in data ? data.daftarPustaka : "N/A",
+            ],
+          ];
+
+          console.log("Table Body:", tableBody);
+
+          const docDefinition = {
+            footer: function (currentPage, pageCount) {
+              return [
+                {
+                  text: currentPage.toString() + " of " + pageCount,
+                  alignment: "center",
+                  fontSize: 8,
+                  margin: [10, 10, 10, 0],
+                },
+              ];
+            },
+            content: [
+              {
+                text: "Modul Ajar",
+                fontSize: 12,
+                bold: true,
+                alignment: "center",
+                margin: [0, 20, 0, 20],
+              },
+              {
+                table: {
+                  headerRows: 1,
+                  widths: Array(tableBody[0].length).fill("auto"),
+                  body: tableBody.map((row) =>
+                    row.map((cell) => {
+                      // Check if the cell has a 'text' property and adjust the fontSize
+                      if (typeof cell === "object" && cell.text) {
+                        return { ...cell, fontSize: 8 };
+                      }
+                      // If the cell is a string, wrap it in an object with the desired fontSize
+                      return { text: cell, fontSize: 8 };
+                    }),
+                  ),
+                },
+                margin: [0, 0, 0, 20],
+              },
+            ],
+            pageSize: "A4",
+            pageMargins: [20, 20, 20, 20],
+            pageOrientation: "landscape",
+          };
+
+          const pdf = pdfMake.createPdf(docDefinition);
+
+          // Open the PDF for printing
+          pdf.open();
+        } else {
+          console.error("No data received from the server");
+        }
+      } catch (error) {
+        console.error("Error fetching data for printing:", error);
+      }
+    },
+
+    extractOptions(data, labelProperty) {
+      if (!Array.isArray(data)) {
+        console.error("Data is not an array:", data);
+        return [];
+      }
+
+      return data.map((item) => ({
+        label: item[labelProperty] ? item[labelProperty] : "", // Use '' if labelProperty is null or undefined
+        value: item.ID, // Use 'ID' instead of 'id'
+      }));
+    },
+
+    resetEditedItem() {
+      this.editedItem = null;
+      this.editedItemId = null;
+    },
+
+    resetCreatedItem() {
+      this.createdItem = { ...defaultItem };
+      this.showModal = false;
+    },
+
+    openModalToEditItemById(id) {
+      this.editedItemId = id;
+      this.editedItem = { ...this.items[id] };
+    },
+
+    toggleAddModal() {
+      this.showModal = !this.showModal;
+      if (!this.showModal) {
+        this.resetCreatedItem();
+      }
+    },
+
+    resetDetailItem() {
+      this.detailItem = null;
+      this.detailModalVisible = false;
     },
   },
 
   mounted() {
-    // Initial data fetching
-    this.loading = true;
     this.fetchData();
   },
 });
 </script>
 
 <template>
-  <!-- Data Table -->
-  <div class="table-container">
-    <va-card-title>Informasi Umum</va-card-title>
-    <div
-      class="header-container"
-      style="display: flex; justify-content: space-between; align-items: center"
+  <div
+    class="header-container"
+    style="display: flex; justify-content: space-between; align-items: center"
+  >
+    <va-input
+      v-model="input.value"
+      type="text"
+      placeholder="Search..."
+    ></va-input>
+    <va-button-group
+      icon-color="#000000"
+      preset="secondary"
+      border-color="#000000"
     >
-      <va-input v-model="input" placeholder="Search"></va-input>
-      <va-button-group
-        icon-color="#000000"
-        preset="secondary"
-        border-color="bordered"
+      <va-button @click="toggleAddModal" preset="secondary" icon="add"
+        >Create Modul Ajar</va-button
       >
-        <va-button @click="showModal = !showModal" icon="add">Add</va-button>
-        <va-button icon="edit">Edit</va-button>
-        <va-button @click="onButtonClick" type="delete" icon="delete"
-          >Delete</va-button
-        >
-      </va-button-group>
-    </div>
-    <vaDataTable
-      :items="items"
+    </va-button-group>
+  </div>
+  <div>
+    <va-data-table
+      :items="filteredItems"
       :columns="columns"
-      :striped="isTableStriped"
-      :current-page="currentPage"
-      :per-page="perPage"
-      selectable
-      :animated="animated"
-      :delay="500"
+      striped
       :loading="loading"
     >
-      <template #bodyAppend>
-        <tr>
-          <td colspan="6">
-            <div class="flex justify-center mt-4">
-              <div class="pagination-container">
-                <va-pagination v-model="currentPage" :pages="pages" />
-              </div>
-            </div>
-          </td>
-        </tr>
-      </template>
-      <template #bodyCellCheckbox="{ value }">
-        <input type="checkbox" v-model="selectedRows" :value="value" />
-      </template>
-    </vaDataTable>
-  </div>
-  <br />
-  <div class="table-container">
-    <va-card-title>Konten Modul</va-card-title>
-    <div
-      class="header-container"
-      style="display: flex; justify-content: space-between; align-items: center"
-    >
-      <va-input v-model="input" placeholder="Search"></va-input>
-      <va-button-group
-        icon-color="#000000"
-        preset="secondary"
-        border-color="bordered"
-      >
-        <va-button @click="showModal = !showModal" icon="add">Add</va-button>
-        <va-button icon="edit">Edit</va-button>
-        <va-button @click="onButtonClick" type="delete" icon="delete"
-          >Delete</va-button
-        >
-      </va-button-group>
-    </div>
-    <vaDataTable
-      :items="items"
-      :columns="columns"
-      :striped="isTableStriped"
-      :current-page="currentPage"
-      :per-page="perPage"
-      selectable
-      :animated="animated"
-      :delay="500"
-      :loading="loading"
-    >
-      <template #bodyAppend>
-        <tr>
-          <td colspan="6">
-            <div class="flex justify-center mt-4">
-              <div class="pagination-container">
-                <va-pagination v-model="currentPage" :pages="pages" />
-              </div>
-            </div>
-          </td>
-        </tr>
-      </template>
-      <template #bodyCellCheckbox="{ value }">
-        <input type="checkbox" v-model="selectedRows" :value="value" />
-      </template>
-    </vaDataTable>
-  </div>
-  <!-- Modal Content -->
-  <va-modal v-model="showModal" blur size="large" fixed-layout>
-    <va-card :bordered="false" stripe>
-      <va-card-title>Input Data Modul Ajar</va-card-title>
-      <va-card-content>
-        <div>
-          <div
-            class="modal-container"
-            style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px"
-          >
-            <div>
-              <va-input
-                v-model="value"
-                placeholder="Nama Penyusun"
-                label="Nama Penyusun"
-                preset="bordered"
-                style="width: 100%"
-              />
-            </div>
-            <div>
-              <va-select
-                v-model="value"
-                :options="options"
-                label="Mata Pelajaran"
-                placeholder="Pilih Mata Pelajaran"
-                preset="bordered"
-                style="width: 100%"
-              />
-            </div>
-            <div style="margin-top: 10px">
-              <va-select
-                v-model="value"
-                :options="options"
-                label="Kelas"
-                placeholder="Tingkatan kelas yang sesuai dengan Modul Ajar"
-                preset="bordered"
-                style="width: 100%"
-              />
-            </div>
-            <div style="margin-top: 10px">
-              <va-input
-                v-model="value"
-                label="Tahun Ajaran"
-                placeholder="Tahun Ajaran untuk Modul Ajar"
-                preset="bordered"
-                style="width: 100%"
-              />
-            </div>
-            <div style="margin-top: 10px">
-              <va-input
-                v-model="value"
-                label="Alokasi Waktu"
-                placeholder="Waktu yang diperlukan untuk menguasai masing-masing kompetensi"
-                preset="bordered"
-                style="width: 100%"
-              />
-            </div>
-            <div style="margin-top: 10px">
-              <va-input
-                v-model="value"
-                label="Sekolah"
-                placeholder="Nama Sekolah"
-                preset="bordered"
-                style="width: 100%"
-              />
-            </div>
-          </div>
-          <div class="txt flex justify-between">
-            <div
-              class="flex flex-col md6"
-              style="margin-right: 10px; width: 100%"
-            >
-              <va-textarea
-                v-model="value"
-                label="Kompetensi Awal"
-                placeholder="Judul mengenai elemen pemahaman suatu mata pelajaran"
-                preset="bordered"
-              />
-            </div>
-            <div
-              class="flex flex-col md6"
-              style="margin-left: 10px; width: 100%"
-            >
-              <va-textarea
-                v-model="value"
-                label="profile Pelajar Pancasila"
-                placeholder="Menjelaskan inti dari judul elemen tersebut"
-                preset="bordered"
-              />
-            </div>
-          </div>
-          <div class="txt flex justify-between">
-            <div
-              class="flex flex-col md6"
-              style="margin-right: 10px; width: 100%"
-            >
-              <va-textarea
-                v-model="value"
-                label="Sarana Prasarana"
-                placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
-                preset="bordered"
-              />
-            </div>
-            <div
-              class="flex flex-col md6"
-              style="margin-left: 10px; width: 100%"
-            >
-              <va-textarea
-                v-model="value"
-                label="Target Peserta Didik"
-                placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
-                preset="bordered"
-              />
-            </div>
-          </div>
-          <div>
-            <div
-              class="flex flex-col md12"
-              style="margin-right: 10px; width: 100%"
-            >
-              <va-textarea
-                v-model="value"
-                label="Model Pembelajaran"
-                placeholder="Menjelaskan output yang diharapkan dari tujuan pembelajaran untuk mencapai capaian pembelajaran"
-                preset="bordered"
-              />
-            </div>
-          </div>
-          <va-card :bordered="false" stripe disabled>
-            <va-card-title>Upload Data Modul Ajar</va-card-title>
-            <va-card-content>
-              <va-file-upload
-                v-model="basic"
-                dropzone
-                undo
-                undo-button-text="Restore"
-                file-types="doc,docs,rtf,xls,xlsx,ppt,pptx,pdf,txt"
-              />
-            </va-card-content>
-          </va-card>
+      <template #cell(actions)="{ rowIndex }">
+        <div class="action-buttons">
+          <va-button preset="plain" icon="print" @click="printRow(rowIndex)" />
+          <va-button
+            preset="plain"
+            icon="remove_red_eye"
+            @click="openDetailModal(rowIndex)"
+          />
+          <va-button
+            preset="plain"
+            icon="edit"
+            @click="openModalToEditItemById(rowIndex)"
+          />
+          <va-button
+            preset="plain"
+            icon="delete"
+            @click="deleteItemById(filteredItems[rowIndex].ID)"
+          />
         </div>
-      </va-card-content>
-    </va-card>
-  </va-modal>
+      </template>
+    </va-data-table>
+
+    <!-- Modal Content -->
+    <va-modal
+      blur
+      class="modal-crud"
+      stripe
+      title="Form Input Modul Ajar"
+      size="large"
+      :model-value="showModal"
+      @ok="addNewItem"
+      @cancel="resetCreatedItem"
+    >
+      <!-- Using va-select for user, mapel, kelas, and tahun ajar -->
+      <va-select
+        v-model="createdItem.UserID"
+        :label="displayNames.User"
+        :options="usersOptions"
+        class="my-6"
+        text-by="label"
+        value-by="value"
+      />
+      <va-select
+        v-model="createdItem.KelasID"
+        :label="displayNames.Kelas"
+        :options="kelasOptions"
+        class="my-6"
+        text-by="label"
+        value-by="value"
+      />
+      <va-select
+        v-model="createdItem.TahunAjarID"
+        :label="displayNames.TahunAjar"
+        :options="tahunAjarOptions"
+        class="my-6"
+        text-by="label"
+        value-by="value"
+      />
+
+      <!-- Using va-textarea for other fields -->
+      <va-textarea
+        v-for="key in textAreaFields"
+        :key="key"
+        :label="displayNames[key]"
+        v-model="createdItem[key]"
+        class="my-6"
+      />
+    </va-modal>
+
+    <va-modal
+      blur
+      class="modal-crud"
+      :model-value="!!editedItem"
+      title="Edit Modul Ajar"
+      size="large"
+      @ok="editItem"
+      @cancel="resetEditedItem"
+    >
+      <!-- Using va-select for user, mapel, kelas, and tahun ajar -->
+      <va-select
+        v-model="editedItem.UserID"
+        :label="displayNames.User"
+        :options="usersOptions"
+        text-by="label"
+        value-by="value"
+      />
+      <va-select
+        v-model="editedItem.KelasID"
+        :label="displayNames.Kelas"
+        :options="kelasOptions"
+        class="my-6"
+        text-by="label"
+        value-by="value"
+      />
+      <va-select
+        v-model="editedItem.TahunAjarID"
+        :label="displayNames.TahunAjar"
+        :options="tahunAjarOptions"
+        class="my-6"
+        text-by="label"
+        value-by="value"
+      />
+
+      <!-- Using va-textarea for other fields -->
+      <va-textarea
+        v-for="key in textAreaFields"
+        :key="key"
+        :label="displayNames[key]"
+        v-model="editedItem[key]"
+        class="my-6"
+      />
+    </va-modal>
+
+    <va-modal
+      blur
+      class="modal-crud"
+      stripe
+      title="Detail Modul Ajar"
+      size="large"
+      :model-value="detailModalVisible"
+      @ok="resetDetailItem"
+      @cancel="resetDetailItem"
+    >
+      <va-textarea
+        v-for="key in filteredDetailFields"
+        :key="key"
+        :label="filteredDisplayNames[key]"
+        v-model="detailItem[key]"
+        class="my-6"
+        readonly
+      />
+    </va-modal>
+  </div>
 </template>
 
 <style>
-.table-container {
-  border: solid black;
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  /* Adjust the gap to your preference */
 }
 
-.pagination-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 10px;
+.va-input {
+  display: block;
   margin-bottom: 10px;
 }
 
-.header-container {
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-</style>
-
-<style scoped>
-.modal-container {
-  margin-bottom: 20px;
+.va-select .dropdown-menu {
+  display: block;
 }
 
-.txt {
-  display: flex;
-  justify-content: space-between;
-}
-
-.va-textarea {
-  width: 100%;
-  box-sizing: border-box;
-  margin-bottom: 20px;
+.modal-crud {
+  .va-select {
+    display: block;
+    margin-bottom: 10px;
+  }
+  .va-textarea {
+    width: 100%;
+    display: flex;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+  }
 }
 </style>

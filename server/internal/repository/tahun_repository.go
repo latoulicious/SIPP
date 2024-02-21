@@ -28,18 +28,29 @@ func (repository *TahunRepository) GetTahun() ([]model.TahunAjar, error) {
 func (repository *TahunRepository) GetTahunByID(tahunID uuid.UUID) (*model.TahunAjar, error) {
 	var tahun model.TahunAjar
 	if err := repository.DB.First(&tahun, "id = ?", tahunID).Error; err != nil {
-		// Log an error if user retrieval fails
+		// Log an error if tahun retrieval fails
 		log.Printf("Error fetching tahun by ID %s: %s\n", tahunID.String(), err.Error())
 		return nil, err
 	}
 
+	// Log successful tahun retrieval
 	if os.Getenv("ENVIRONMENT") == "development" {
 		log.Printf("Tahun fetched by ID %s:", tahunID.String())
 	}
 	return &tahun, nil
 }
 
+func (repository *TahunRepository) GetTahunPublic() ([]model.TahunAjar, error) {
+	// Implement logic to fetch all tahun without requiring JWT authentication
+	var tahun []model.TahunAjar
+	if err := repository.DB.Find(&tahun).Error; err != nil {
+		return nil, err
+	}
+	return tahun, nil
+}
+
 func (repository *TahunRepository) CreateTahun(tahun *model.TahunAjar) error {
+	tahun.ID = uuid.New()
 	return repository.DB.Create(tahun).Error
 }
 

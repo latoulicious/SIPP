@@ -47,11 +47,17 @@ func ConnectDB() error {
 		&model.TahunAjar{},
 		&model.Mapel{},
 		&model.Kelas{},
+		&model.Jurusan{},
 		&model.Capaian{},
 		&model.AlurTP{},
 		&model.ModulAjar{},
-		&model.Prp{},
+		&model.Kognitif{},
+		&model.Formatif{},
+		&model.Sumatif{},
+		&model.Pengayaan{},
+		&model.Remedial{},
 		&model.Soal{},
+		&model.ItemSoal{},
 		&model.BankSoal{},
 	)
 	if err != nil {

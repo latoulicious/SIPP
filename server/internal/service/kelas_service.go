@@ -27,6 +27,12 @@ func (service *KelasService) GetKelasByID(kelasID uuid.UUID) (*model.Kelas, erro
 	return service.KelasRepository.GetKelasByID(kelasID)
 }
 
+// GetKelas Public Endpoint
+func (service *KelasService) GetKelasPublic() ([]model.Kelas, error) {
+	// Implement logic to fetch all kelas without requiring JWT authentication
+	return service.KelasRepository.GetKelasPublic()
+}
+
 // CreateKelas creates a new kelas
 func (service *KelasService) CreateKelas(kelas *model.Kelas) error {
 	return service.KelasRepository.CreateKelas(kelas)

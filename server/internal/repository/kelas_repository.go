@@ -28,19 +28,29 @@ func (repository *KelasRepository) GetKelas() ([]model.Kelas, error) {
 func (repository *KelasRepository) GetKelasByID(kelasID uuid.UUID) (*model.Kelas, error) {
 	var kelas model.Kelas
 	if err := repository.DB.First(&kelas, "id = ?", kelasID).Error; err != nil {
-		// Log an error if user retrieval fails
+		// Log an error if kelas retrieval fails
 		log.Printf("Error fetching kelas by ID %s: %s\n", kelasID.String(), err.Error())
 		return nil, err
 	}
 
-	// Log successful user retrieval
+	// Log successful kelas retrieval
 	if os.Getenv("ENVIRONMENT") == "development" {
 		log.Printf("Kelas fetched by ID %s:", kelasID.String())
 	}
 	return &kelas, nil
 }
 
+func (repository *KelasRepository) GetKelasPublic() ([]model.Kelas, error) {
+	// Implement logic to fetch all kelas without requiring JWT authentication
+	var kelas []model.Kelas
+	if err := repository.DB.Find(&kelas).Error; err != nil {
+		return nil, err
+	}
+	return kelas, nil
+}
+
 func (repository *KelasRepository) CreateKelas(kelas *model.Kelas) error {
+	kelas.ID = uuid.New()
 	return repository.DB.Create(kelas).Error
 }
 

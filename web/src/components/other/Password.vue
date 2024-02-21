@@ -42,11 +42,14 @@ export default {
           return;
         }
 
-        const response = await axios.post(`http://localhost:3000/api/user/${userId}/change-password`, {
-          currentPassword: this.currentPassword,
-          newPassword: this.newPassword,
-          confirmNewPassword: this.confirmNewPassword,
-        });
+        const response = await axios.post(
+          `http://localhost:3000/api/user/${userId}/change-password`,
+          {
+            currentPassword: this.currentPassword,
+            newPassword: this.newPassword,
+            confirmNewPassword: this.confirmNewPassword,
+          },
+        );
 
         console.log(response.data);
 
@@ -77,11 +80,14 @@ export default {
           return;
         }
 
-        const response = await this.$axios.get(`http://localhost:3000/api/user/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${jwtToken}`,
+        const response = await this.$axios.get(
+          `http://localhost:3000/api/user/${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${jwtToken}`,
+            },
           },
-        });
+        );
 
         this.currentUser = response.data.data;
       } catch (error) {
@@ -101,7 +107,6 @@ export default {
   },
 };
 </script>
-
 
 <template>
   <div class="pw-container">
