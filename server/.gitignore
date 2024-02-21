@@ -3,6 +3,7 @@
 *.dll
 *.so
 *.dylib
+.toml
 
 # Ignore go build artifacts
 *.o
