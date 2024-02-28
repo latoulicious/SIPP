@@ -16,7 +16,13 @@ var (
 	tokenLock sync.Mutex
 )
 
-// GenerateJWT generates a new JWT token for the specified username
+// GenerateJWT generates a new JWT token for the specified user. It takes in the user ID,
+// username, name and role. It first checks if a token already exists for the username,
+// returning the existing token if found. Otherwise it generates a new JWT token using the
+// jwt-go library, sets claims including the user info, signs it using the JWT secret read
+// from the environment, and stores the token in a map before returning it. In development
+// environment, it also logs the generated token.
+
 func GenerateJWT(userID, username, name, role string) (string, error) {
 	tokenLock.Lock()
 	defer tokenLock.Unlock()

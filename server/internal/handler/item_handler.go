@@ -12,11 +12,17 @@ type ItemSoalHandler struct {
 	ItemSoalService *service.ItemSoalService
 }
 
+// NewItemSoalHandler creates a new ItemSoalHandler with the given ItemSoalService.
+// It is used to instantiate the ItemSoalHandler with its required dependencies.
+
 func NewItemSoalHandler(itemsoalService *service.ItemSoalService) *ItemSoalHandler {
 	return &ItemSoalHandler{
 		ItemSoalService: itemsoalService,
 	}
 }
+
+// GetItemSoal retrieves all itemsoal from the database
+// and returns them in a fiber.Map with status.
 
 func (handler *ItemSoalHandler) GetItemSoal(c *fiber.Ctx) error {
 	itemsoal, err := handler.ItemSoalService.GetItemSoal()
@@ -27,6 +33,12 @@ func (handler *ItemSoalHandler) GetItemSoal(c *fiber.Ctx) error {
 
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "ItemSoal retrieved successfully", "data": itemsoal})
 }
+
+// GetItemSoalByID retrieves an itemsoal by its ID.
+// It parses the ID from the route parameter "id".
+// Returns a 404 if the ID is invalid.
+// Returns a 500 if there is an error retrieving the itemsoal.
+// Otherwise returns the itemsoal with a 200 status.
 
 func (handler *ItemSoalHandler) GetItemSoalByID(c *fiber.Ctx) error {
 	itemsoalID, err := uuid.Parse(c.Params("id"))
@@ -42,7 +54,11 @@ func (handler *ItemSoalHandler) GetItemSoalByID(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "ItemSoal retrieved successfully", "data": itemsoal})
 }
 
-// CountRelatedQuestionsHandler handles requests to get the total count of related questions for all ItemSoal records
+// CountRelatedQuestionsHandler handles requests to get the total count of
+// related questions for all ItemSoal records. It calls the ItemSoalService
+// to retrieve the ItemSoal records with their related question counts,
+// logs and handles any errors, and responds with the question count data.
+
 func (handler *ItemSoalHandler) CountRelatedQuestionsHandler(c *fiber.Ctx) error {
 	// Log the start of the handler
 	log.Println("CountRelatedQuestionsHandler started")

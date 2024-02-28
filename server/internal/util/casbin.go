@@ -9,6 +9,12 @@ import (
 
 var Enforcer *casbin.Enforcer
 
+// InitCasbin initializes a Casbin enforcer using a Postgres database.
+// It creates a Xorm adapter to connect to Postgres, loads the Casbin
+// model and policy files, and loads the policies from file into the
+// enforcer. Returns any errors. This allows the rest of the app to
+// enforce authorization policies loaded into Casbin.
+
 func InitCasbin() error {
 	// Initialize a Xorm adapter with hardcoded credentials
 	a, err := xormadapter.NewAdapter("postgres", "user=postgres password=postgres host=127.0.0.1 port=5432 sslmode=disable")

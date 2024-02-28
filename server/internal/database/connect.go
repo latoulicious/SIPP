@@ -1,5 +1,3 @@
-// database/connect.go
-
 package database
 
 import (
@@ -16,6 +14,11 @@ import (
 
 var DB *gorm.DB
 var DSN string // change from 'dsn' to 'DSN' to avoid shadowing
+
+// ConnectDB establishes a connection to the PostgreSQL database.
+// It parses the DB connection settings from environment variables,
+// constructs a connection string, opens a gorm DB connection,
+// runs auto-migration on the model structs, and returns any errors.
 
 func ConnectDB() error {
 	var err error

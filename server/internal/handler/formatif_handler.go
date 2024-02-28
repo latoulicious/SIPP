@@ -13,11 +13,17 @@ type FormatifHandler struct {
 	FormatifService *service.FormatifService
 }
 
+// NewFormatifHandler creates a new FormatifHandler with the given FormatifService.
 func NewFormatifHandler(formatifService *service.FormatifService) *FormatifHandler {
 	return &FormatifHandler{
 		FormatifService: formatifService,
 	}
 }
+
+// GetFormatif retrieves the formatif data from the database
+// via the FormatifService and returns it in the response.
+// It returns a 500 error if there is a problem retrieving the data.
+// Otherwise it returns a 200 with the formatif data.
 
 func (handler *FormatifHandler) GetFormatif(c *fiber.Ctx) error {
 	formatif, err := handler.FormatifService.GetFormatif()
@@ -28,6 +34,12 @@ func (handler *FormatifHandler) GetFormatif(c *fiber.Ctx) error {
 
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Formatif retrieved successfully", "data": formatif})
 }
+
+// GetFormatifByID retrieves a formatif by its ID.
+// It parses the ID from the route parameter "id".
+// Returns a 404 if the ID is invalid.
+// Returns a 500 if there is an error retrieving the formatif.
+// Otherwise returns a 200 with the formatif data.
 
 func (handler *FormatifHandler) GetFormatifByID(c *fiber.Ctx) error {
 	formatifID, err := uuid.Parse(c.Params("id"))
@@ -43,7 +55,11 @@ func (handler *FormatifHandler) GetFormatifByID(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Formatif retrieved successfully", "data": formatif})
 }
 
+// CountRelatedQuestionsHandler handles requests to get the total count of related questions for all Formatif records.
+// It logs the start and end of the request, calls the FormatifService to retrieve the data, handles any errors,
+// logs the successful retrieval, serializes the response to JSON, and writes the JSON response.
 // CountRelatedQuestionsHandler handles requests to get the total count of related questions for all Formatif records
+
 func (handler *FormatifHandler) CountRelatedQuestionsHandler(c *fiber.Ctx) error {
 	// Log the start of the handler
 	log.Println("CountRelatedQuestionsHandler started")
@@ -64,6 +80,13 @@ func (handler *FormatifHandler) CountRelatedQuestionsHandler(c *fiber.Ctx) error
 	// Serialize the formatifs with question counts to JSON and write the response
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Formatif question counts retrieved successfully", "data": formatifsWithQuestionCounts})
 }
+
+// CreateFormatif handles requests to create a new formatif.
+// It parses the request body into a formatif struct.
+// Returns 500 if there is an error parsing the request body.
+// Calls the FormatifService to create the formatif in the database.
+// Returns 500 if there is an error creating the formatif.
+// Returns 200 with the created formatif on success.
 
 func (handler *FormatifHandler) CreateFormatif(c *fiber.Ctx) error {
 	rawBody := c.Body()
@@ -89,6 +112,10 @@ func (handler *FormatifHandler) CreateFormatif(c *fiber.Ctx) error {
 	// Return the created formatif as the response
 	return c.JSON(fiber.Map{"status": "success", "message": "Formatif created", "data": formatif})
 }
+
+// UpdateFormatif handles requests to update an existing Formatif record.
+// It parses the Formatif ID from the request parameters, the updated Formatif fields from the request body,
+// calls the FormatifService to update the database, handles any errors, and returns the updated Formatif on success.
 
 func (handler *FormatifHandler) UpdateFormatif(c *fiber.Ctx) error {
 	formatifID, err := uuid.Parse(c.Params("id"))
@@ -123,6 +150,12 @@ func (handler *FormatifHandler) UpdateFormatif(c *fiber.Ctx) error {
 	// Return the updated Formatif
 	return c.JSON(fiber.Map{"status": "success", "message": "Formatif updated", "data": formatif})
 }
+
+// DeleteFormatif deletes a Formatif by ID from the database.
+// It parses the formatif ID from the request parameters, calls the service
+// to delete the Formatif, and returns a JSON response indicating success or failure.
+// The status code will be 400 if the ID is invalid, 500 if there is a database error,
+// or 200 on success.
 
 func (handler *FormatifHandler) DeleteFormatif(c *fiber.Ctx) error {
 	formatifID, err := uuid.Parse(c.Params("id"))
