@@ -8,5 +8,5 @@ import (
 type TahunAjar struct {
 	gorm.Model
 	ID    uuid.UUID `gorm:"type:uuid;primary_key"`
-	Tahun string
+	Tahun string    `gorm:"type:varchar(255)"`
 }

@@ -14,20 +14,20 @@ type ModulAjar struct {
 	TahunAjar            TahunAjar `gorm:"foreignKey:TahunAjarID"`
 	KelasID              uuid.UUID `gorm:"type:uuid" json:"KelasID"`
 	Kelas                Kelas     `gorm:"foreignKey:KelasID"`
-	Sekolah              string    `json:"sekolah"`
-	AlokasiWaktu         string    `json:"alokasiWaktu"`
-	KompetensiAwal       string    `json:"kompetensiAwal"`
-	ProjekPPancasila     string    `json:"projekPPancasila"`
-	SaranaPrasarana      string    `json:"saranaPrasarana"`
-	TargetPesertaDidik   string    `json:"targetPesertaDidik"`
-	ModelPembelajaran    string    `json:"modelPembelajaran"`
-	TujuanPembelajaran   string    `json:"tujuanPembelajaran"`
-	PemahamanBermakna    string    `json:"pemahamanBermakna"`
-	PertanyaanPemantik   string    `json:"pertanyaanPemantik"`
-	KegiatanPembelajaran string    `json:"kegiatanPembelajaran"`
+	Sekolah              string    `gorm:"type:varchar(255)" json:"sekolah"`
+	AlokasiWaktu         string    `gorm:"type:varchar(255)" json:"alokasiWaktu"`
+	KompetensiAwal       string    `gorm:"type:varchar(255)" json:"kompetensiAwal"`
+	ProjekPPancasila     string    `gorm:"type:varchar(255)" json:"projekPPancasila"`
+	SaranaPrasarana      string    `gorm:"type:varchar(255)" json:"saranaPrasarana"`
+	TargetPesertaDidik   string    `gorm:"type:varchar(255)" json:"targetPesertaDidik"`
+	ModelPembelajaran    string    `gorm:"type:varchar(255)" json:"modelPembelajaran"`
+	TujuanPembelajaran   string    `gorm:"type:varchar(255)" json:"tujuanPembelajaran"`
+	PemahamanBermakna    string    `gorm:"type:varchar(255)" json:"pemahamanBermakna"`
+	PertanyaanPemantik   string    `gorm:"type:varchar(255)" json:"pertanyaanPemantik"`
+	KegiatanPembelajaran string    `gorm:"type:varchar(255)" json:"kegiatanPembelajaran"`
 	Asesnmen             string    // not yet being used
 	PengayaanRemedial    string    // not yet being used
-	Refleksi             string    `json:"refleksi"`
-	Glosarium            string    `json:"glosarium"`
-	DaftarPustaka        string    `json:"daftarPustaka"`
+	Refleksi             string    `gorm:"type:varchar(255)" json:"refleksi"`
+	Glosarium            string    `gorm:"type:varchar(255)" json:"glosarium"`
+	DaftarPustaka        string    `gorm:"type:varchar(255)" json:"daftarPustaka"`
 }
