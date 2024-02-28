@@ -10,10 +10,10 @@ import (
 type Users struct {
 	gorm.Model
 	ID       uuid.UUID `gorm:"type:uuid;primary_key"`
-	Username string
-	Password string
-	Name     string
-	NIP      string `gorm:"column:NIP"` // Specify the column name here
-	Golongan string
-	Role     string
+	Username string    `gorm:"type:varchar(20)"`
+	Password string    `gorm:"type:varchar(20)"`
+	Name     string    `gorm:"type:varchar(50)"`
+	NIP      string    `gorm:"column:NIP;type:varchar(20)"` // Specify the column name here
+	Golongan string    `gorm:"type:varchar(20)"`
+	Role     string    `gorm:"type:varchar(20)"`
 }
