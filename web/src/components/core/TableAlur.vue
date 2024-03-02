@@ -212,6 +212,9 @@ export default defineComponent({
           this.items = this.items.filter((item) => item.id !== id);
 
           await this.fetchData();
+
+          // Optionally, you can show a success message
+          alert("Item deleted successfully");
         } catch (error) {
           console.error("Error deleting item:", error);
         }

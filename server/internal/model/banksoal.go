@@ -16,14 +16,14 @@ type BankSoal struct {
 	Kelas            Kelas     `gorm:"foreignKey:KelasID"`
 	JurusanID        uuid.UUID `gorm:"type:uuid" json:"JurusanID"`
 	Jurusan          Jurusan   `gorm:"foreignKey:JurusanID"`
-	Soal             string    `gorm:"type:varchar(255)"`
-	OptionA          string    `gorm:"type:varchar(255)"`
-	OptionB          string    `gorm:"type:varchar(255)"`
-	OptionC          string    `gorm:"type:varchar(255)"`
-	OptionD          string    `gorm:"type:varchar(255)"`
-	OptionE          string    `gorm:"type:varchar(255)"`
-	KunciJawaban     string    `gorm:"type:varchar(255)"`
-	Materi           string    `gorm:"type:varchar(255)"`
-	Indikator        string    `gorm:"type:varchar(255)"`
-	TingkatKesukaran string    `gorm:"type:varchar(255)"`
+	Soal             string    `gorm:"type:text"`
+	OptionA          string    `gorm:"type:text"`
+	OptionB          string    `gorm:"type:text"`
+	OptionC          string    `gorm:"type:text"`
+	OptionD          string    `gorm:"type:text"`
+	OptionE          string    `gorm:"type:text"`
+	KunciJawaban     string    `gorm:"type:text"`
+	Materi           string    `gorm:"type:text"`
+	Indikator        string    `gorm:"type:text"`
+	TingkatKesukaran string    `gorm:"type:text"`
 }

@@ -17,12 +17,12 @@ type Capaian struct {
 	Kelas                      Kelas     `gorm:"foreignKey:KelasID"`
 	TahunAjarID                uuid.UUID `gorm:"type:uuid" json:"TahunAjarID"`
 	TahunAjar                  TahunAjar `gorm:"foreignKey:TahunAjarID"`
-	JudulElemen                string    `gorm:"type:varchar(255)" json:"judulElemen"`
-	KetElemen                  string    `gorm:"type:varchar(255)" json:"ketElemen"`
-	KetProsesMengamati         string    `gorm:"type:varchar(255)" json:"ketProsesMengamati"`
-	KetProsesMempertanyakan    string    `gorm:"type:varchar(255)" json:"ketProsesMempertanyakan"`
-	KetProsesMerencanakan      string    `gorm:"type:varchar(255)" json:"ketProsesMerencanakan"`
-	KetProsesMemproses         string    `gorm:"type:varchar(255)" json:"ketProsesMemproses"`
-	KetProsesMengevaluasi      string    `gorm:"type:varchar(255)" json:"ketProsesMengevaluasi"`
-	KetProsesMengkomunikasikan string    `gorm:"type:varchar(255)" json:"ketProsesMengkomunikasikan"`
+	JudulElemen                string    `gorm:"type:text" json:"judulElemen"`
+	KetElemen                  string    `gorm:"type:text" json:"ketElemen"`
+	KetProsesMengamati         string    `gorm:"type:text" json:"ketProsesMengamati"`
+	KetProsesMempertanyakan    string    `gorm:"type:text" json:"ketProsesMempertanyakan"`
+	KetProsesMerencanakan      string    `gorm:"type:text" json:"ketProsesMerencanakan"`
+	KetProsesMemproses         string    `gorm:"type:text" json:"ketProsesMemproses"`
+	KetProsesMengevaluasi      string    `gorm:"type:text" json:"ketProsesMengevaluasi"`
+	KetProsesMengkomunikasikan string    `gorm:"type:text" json:"ketProsesMengkomunikasikan"`
 }

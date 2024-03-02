@@ -8,11 +8,11 @@ import (
 type AlurTP struct {
 	gorm.Model
 	ID                 uuid.UUID `gorm:"type:uuid;primary_key"`
-	Elemen             string    `gorm:"type:varchar(255)"`
-	LingkupMateri      string    `gorm:"type:varchar(255)"`
-	TujuanPembelajaran string    `gorm:"type:varchar(255)"`
-	KodeTP             string    `gorm:"type:varchar(255)"`
-	AlokasiWaktu       string    `gorm:"type:varchar(255)"`
-	SumberBelajar      string    `gorm:"type:varchar(255)"`
-	ProjekPPancasila   string    `gorm:"type:varchar(255)"`
+	Elemen             string    `gorm:"type:text"`
+	LingkupMateri      string    `gorm:"type:text"`
+	TujuanPembelajaran string    `gorm:"type:text"`
+	KodeTP             string    `gorm:"type:text"`
+	AlokasiWaktu       string    `gorm:"type:text"`
+	SumberBelajar      string    `gorm:"type:text"`
+	ProjekPPancasila   string    `gorm:"type:text"`
 }

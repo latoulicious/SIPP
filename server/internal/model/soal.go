@@ -16,10 +16,10 @@ type Soal struct {
 	Kelas         Kelas      `gorm:"foreignKey:KelasID"`
 	JurusanID     uuid.UUID  `gorm:"type:uuid" json:"jurusanId"`
 	Jurusan       Jurusan    `gorm:"foreignKey:JurusanID"`
-	TipeSoal      string     `gorm:"type:varchar(255)"`
-	Hari          string     `gorm:"type:varchar(255)"`
-	Tanggal       string     `gorm:"type:varchar(255)"`
-	Waktu         string     `gorm:"type:varchar(255)"`
+	TipeSoal      string     `gorm:"type:varchar(50)"`
+	Hari          string     `gorm:"type:varchar(50)"`
+	Tanggal       string     `gorm:"type:varchar(50)"`
+	Waktu         string     `gorm:"type:varchar(50)"`
 	Items         []ItemSoal `gorm:"foreignKey:SoalID;associationForeignKey:SoalID"`
 	QuestionCount int64      `json:"questionCount"`
 	DynamicFields JSON       `gorm:"type:jsonb" json:"DynamicFields"`
