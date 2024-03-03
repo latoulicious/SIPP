@@ -787,11 +787,6 @@ export default defineComponent({
             icon="remove_red_eye"
             @click="openDetailModal(rowIndex)"
           />
-          <!-- <va-button
-            preset="plain"
-            icon="edit"
-            @click="openModalToEditItemById(rowIndex)"
-          /> -->
           <va-button
             preset="plain"
             icon="delete"
@@ -882,64 +877,8 @@ export default defineComponent({
           box-sizing: border-box;
           margin-bottom: 10px;
         "
-        >Add Fields
+        >Add Input Fields
       </va-button>
-    </va-modal>
-
-    <va-modal
-      blur
-      class="modal-crud"
-      :model-value="!!editedItem"
-      title="Edit Asesmen Kognitif"
-      size="large"
-      @ok="editItem"
-      @cancel="resetEditedItem"
-    >
-      <!-- Using va-select for user, mapel, kelas, and tahun ajar -->
-      <va-select
-        v-model="editedItem.UserID"
-        :label="displayNames.User"
-        :options="usersOptions"
-        text-by="label"
-        value-by="value"
-      />
-      <va-select
-        v-model="editedItem.MapelID"
-        :label="displayNames.Mapel"
-        :options="mapelsOptions"
-        class="my-6"
-        text-by="label"
-        value-by="value"
-      />
-      <va-select
-        v-model="editedItem.KelasID"
-        :label="displayNames.Kelas"
-        :options="kelasOptions"
-        class="my-6"
-        text-by="label"
-        value-by="value"
-      />
-      <va-select
-        v-model="editedItem.TahunAjarID"
-        :label="displayNames.TahunAjar"
-        :options="tahunAjarOptions"
-        class="my-6"
-        text-by="label"
-        value-by="value"
-      />
-
-      <!-- this va-select below is intended for soal -->
-
-      <va-select
-        v-model="editedItem.BankSoalID"
-        :label="displayNames.BankSoal"
-        :options="bankSoalOptions"
-        class="my-6"
-        text-by="label"
-        value-by="value"
-        @change="handleSelect"
-        autocomplete
-      />
     </va-modal>
 
     <va-modal

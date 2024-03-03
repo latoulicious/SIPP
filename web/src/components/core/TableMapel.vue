@@ -289,7 +289,7 @@ export default defineComponent({
     <va-modal
       class="modal-crud"
       stripe
-      title="Add mapel"
+      title="Form Input Mata Pelajaran"
       size="small"
       blur
       :model-value="showModal"
@@ -308,7 +308,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       :model-value="!!editedItem"
-      title="Edit mapel"
+      title="Form Edit Mata Pelajaran"
       size="small"
       @ok="editItem"
       @cancel="resetEditedItem"

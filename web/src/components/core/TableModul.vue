@@ -690,7 +690,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       :model-value="!!editedItem"
-      title="Edit Modul Ajar"
+      title="Form Edit Modul Ajar"
       size="large"
       @ok="editItem"
       @cancel="resetEditedItem"

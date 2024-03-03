@@ -14,8 +14,8 @@ type ModulAjar struct {
 	TahunAjar            TahunAjar `gorm:"foreignKey:TahunAjarID"`
 	KelasID              uuid.UUID `gorm:"type:uuid" json:"KelasID"`
 	Kelas                Kelas     `gorm:"foreignKey:KelasID"`
-	Sekolah              string    `gorm:"type:text" json:"sekolah"`
-	AlokasiWaktu         string    `gorm:"type:text" json:"alokasiWaktu"`
+	Sekolah              string    `gorm:"type:varchar(50)" json:"sekolah"`
+	AlokasiWaktu         string    `gorm:"type:varchar(30)" json:"alokasiWaktu"`
 	KompetensiAwal       string    `gorm:"type:text" json:"kompetensiAwal"`
 	ProjekPPancasila     string    `gorm:"type:text" json:"projekPPancasila"`
 	SaranaPrasarana      string    `gorm:"type:text" json:"saranaPrasarana"`

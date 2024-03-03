@@ -685,7 +685,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       :model-value="!!editedItem"
-      title="Edit Bank Soal"
+      title="Form Edit Bank Soal"
       size="large"
       @ok="editItem"
       @cancel="resetEditedItem"

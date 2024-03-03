@@ -8,7 +8,7 @@ import (
 type Capaian struct {
 	gorm.Model
 	ID                         uuid.UUID `gorm:"type:uuid;primary_key"`
-	JudulCapaian               string    `json:"judulCapaian"`
+	JudulCapaian               string    `gorm:"type:varchar(255)" json:"judulCapaian"`
 	UserID                     uuid.UUID `gorm:"type:uuid" json:"UserID"`
 	User                       Users     `gorm:"foreignKey:UserID"`
 	MapelID                    uuid.UUID `gorm:"type:uuid" json:"MapelID"`
@@ -17,7 +17,7 @@ type Capaian struct {
 	Kelas                      Kelas     `gorm:"foreignKey:KelasID"`
 	TahunAjarID                uuid.UUID `gorm:"type:uuid" json:"TahunAjarID"`
 	TahunAjar                  TahunAjar `gorm:"foreignKey:TahunAjarID"`
-	JudulElemen                string    `gorm:"type:text" json:"judulElemen"`
+	JudulElemen                string    `gorm:"type:varchar(255)" json:"judulElemen"`
 	KetElemen                  string    `gorm:"type:text" json:"ketElemen"`
 	KetProsesMengamati         string    `gorm:"type:text" json:"ketProsesMengamati"`
 	KetProsesMempertanyakan    string    `gorm:"type:text" json:"ketProsesMempertanyakan"`
