@@ -38,8 +38,8 @@
 export default {
   data() {
     return {
-      username: "Admin",
-      password: "admin123",
+      username: "AdminTest",
+      password: "test123",
       selectedTab: "login", // Make sure selectedTab is defined
     };
   },

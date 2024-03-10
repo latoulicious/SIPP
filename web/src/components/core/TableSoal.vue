@@ -53,6 +53,7 @@ export default defineComponent({
       { key: "Kelas", label: "Kelas", sortable: false },
       { key: "TipeSoal", label: "Tipe Soal", sortable: false },
       { key: "questionCount", label: "Total Soal", sortable: false },
+      { key: "kunci", label: "Kunci Jawaban", width: 80 },
       { key: "actions", label: "Actions", width: 80 },
     ];
 
@@ -245,6 +246,8 @@ export default defineComponent({
         this.bankSoalOptions = this.extractOptions(
           bankResponse.data.data,
           "Soal",
+
+          console.log("Bank Soal API Response:", bankResponse.data.data),
         );
 
         // Populate questionCountLookup using SoalID
@@ -271,21 +274,20 @@ export default defineComponent({
           const questionCount = questionCountLookup[soalId] || 0;
           const dynamicFields = dynamicFieldsLookup[soalId] || {};
 
-          console.log("Dynamic Fields Map:", dynamicFields);
-
-          console.log(
-            "After mapping for Soal ID:",
-            soalId,
-            "questionCount:",
-            questionCount,
+          // Find the corresponding item in the bankResponseData
+          const bankItem = bankResponse.data.data.find(
+            (bankItem) => bankItem.ID === item.ID,
           );
 
-          console.log(
-            "After mapping for Soal ID:",
-            soalId,
-            "Dynamic Fields:",
-            dynamicFields,
-          );
+          // Log to check if the KunciJawaban is present
+          if (bankItem && bankItem.KunciJawaban) {
+            console.log(
+              `KunciJawaban for Soal ID ${soalId}:`,
+              bankItem.KunciJawaban,
+            );
+          } else {
+            console.log(`KunciJawaban not found for Soal ID ${soalId}`);
+          }
 
           return {
             ...item,
@@ -300,6 +302,7 @@ export default defineComponent({
             OptionC: item.BankSoal ? item.BankSoal.OptionC : "",
             OptionD: item.BankSoal ? item.BankSoal.OptionD : "",
             OptionE: item.BankSoal ? item.BankSoal.OptionE : "",
+            KunciJawaban: item.BankSoal ? item.BankSoal.KunciJawaban : "",
             DynamicFields: dynamicFields, // Correctly map DynamicFields from the first ItemSoal
             questionCount: questionCount,
             TipeSoal: item.TipeSoal || "",
@@ -463,6 +466,7 @@ export default defineComponent({
         }
       }
     },
+
     /**
      * Opens the detail modal for the row at the given index.
      * Fetches the data for that row from the API and populates the modal with it.
@@ -643,6 +647,138 @@ export default defineComponent({
       }
     },
 
+    async printkey(rowIndex) {
+      const selectedItemId = this.filteredItems[rowIndex].ID;
+      console.log(`Selected item ID: ${selectedItemId}`);
+
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/api/soal/${selectedItemId}`,
+        );
+        const data = response.data.data;
+        console.log("Data from server:", data);
+
+        if (data) {
+          const metadata = {
+            TipeSoal: data.TipeSoal,
+            Mapel: data.Mapel.Mapel,
+            Kelas: data.Kelas.Kelas,
+            Jurusan: data.Jurusan.Jurusan,
+            Tanggal: data.Tanggal,
+            Hari: data.Hari,
+            Waktu: data.Waktu,
+          };
+          console.log("Extracted metadata:", metadata);
+
+          const bankSoalResponse = await axios.get(
+            "http://localhost:3000/api/bank",
+          );
+          const bankSoalData = bankSoalResponse.data.data;
+          console.log("BankSoal data:", bankSoalData);
+
+          const questionsAndOptions = [];
+          data.Items.forEach((item) => {
+            if (item.DynamicFields) {
+              Object.entries(item.DynamicFields).forEach(
+                ([question, optionId]) => {
+                  const questionData = bankSoalData.find(
+                    (bankSoal) => bankSoal.ID === optionId,
+                  );
+                  if (questionData) {
+                    questionsAndOptions.push({
+                      question: question,
+                      options: [
+                        questionData.OptionA,
+                        questionData.OptionB,
+                        questionData.OptionC,
+                        questionData.OptionD,
+                        questionData.OptionE,
+                      ],
+                      answerKey: questionData.KunciJawaban, // Include the answer key
+                    });
+                  }
+                },
+              );
+            }
+          });
+          console.log(
+            "Extracted questions, options, and answer keys:",
+            questionsAndOptions,
+          );
+
+          const docDefinition = {
+            footer: function (currentPage, pageCount) {
+              return [
+                {
+                  text: currentPage.toString() + " of " + pageCount,
+                  alignment: "center",
+                  fontSize: 8,
+                  margin: [10, 10, 10, 0],
+                },
+              ];
+            },
+            content: [
+              {
+                text: `Kunci Jawaban ${metadata.TipeSoal}`,
+                fontSize: 14,
+                bold: true,
+                margin: [0, 20, 0, 20],
+              },
+              { text: `Mapel: ${metadata.Mapel}`, fontSize: 10 },
+              { text: `Kelas: ${metadata.Kelas}`, fontSize: 10 },
+              { text: `Jurusan: ${metadata.Jurusan}`, fontSize: 10 },
+              { text: `Tanggal: ${metadata.Tanggal}`, fontSize: 10 },
+              { text: `Hari: ${metadata.Hari}`, fontSize: 10 },
+              { text: `Waktu: ${metadata.Waktu}`, fontSize: 10 },
+              {
+                canvas: [
+                  {
+                    type: "line",
+                    x1: 0,
+                    y1: 0,
+                    x2: 510,
+                    y2: 0,
+                    lineWidth: 2,
+                    color: "#000000",
+                  },
+                ],
+                margin: [0, 10, 0, 10],
+              },
+              ...questionsAndOptions.flatMap((item, index) => [
+                {
+                  text: `${index + 1}. ${item.question}`,
+                  fontSize: 10,
+                  margin: [0, 5, 0, 5],
+                },
+                ...item.options.map((option, optionIndex) => ({
+                  text: `${String.fromCharCode(97 + optionIndex)}). ${option}`,
+                  fontSize: 10,
+                  margin: [0, 5, 0, 5],
+                })),
+                {
+                  text: `Kunci Jawaban: ${item.answerKey}`, // Include the answer key in the document
+                  fontSize: 10,
+                  margin: [0, 5, 0, 5],
+                },
+              ]),
+            ],
+            pageSize: "A4",
+            pageMargins: [20, 20, 20, 20],
+            pageOrientation: "portrait",
+          };
+
+          console.log("Doc definition:", docDefinition);
+
+          const pdf = pdfMake.createPdf(docDefinition);
+          pdf.open();
+        } else {
+          console.error("No data received from the server");
+        }
+      } catch (error) {
+        console.error("Error fetching data for printing:", error);
+      }
+    },
+
     extractOptions(data, labelProperty) {
       if (!Array.isArray(data)) {
         console.error("Data is not an array:", data);
@@ -671,6 +807,7 @@ export default defineComponent({
         OptionC: this.createdItem.BankSoal.OptionC,
         OptionD: this.createdItem.BankSoal.OptionD,
         OptionE: this.createdItem.BankSoal.OptionE,
+        KunciJawaban: this.createdItem.BankSoal.KunciJawaban, // Include the KunciJawaban
       };
 
       // Filter out any fields that are empty strings
@@ -813,14 +950,19 @@ export default defineComponent({
       striped
       :loading="loading"
     >
+      <template #cell(kunci)="{ rowIndex }">
+        <div class="kunci-buttons">
+          <va-button preset="plain" icon="print" @click="printkey(rowIndex)" />
+        </div>
+      </template>
       <template #cell(actions)="{ rowIndex }">
         <div class="action-buttons">
-          <va-button preset="plain" icon="print" @click="printRow(rowIndex)" />
           <va-button
             preset="plain"
             icon="remove_red_eye"
             @click="openDetailModal(rowIndex)"
           />
+          <va-button preset="plain" icon="print" @click="printRow(rowIndex)" />
           <va-button
             preset="plain"
             icon="delete"
@@ -1049,5 +1191,12 @@ export default defineComponent({
   border: 1px solid #ccc;
   border-radius: 4px;
   resize: vertical;
+}
+</style>
+
+<style scoped>
+.kunci-buttons {
+  display: flex;
+  justify-content: center;
 }
 </style>
