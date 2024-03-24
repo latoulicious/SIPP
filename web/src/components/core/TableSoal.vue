@@ -33,6 +33,9 @@ const displayNames = {
   Kelas: "Kelas",
   Jurusan: "Jurusan",
   questionCount: "Total Soal",
+  Materi: "Materi",
+  Indikator: "Indikator",
+  tingkatKesukaran: "Tingkat Kesukaran",
   BankSoal: "Soal",
   OptionA: "Pilihan A",
   OptionB: "Pilihan B",
@@ -71,6 +74,9 @@ export default defineComponent({
       kelasOptions: [],
       jurusanOptions: [],
       bankSoalOptions: [],
+      materiOptions: [],
+      indikatorOptions: [],
+      tingkatKesukaranOptions: [],
       tipeSoalOptions: [
         { label: "Ulangan Harian", value: "Ulangan Harian" },
         { label: "Ulangan Tengah Semester", value: "Ulangan Tengah Semester" },
@@ -223,12 +229,15 @@ export default defineComponent({
         const questionCountResponse = await axios.get(
           "http://localhost:3000/api/total/item",
         );
-
-        console.log("Soal response data:", response.data);
-        console.log(
-          "ItemSoal question counts response data:",
-          questionCountResponse.data,
+        const indikatorTingkatResponse = await axios.get(
+          "http://localhost:3000/api/tingkat",
         );
+
+        // console.log("Soal response data:", response.data);
+        // console.log(
+        //   "ItemSoal question counts response data:",
+        //   questionCountResponse.data,
+        // );
 
         this.usersOptions = this.extractOptions(userResponse.data.data, "Name");
         this.kelasOptions = this.extractOptions(
@@ -247,8 +256,15 @@ export default defineComponent({
           bankResponse.data.data,
           "Soal",
 
-          console.log("Bank Soal API Response:", bankResponse.data.data),
+          // console.log("Bank Soal API Response:", bankResponse.data.data),
         );
+
+        this.tingkatOptions = this.extractOptions(
+          indikatorTingkatResponse.data.data,
+          "Tingkat",
+        );
+
+        console.log("Indikator Tingkat:", indikatorTingkatResponse.data.data);
 
         // Populate questionCountLookup using SoalID
         const questionCountLookup = {};
@@ -263,10 +279,10 @@ export default defineComponent({
         });
 
         // Log the populated dynamicFieldsLookup
-        console.log("Populated dynamicFieldsLookup:", dynamicFieldsLookup);
+        // console.log("Populated dynamicFieldsLookup:", dynamicFieldsLookup);
 
         // Log the populated questionCountLookup
-        console.log("Populated questionCountLookup:", questionCountLookup);
+        // console.log("Populated questionCountLookup:", questionCountLookup);
 
         // Map the question counts to the corresponding items
         this.items = response.data.data.map((item) => {
@@ -798,6 +814,32 @@ export default defineComponent({
       }));
     },
 
+    extractIndikatorOptions(data) {
+      if (!Array.isArray(data)) {
+        console.error("Data is not an array:", data);
+        return []; // This return statement ends the function if data is not an array
+      }
+
+      return data.map((item) => ({
+        label: `${item.Materi} - ${item.Indikator}`, // Combine Materi and Indikator for the label
+        value: item.ID, // Use the ID as the value
+      }));
+    },
+
+    // Function to extract options for TingkatKesukaran, which has a single label
+    extractTingkatKesukaranOptions(data) {
+      if (!Array.isArray(data)) {
+        console.error("Data is not an array:", data);
+        return []; // This return statement ends the function if data is not an array
+      }
+
+      // This map function will only be executed if the data is an array
+      return data.map((item) => ({
+        label: item.TingkatKesukaran, // Use TingkatKesukaran as the label
+        value: item.ID, // Use the ID as the value
+      }));
+    },
+
     collectDynamicFields() {
       // Gather the data from the BankSoal proxy object
       const dynamicFields = {
@@ -1020,6 +1062,30 @@ export default defineComponent({
         v-model="createdItem.TipeSoal"
         :label="displayNames.TipeSoal"
         :options="tipeSoalOptions"
+        class="my-6"
+        text-by="label"
+        value-by="value"
+      />
+      <va-select
+        v-model="createdItem.Materi"
+        :label="displayNames.Materi"
+        :options="materiaOptions"
+        class="my-6"
+        text-by="label"
+        value-by="value"
+      />
+      <va-select
+        v-model="createdItem.Indikator"
+        :label="displayNames.Indikator"
+        :options="indikatorOptions"
+        class="my-6"
+        text-by="label"
+        value-by="value"
+      />
+      <va-select
+        v-model="createdItem.tingkatKesukaran"
+        :label="displayNames.tingkatKesukaran"
+        :options="tingkatKesukaranOptions"
         class="my-6"
         text-by="label"
         value-by="value"

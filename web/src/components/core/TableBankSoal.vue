@@ -49,6 +49,8 @@ export default defineComponent({
       { key: "Kelas", label: "Kelas", sortable: false },
       { key: "Jurusan", label: "Jurusan", sortable: false },
       { key: "Materi", label: "Materi", sortable: false },
+      { key: "Indikator", label: "Indikator", sortable: false },
+      { key: "TingkatKesukaran", label: "TIngkat Kesukaran", sortable: false },
       { key: "actions", label: "Actions", width: 80 },
     ];
 
@@ -64,6 +66,9 @@ export default defineComponent({
       kelasOptions: [],
       jurusanOptions: [],
       textAreaFields: [
+        "Materi",
+        "Indikator",
+        "TingkatKesukaran",
         "Soal",
         "OptionA",
         "OptionB",
@@ -71,9 +76,6 @@ export default defineComponent({
         "OptionD",
         "OptionE",
         "KunciJawaban",
-        "Materi",
-        "Indikator",
-        "TingkatKesukaran",
       ],
       showModal: false,
       viewModalVisible: false,
@@ -166,56 +168,92 @@ export default defineComponent({
         const mapelResponse = await axios.get(
           "http://localhost:3000/api/public/mapel",
         );
+        const indikatorsResponse = await axios.get(
+          "http://localhost:3000/api/indikator",
+        );
+        const kesukaranResponse = await axios.get(
+          "http://localhost:3000/api/kesukaran",
+        );
 
         // Process the data and update the UI
-        console.log("Response from server (BankSoal):", response.data);
-        // console.log("Response from server (Users):", userResponse.data);
-        // console.log("Response from server (Kelas):", kelasResponse.data);
-        console.log("Response from server (Jurusan):", jurusanResponse.data);
-        // console.log("Response from server (Mapel):", mapelResponse.data);
-        // console.log("Response from server (Tahun):", tahunResponse.data);
-
-        // Populate usersOptions, mapelsOptions, kelasOptions, tahunAjarOptions
         this.usersOptions = this.extractOptions(userResponse.data.data, "Name");
-        // console.log("Users options:", this.usersOptions);
-
         this.kelasOptions = this.extractOptions(
           kelasResponse.data.data,
           "Kelas",
         );
-        // console.log("Kelas options:", this.kelasOptions);
-
         this.jurusanOptions = this.extractOptions(
           jurusanResponse.data.data,
           "Jurusan",
         );
-        console.log("Jurusan options:", this.jurusanOptions);
-
         this.mapelsOptions = this.extractOptions(
           mapelResponse.data.data,
           "Mapel",
         );
-        // console.log("Mapels options:", this.mapelsOptions);
+
+        // Correctly call the methods using 'this'
+        this.indikatorOptions = this.extractIndikatorOptions(
+          indikatorsResponse.data.data,
+        );
+        console.log("Indikator options:", this.indikatorOptions);
+
+        this.kesukaranOptions = this.extractTingkatKesukaranOptions(
+          kesukaranResponse.data.data,
+        );
+        console.log("Kesukaran options:", this.kesukaranOptions);
 
         // Update the items array with BankSoal data
-        this.items = response.data.data.map((item) => ({
-          ...item,
-          ID: item?.ID || "", // Use 'ID' instead of 'id'
-          User: item?.User.Name || "",
-          Mapel: item?.Mapel.Mapel || "",
-          Kelas: item?.Kelas.Kelas || "",
-          Jurusan: item?.Jurusan.Jurusan || "",
-          Soal: item?.Soal || "",
-          OptionA: item?.OptionA || "",
-          OptionB: item?.OptionB || "",
-          OptionC: item?.OptionC || "",
-          OptionD: item?.OptionD || "",
-          OptionE: item?.OptionE || "",
-          KunciJawaban: item?.KunciJawaban || "",
-          Materi: item?.Materi || "",
-          Indikator: item?.Indikator || "",
-          TingkatKesukaran: item?.TingkatKesukaran || "",
-        }));
+        this.items = response.data.data.map((item) => {
+          // Find the option object for TingkatKesukaran
+          const tingkatKesukaranOption = this.kesukaranOptions.find(
+            (option) => option.value === item.KesukaranID,
+          );
+
+          // Find the option object for Indikator
+          const indikatorOption = this.indikatorOptions.find((option) => {
+            console.log(
+              "Checking option:",
+              option.value,
+              "against item IndikatorID:",
+              item.IndikatorID,
+            );
+            return option.value === item.IndikatorID;
+          });
+
+          console.log(
+            "Label before split:",
+            indikatorOption ? indikatorOption.label : "No option found",
+          );
+
+          // Split the label of the found Indikator option into Materi and Indikator
+          const [materi, indikator] = indikatorOption
+            ? indikatorOption.label.trim().split(" - ")
+            : ["", ""];
+
+          // Log the split results
+          console.log("Split Results:", materi, indikator);
+
+          return {
+            ...item,
+            ID: item?.ID || "",
+            User: item?.User.Name || "",
+            Mapel: item?.Mapel.Mapel || "",
+            Kelas: item?.Kelas.Kelas || "",
+            Jurusan: item?.Jurusan.Jurusan || "",
+            Soal: item?.Soal || "",
+            OptionA: item?.OptionA || "",
+            OptionB: item?.OptionB || "",
+            OptionC: item?.OptionC || "",
+            OptionD: item?.OptionD || "",
+            OptionE: item?.OptionE || "",
+            KunciJawaban: item?.KunciJawaban || "",
+            // Use the split Materi and Indikator values
+            Materi: materi,
+            Indikator: indikator,
+            TingkatKesukaran: tingkatKesukaranOption
+              ? tingkatKesukaranOption.label
+              : "",
+          };
+        });
 
         console.log("BankSoal items:", this.items);
       } catch (error) {
@@ -238,8 +276,42 @@ export default defineComponent({
       }
 
       try {
-        console.log("Creating new item with data:", this.createdItem);
+        // First, create the Indikator and TingkatKesukaran entries
+        const indikatorResponse = await axios.post(
+          "http://localhost:3000/api/indikator",
+          {
+            Materi: this.createdItem.Materi,
+            Indikator: this.createdItem.Indikator,
+          },
+        );
 
+        // Log the entire response for debugging
+        console.log("Indikator Response:", indikatorResponse.data);
+
+        const tingkatKesukaranResponse = await axios.post(
+          "http://localhost:3000/api/kesukaran",
+          {
+            TingkatKesukaran: this.createdItem.TingkatKesukaran,
+          },
+        );
+
+        // Log the entire response for debugging
+        console.log(
+          "Tingkat Kesukaran Response:",
+          tingkatKesukaranResponse.data,
+        );
+
+        // Correctly access the ID from the Indikator response
+        const IndikatorID = indikatorResponse.data.data.ID; // Adjusted line
+
+        // Correctly access the ID from the TingkatKesukaran response
+        const KesukaranID = tingkatKesukaranResponse.data.data.ID; // Adjusted line
+
+        // Debugging statements to log the extracted IDs
+        console.log("Extracted IndikatorID:", IndikatorID);
+        console.log("Extracted KesukaranID:", KesukaranID);
+
+        // Then, create the BankSoal item with the IDs of the created Indikator and TingkatKesukaran entries
         const response = await axios.post("http://localhost:3000/api/bank", {
           UserID: this.createdItem.UserID.toString(),
           MapelID: this.createdItem.MapelID.toString(),
@@ -252,13 +324,19 @@ export default defineComponent({
           OptionD: this.createdItem.OptionD,
           OptionE: this.createdItem.OptionE,
           KunciJawaban: this.createdItem.KunciJawaban,
-          Materi: this.createdItem.Materi,
-          Indikator: this.createdItem.Indikator,
-          TingkatKesukaran: this.createdItem.TingkatKesukaran,
+          IndikatorID: IndikatorID, // Use the ID from the created Indikator entry
+          KesukaranID: KesukaranID, // Use the ID from the created TingkatKesukaran entry
+          IndikatorTingkat: IndikatorID + KesukaranID, // Use the ID from the created
         });
+
+        // Assuming the response contains the created BankSoal item
+        // const newItem = response.data;
 
         this.items.push({
           ...this.createdItem,
+          IndikatorID: IndikatorID,
+          KesukaranID: KesukaranID,
+          IndikatorTingkat: IndikatorID + KesukaranID,
         });
 
         console.log("Server Response:", response.data);
@@ -360,36 +438,44 @@ export default defineComponent({
       console.log("Opening detail modal with ID:", selectedItemId);
 
       try {
+        // Fetch the detail item
         const response = await axios.get(
           `http://localhost:3000/api/bank/${selectedItemId}`,
         );
-        const data = response.data.data; // Access the data object directly
-        console.log("Full response data:", data); // Log the full response data
+        const data = response.data.data;
+        console.log("Full response data:", data);
 
         if (data) {
-          console.log("Data:", data);
-
-          this.detailItem = {
-            ...defaultItem,
-            BankSoal: {
-              Soal: data.Soal || "",
-              OptionA: data.OptionA || "",
-              OptionB: data.OptionB || "",
-              OptionC: data.OptionC || "",
-              OptionD: data.OptionD || "",
-              OptionE: data.OptionE || "",
-            },
-            // If you need to include DynamicFields, you can add it here
-            // DynamicFields: data.DynamicFields || [],
-          };
-
-          console.log("Soal:", this.detailItem.BankSoal.Soal);
-          console.log(
-            "Option Values:",
-            ["OptionA", "OptionB", "OptionC", "OptionD", "OptionE"].map(
-              (option) => this.detailItem.BankSoal[option],
-            ),
+          // Assuming you have already fetched all Indikator options and stored them in this.indikatorOptions
+          // Find the specific Indikator option based on the IndikatorID
+          const indikatorOption = this.indikatorOptions.find(
+            (option) => option.value === data.IndikatorID,
           );
+          if (indikatorOption) {
+            console.log("Found Indikator option:", indikatorOption);
+
+            // Combine the detail item data with the Indikator and Materi data
+            this.detailItem = {
+              ...defaultItem,
+              BankSoal: {
+                Soal: data.Soal || "",
+                OptionA: data.OptionA || "",
+                OptionB: data.OptionB || "",
+                OptionC: data.OptionC || "",
+                OptionD: data.OptionD || "",
+                OptionE: data.OptionE || "",
+                // Use the label of the found Indikator option as the Indikator and Materi
+                Indikator: indikatorOption.label.split(" - ")[1] || "", // Assuming the label is in the format "Materi - Indikator"
+                Materi: indikatorOption.label.split(" - ")[0] || "",
+                TingkatKesukaran: data.tingkatKesukaranOption || "",
+              },
+            };
+          } else {
+            console.error(
+              "No matching Indikator option found for ID:",
+              data.IndikatorID,
+            );
+          }
 
           console.log("Detail item:", this.detailItem);
           this.detailModalVisible = true;
@@ -536,6 +622,32 @@ export default defineComponent({
       return data.map((item) => ({
         label: item[labelProperty] ? item[labelProperty] : "", // Use '' if labelProperty is null or undefined
         value: item.ID, // Use 'ID' instead of 'id'
+      }));
+    },
+
+    extractIndikatorOptions(data) {
+      if (!Array.isArray(data)) {
+        console.error("Data is not an array:", data);
+        return []; // This return statement ends the function if data is not an array
+      }
+
+      return data.map((item) => ({
+        label: `${item.Materi} - ${item.Indikator}`, // Combine Materi and Indikator for the label
+        value: item.ID, // Use the ID as the value
+      }));
+    },
+
+    // Function to extract options for TingkatKesukaran, which has a single label
+    extractTingkatKesukaranOptions(data) {
+      if (!Array.isArray(data)) {
+        console.error("Data is not an array:", data);
+        return []; // This return statement ends the function if data is not an array
+      }
+
+      // This map function will only be executed if the data is an array
+      return data.map((item) => ({
+        label: item.TingkatKesukaran, // Use TingkatKesukaran as the label
+        value: item.ID, // Use the ID as the value
       }));
     },
 
@@ -743,6 +855,33 @@ export default defineComponent({
       @ok="resetDetailItem"
       @cancel="resetDetailItem"
     >
+      <!-- Display the Indikator -->
+      <div class="textarea-container">
+        <label>Indikator</label>
+        <textarea
+          class="detailarea"
+          readonly
+          :value="detailItem.BankSoal.Indikator"
+        ></textarea>
+      </div>
+      <!-- Display the Materi -->
+      <div class="textarea-container">
+        <label>Materi</label>
+        <textarea
+          class="detailarea"
+          readonly
+          :value="detailItem.BankSoal.Materi"
+        ></textarea>
+      </div>
+      <!-- Display the Tingkat Kesukaran (TK) -->
+      <div class="textarea-container">
+        <label>Tingkat Kesukaran (TK)</label>
+        <textarea
+          class="detailarea"
+          readonly
+          :value="detailItem.BankSoal.TingkatKesukaran"
+        ></textarea>
+      </div>
       <!-- Display the Soal -->
       <div class="textarea-container">
         <label>Soal</label>

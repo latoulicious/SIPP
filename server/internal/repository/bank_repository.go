@@ -44,10 +44,10 @@ func (repository *BankRepository) UpdateBank(bank *model.BankSoal) error {
 	log.Printf("Updating BankSoal with ID: %s\n", bank.ID)
 
 	// Log the values of the related entities
-	log.Printf("User: %+v\n", bank.User)
-	log.Printf("Mapel: %+v\n", bank.Mapel)
-	log.Printf("Kelas: %+v\n", bank.Kelas)
-	log.Printf("Jurusan: %+v\n", bank.Jurusan)
+	log.Printf("User: %+v\n", bank.UserID)
+	log.Printf("Mapel: %+v\n", bank.MapelID)
+	log.Printf("Kelas: %+v\n", bank.KelasID)
+	log.Printf("Jurusan: %+v\n", bank.JurusanID)
 
 	if err := repository.DB.Save(bank).Error; err != nil {
 		log.Printf("Error saving bank: %+v\n", err)

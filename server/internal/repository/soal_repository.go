@@ -27,10 +27,20 @@ func (repository *SoalRepository) GetSoal() ([]*model.Soal, error) {
 // GetSoalByID retrieves a Soal along with its associated ItemSoal records by ID
 func (repository *SoalRepository) GetSoalByID(soalID uuid.UUID) (*model.Soal, error) {
 	var soal model.Soal
-	if err := repository.DB.Preload("User").Preload("Mapel").Preload("Kelas").Preload("Jurusan").Preload("Items").Preload("Items.BankSoal").First(&soal, "id = ?", soalID).Error; err != nil {
+	if err := repository.DB.Preload("User").Preload("Mapel").Preload("Kelas").Preload("Jurusan").Preload("Items").Preload("Items.BankSoal").Preload("Indikator").Preload("Kesukaran").First(&soal, "id = ?", soalID).Error; err != nil {
 		return nil, err
 	}
 	return &soal, nil
+}
+
+// GetSoalByIndikatorTingkatID retrieves all Soal records associated with a specific IndikatorTingkat ID
+func (repository *SoalRepository) GetSoalByIndikatorTingkatID(indikatorTingkatID uuid.UUID) ([]*model.Soal, error) {
+	var soals []*model.Soal
+	err := repository.DB.Preload("User").Preload("Mapel").Preload("Kelas").Preload("Jurusan").Preload("Items").Preload("Items.BankSoal").Where("indikator_tingkat_id = ?", indikatorTingkatID).Find(&soals).Error
+	if err != nil {
+		return nil, err
+	}
+	return soals, nil
 }
 
 func (repository *SoalRepository) CreateSoal(soal *model.Soal) error {
