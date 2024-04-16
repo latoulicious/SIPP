@@ -42,35 +42,18 @@ func (service *SoalService) GetSoal() ([]*model.Soal, error) {
 	return soals, nil
 }
 
-// GetSoalByIndikatorAndTingkatKesukaran retrieves a list of soal based on the selected Indikator and TingkatKesukaran
-func (service *SoalService) GetSoalByIndikatorAndTingkatKesukaran(indikatorID uuid.UUID, tingkatKesukaranID uuid.UUID) ([]*model.Soal, error) {
-	// First, find the IndikatorTingkat entry that matches the given Indikator and TingkatKesukaran IDs
-	var indikatorTingkat model.IndikatorTingkat
-	err := service.SoalRepository.DB.Where("indikator_id = ? AND tingkat_kesukaran_id = ?", indikatorID, tingkatKesukaranID).First(&indikatorTingkat).Error
-	if err != nil {
-		return nil, err
-	}
-
-	// Then, find all Soal entries associated with the found IndikatorTingkat
-	var soals []*model.Soal
-	err = service.SoalRepository.DB.Where("indikator_tingkat_id = ?", indikatorTingkat.ID).Preload("User").Preload("Mapel").Preload("Kelas").Preload("Jurusan").Preload("Items").Preload("Items.BankSoal").Find(&soals).Error
-	if err != nil {
-		return nil, err
-	}
-
-	// Optionally, count dynamic fields for each Soal item as before
-	for _, soal := range soals {
-		for _, item := range soal.Items {
-			count, err := service.CountDynamicFields(item.SoalID)
-			if err != nil {
-				return nil, err
-			}
-			item.QuestionCount = count
-		}
-	}
-
-	return soals, nil
+func (service *SoalService) GetIndikatorByMateri(materi string) ([]model.Indikator, error) {
+	return service.SoalRepository.GetIndikatorByMateri(materi)
 }
+
+func (service *SoalService) GetBankSoalByIndikatorID(indikatorID uuid.UUID) ([]model.BankSoal, error) {
+	return service.SoalRepository.GetBankSoalByIndikatorID(indikatorID)
+}
+
+// // GetBankSoalByCriteria retrieves all BankSoal records associated with a specific Materi, Indikator, and Tingkat Kesukaran
+// func (service *SoalService) GetBankSoalByCriteria(materi string, indikatorID uuid.UUID) ([]*model.BankSoal, error) {
+// 	return service.SoalRepository.GetBankSoalByCriteria(materi, indikatorID)
+// }
 
 // GetSoalByID retrieve a soal by id
 func (service *SoalService) GetSoalByID(soalID uuid.UUID) (*model.Soal, error) {

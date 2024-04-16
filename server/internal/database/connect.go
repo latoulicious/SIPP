@@ -63,8 +63,6 @@ func ConnectDB() error {
 		&model.ItemSoal{},
 		&model.BankSoal{},
 		&model.Indikator{},
-		&model.Kesukaran{},
-		&model.IndikatorTingkat{},
 	)
 	if err != nil {
 		log.Println("Failed to auto migrate models:", err)

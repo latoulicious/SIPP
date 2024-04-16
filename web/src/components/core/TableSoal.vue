@@ -12,6 +12,9 @@ const defaultItem = {
   Mapel: {}, // Initialize as an empty object
   Kelas: {}, // Initialize as an empty object
   Jurusan: {}, // Initialize as an empty object
+  Materi: "",
+  Indikator: "",
+  TingkatKesukaran: "",
   questionCount: "",
   BankSoal: {
     Soal: "",
@@ -64,7 +67,22 @@ export default defineComponent({
       columns,
       editedItemId: null,
       editedItem: null,
-      createdItem: {},
+      createdItem: {
+        Materi: "",
+        BankSoalID: "",
+        BankSoal: {
+          Soal: "",
+          OptionA: "",
+          OptionB: "",
+          OptionC: "",
+          OptionD: "",
+          OptionE: "",
+          KunciJawaban: "",
+        },
+        KunciJawaban: "",
+        Indikator: "",
+        TingkatKesukaran: "",
+      },
       dynamicFieldsArray: [],
       selectedValues: {},
       input: ref({ value: "" }),
@@ -74,15 +92,16 @@ export default defineComponent({
       kelasOptions: [],
       jurusanOptions: [],
       bankSoalOptions: [],
-      materiOptions: [],
-      indikatorOptions: [],
-      tingkatKesukaranOptions: [],
       tipeSoalOptions: [
         { label: "Ulangan Harian", value: "Ulangan Harian" },
         { label: "Ulangan Tengah Semester", value: "Ulangan Tengah Semester" },
         { label: "Ulangan Akhir Semester", value: "Ulangan Akhir Semester" },
         // ... add more options as needed
       ],
+      // selectedMateri: null,
+      // selectedIndikator: null,
+      // materiOptions: [],
+      // indikator: [], // This will be populated based on the selected Materi
       textAreaFields: ["Hari", "Tanggal", "Waktu"],
       showModal: false,
       viewModalVisible: false,
@@ -145,6 +164,15 @@ export default defineComponent({
       }
     },
 
+    filteredBankSoalOptions() {
+      if (this.createdItem.Indikator && this.createdItem.Indikator.value) {
+        return this.bankSoalOptions.filter(
+          (item) => item.IndikatorID === this.createdItem.Indikator.value,
+        );
+      }
+      return this.bankSoalOptions;
+    },
+
     isNewData() {
       // Function to check if a value is truthy, allowing empty strings
       const isTruthyOrEmptyString = (value) => {
@@ -157,12 +185,12 @@ export default defineComponent({
       // Check if BankSoal exists and has truthy or empty string Soal and Options
       const bankSoalExistsAndHasValues =
         this.createdItem.BankSoal &&
-        isTruthyOrEmptyString(this.createdItem.BankSoal.Soal) &&
-        isTruthyOrEmptyString(this.createdItem.BankSoal.OptionA) &&
-        isTruthyOrEmptyString(this.createdItem.BankSoal.OptionB) &&
-        isTruthyOrEmptyString(this.createdItem.BankSoal.OptionC) &&
-        isTruthyOrEmptyString(this.createdItem.BankSoal.OptionD) &&
-        isTruthyOrEmptyString(this.createdItem.BankSoal.OptionE);
+        isTruthyOrEmptyString(this.createdItem.BankSoal.options.Soal) &&
+        isTruthyOrEmptyString(this.createdItem.BankSoal.options.OptionA) &&
+        isTruthyOrEmptyString(this.createdItem.BankSoal.options.OptionB) &&
+        isTruthyOrEmptyString(this.createdItem.BankSoal.options.OptionC) &&
+        isTruthyOrEmptyString(this.createdItem.BankSoal.options.OptionD) &&
+        isTruthyOrEmptyString(this.createdItem.BankSoal.options.OptionE);
 
       // Check if all other keys in createdItem have truthy or empty string values
       const allOtherKeysTruthyOrEmptyString = Object.keys(this.createdItem)
@@ -229,15 +257,9 @@ export default defineComponent({
         const questionCountResponse = await axios.get(
           "http://localhost:3000/api/total/item",
         );
-        const indikatorTingkatResponse = await axios.get(
-          "http://localhost:3000/api/tingkat",
+        const indikatorResponse = await axios.get(
+          "http://localhost:3000/api/indikator",
         );
-
-        // console.log("Soal response data:", response.data);
-        // console.log(
-        //   "ItemSoal question counts response data:",
-        //   questionCountResponse.data,
-        // );
 
         this.usersOptions = this.extractOptions(userResponse.data.data, "Name");
         this.kelasOptions = this.extractOptions(
@@ -252,19 +274,32 @@ export default defineComponent({
           jurusanResponse.data.data,
           "Jurusan",
         );
-        this.bankSoalOptions = this.extractOptions(
+        this.bankSoalOptions = this.extractBankSoalOptions(
           bankResponse.data.data,
           "Soal",
-
-          // console.log("Bank Soal API Response:", bankResponse.data.data),
         );
 
-        this.tingkatOptions = this.extractOptions(
-          indikatorTingkatResponse.data.data,
-          "Tingkat",
+        console.log("Raw Bank Soal Data: ", bankResponse.data.data);
+
+        this.tingkatKesukaranOptions = this.extractKesukaranOptions(
+          bankResponse.data.data,
+          "Tingkat Kesukaran",
         );
 
-        console.log("Indikator Tingkat:", indikatorTingkatResponse.data.data);
+        // Extract Materi and Indikator options
+        this.materiOptions = this.extractMateriOptions(
+          indikatorResponse.data.data,
+          "Materi",
+        );
+        this.indikatorOptions = this.extractIndikatorOptions(
+          indikatorResponse.data.data,
+          "Indikator",
+        );
+
+        console.log("Extracted Materi:", this.materiOptions);
+        console.log("Extracted Indikator:", this.indikatorOptions);
+        console.log("Extracted Bank Soal:", this.bankSoalOptions);
+        console.log("Extracted Kesukaran:", this.tingkatKesukaranOptions);
 
         // Populate questionCountLookup using SoalID
         const questionCountLookup = {};
@@ -278,55 +313,58 @@ export default defineComponent({
           dynamicFieldsLookup[item.SoalID] = item.DynamicFields;
         });
 
-        // Log the populated dynamicFieldsLookup
-        // console.log("Populated dynamicFieldsLookup:", dynamicFieldsLookup);
-
-        // Log the populated questionCountLookup
-        // console.log("Populated questionCountLookup:", questionCountLookup);
-
         // Map the question counts to the corresponding items
-        this.items = response.data.data.map((item) => {
-          const soalId = item.ID; // Use the ID field as the SoalID
-          const questionCount = questionCountLookup[soalId] || 0;
-          const dynamicFields = dynamicFieldsLookup[soalId] || {};
+        this.items = await Promise.all(
+          response.data.data.map(async (item) => {
+            const soalId = item.ID; // Use the ID field as the SoalID
+            const questionCount = questionCountLookup[soalId] || 0;
+            const dynamicFields = dynamicFieldsLookup[soalId] || {};
 
-          // Find the corresponding item in the bankResponseData
-          const bankItem = bankResponse.data.data.find(
-            (bankItem) => bankItem.ID === item.ID,
-          );
-
-          // Log to check if the KunciJawaban is present
-          if (bankItem && bankItem.KunciJawaban) {
-            console.log(
-              `KunciJawaban for Soal ID ${soalId}:`,
-              bankItem.KunciJawaban,
+            // Find the corresponding item in the bankResponseData
+            const bankItem = bankResponse.data.data.find(
+              (bankItem) => bankItem.ID === item.ID,
             );
-          } else {
-            console.log(`KunciJawaban not found for Soal ID ${soalId}`);
-          }
 
-          return {
-            ...item,
-            ID: item.ID || "",
-            User: item.User ? item.User.Name : "",
-            Mapel: item.Mapel ? item.Mapel.Mapel : "",
-            Kelas: item.Kelas ? item.Kelas.Kelas : "",
-            Jurusan: item.Jurusan ? item.Jurusan.Jurusan : "",
-            Soal: item.BankSoal ? item.BankSoal.Soal : "",
-            OptionA: item.BankSoal ? item.BankSoal.OptionA : "",
-            OptionB: item.BankSoal ? item.BankSoal.OptionB : "",
-            OptionC: item.BankSoal ? item.BankSoal.OptionC : "",
-            OptionD: item.BankSoal ? item.BankSoal.OptionD : "",
-            OptionE: item.BankSoal ? item.BankSoal.OptionE : "",
-            KunciJawaban: item.BankSoal ? item.BankSoal.KunciJawaban : "",
-            DynamicFields: dynamicFields, // Correctly map DynamicFields from the first ItemSoal
-            questionCount: questionCount,
-            TipeSoal: item.TipeSoal || "",
-            Hari: item.Hari || "",
-            Tanggal: item.Tanggal || "",
-            Waktu: item.Waktu || "",
-          };
-        });
+            // Log to check if the KunciJawaban is present
+            if (bankItem && bankItem.KunciJawaban) {
+              console.log(
+                `KunciJawaban for Soal ID ${soalId}:`,
+                bankItem.KunciJawaban,
+              );
+            }
+
+            // Include Indikator in the returned item
+            return {
+              ...item,
+              ID: item.ID || "",
+              User: item.User ? item.User.Name : "",
+              Mapel: item.Mapel ? item.Mapel.Mapel : "",
+              Kelas: item.Kelas ? item.Kelas.Kelas : "",
+              Jurusan: item.Jurusan ? item.Jurusan.Jurusan : "",
+              TingkatKesukaran: item.BankSoal
+                ? item.BankSoal.tingkatKesukaran
+                : "",
+              Soal: item.BankSoal ? item.BankSoal.Soal : "",
+              OptionA: item.BankSoal ? item.BankSoal.OptionA : "",
+              OptionB: item.BankSoal ? item.BankSoal.OptionB : "",
+              OptionC: item.BankSoal ? item.BankSoal.OptionC : "",
+              OptionD: item.BankSoal ? item.BankSoal.OptionD : "",
+              OptionE: item.BankSoal ? item.BankSoal.OptionE : "",
+              KunciJawaban: item.BankSoal ? item.BankSoal.KunciJawaban : "",
+              DynamicFields: dynamicFields, // Correctly map DynamicFields from the first ItemSoal
+              questionCount: questionCount,
+              TipeSoal: item.TipeSoal || "",
+              Hari: item.Hari || "",
+              Tanggal: item.Tanggal || "",
+              Waktu: item.Waktu || "",
+              Materi: item.Materi, // Use the directly assigned Materi
+              Indikator: item.Indikator,
+            };
+          }),
+        );
+
+        // Initialize the first dropdown with Materi options
+        this.materi = this.materiOptions;
 
         console.log("Final items list:", this.items);
       } catch (error) {
@@ -352,14 +390,17 @@ export default defineComponent({
         return;
       }
 
+      console.log("BankSoalID:", this.createdItem.BankSoal.value);
+      console.log("BankSoalOptions:", this.bankSoalOptions);
+
       try {
         // Start with the static field
         let fieldsPayload = [
           {
-            value: this.createdItem.BankSoalID,
-            label: this.bankSoalOptions.find(
-              (opt) => opt.value === this.createdItem.BankSoalID,
-            ).label,
+            value: this.createdItem.BankSoal.value,
+            // label: this.bankSoalOptions.find(
+            //   (opt) => opt.value === this.createdItem.BankSoal.value,
+            // ).label,
           },
         ];
 
@@ -814,6 +855,18 @@ export default defineComponent({
       }));
     },
 
+    extractMateriOptions(data) {
+      if (!Array.isArray(data)) {
+        console.error("Data is not an array:", data);
+        return []; // This return statement ends the function if data is not an array
+      }
+
+      return data.map((item) => ({
+        label: item.Materi, // Use the materi as the label
+        value: item.ID, // Use the ID as the value
+      }));
+    },
+
     extractIndikatorOptions(data) {
       if (!Array.isArray(data)) {
         console.error("Data is not an array:", data);
@@ -821,22 +874,43 @@ export default defineComponent({
       }
 
       return data.map((item) => ({
-        label: `${item.Materi} - ${item.Indikator}`, // Combine Materi and Indikator for the label
+        label: item.Indikator, // Include Indikator directly
+        materi: item.Materi,
         value: item.ID, // Use the ID as the value
       }));
     },
 
-    // Function to extract options for TingkatKesukaran, which has a single label
-    extractTingkatKesukaranOptions(data) {
+    extractKesukaranOptions(data) {
       if (!Array.isArray(data)) {
         console.error("Data is not an array:", data);
         return []; // This return statement ends the function if data is not an array
       }
 
-      // This map function will only be executed if the data is an array
       return data.map((item) => ({
-        label: item.TingkatKesukaran, // Use TingkatKesukaran as the label
+        label: item.TingkatKesukaran, // Include Indikator directly
+        IndikatorID: item.IndikatorID,
         value: item.ID, // Use the ID as the value
+      }));
+    },
+
+    extractBankSoalOptions(data, labelProperty) {
+      if (!Array.isArray(data)) {
+        console.error("Data is not an array:", data);
+        return [];
+      }
+
+      return data.map((item) => ({
+        label: item[labelProperty] ? item[labelProperty] : "", // Use '' if labelProperty is null or undefined
+        value: item.ID, // Use 'ID' instead of 'id'
+        IndikatorID: item.IndikatorID,
+        options: {
+          Soal: item.Soal,
+          OptionA: item.OptionA,
+          OptionB: item.OptionB,
+          OptionC: item.OptionC,
+          OptionD: item.OptionD,
+          OptionE: item.OptionE,
+        },
       }));
     },
 
@@ -957,6 +1031,58 @@ export default defineComponent({
       },
       deep: true, // Watch nested properties inside detailItem
     },
+
+    "createdItem.Materi": {
+      handler(newVal) {
+        // this.createdItem.Indikator = newVal.Indikator // tergantung apa yang mau di-assign;
+        if (newVal) {
+          this.createdItem.Indikator = this.indikatorOptions.find(
+            (item) => item.value == newVal,
+          );
+          console.log("Indikator selected:", this.createdItem.Indikator);
+          console.log("Indikator Options:", this.indikatorOptions);
+          console.log("Indikator val:", newVal);
+        }
+      },
+      deep: true,
+    },
+
+    "createdItem.BankSoalID": {
+      handler(newVal) {
+        if (newVal) {
+          // Use the value of the selected Indikator to filter bankSoalOptions
+          if (this.createdItem.Indikator && this.createdItem.Indikator.value) {
+            this.createdItem.BankSoal = this.bankSoalOptions.find(
+              (item) => item.IndikatorID == this.createdItem.Indikator.value,
+            );
+          }
+
+          console.log("Bank Soal Options:", this.bankSoalOptions);
+          console.log("Bank Soal Selected:", this.createdItem.BankSoal);
+          console.log("Bank Soal val:", newVal);
+
+          // Assuming this.createdItem.BankSoal is the selected BankSoal object
+          if (this.createdItem.BankSoal && this.createdItem.BankSoal.value) {
+            // Filter tingkatKesukaranOptions based on the selected BankSoal value
+            this.createdItem.TingkatKesukaran =
+              this.tingkatKesukaranOptions.find(
+                (item) => item.value === this.createdItem.BankSoal.value,
+              );
+          }
+
+          console.log(
+            "Tingkat Kesukaran Options:",
+            this.tingkatKesukaranOptions,
+          );
+          console.log(
+            "Tingkat Kesukaran Selected:",
+            this.createdItem.TingkatKesukaran,
+          );
+          console.log("Tingkat Kesukaran val:", newVal);
+        }
+      },
+      deep: true,
+    },
   },
 
   mounted() {
@@ -964,6 +1090,8 @@ export default defineComponent({
   },
 });
 </script>
+
+// bankSoal.includes(newVal)
 
 <template>
   <div
@@ -1058,6 +1186,19 @@ export default defineComponent({
         text-by="label"
         value-by="value"
       />
+
+      <VaDivider />
+
+      <va-textarea
+        v-for="key in textAreaFields"
+        :key="key"
+        :label="displayNames[key]"
+        v-model="createdItem[key]"
+        class="my-6"
+      />
+
+      <VaDivider />
+
       <va-select
         v-model="createdItem.TipeSoal"
         :label="displayNames.TipeSoal"
@@ -1069,41 +1210,34 @@ export default defineComponent({
       <va-select
         v-model="createdItem.Materi"
         :label="displayNames.Materi"
-        :options="materiaOptions"
+        :options="materiOptions"
         class="my-6"
         text-by="label"
         value-by="value"
       />
-      <va-select
-        v-model="createdItem.Indikator"
+      <va-input
+        v-model="createdItem.Indikator.label"
         :label="displayNames.Indikator"
-        :options="indikatorOptions"
         class="my-6"
         text-by="label"
         value-by="value"
-      />
-      <va-select
-        v-model="createdItem.tingkatKesukaran"
-        :label="displayNames.tingkatKesukaran"
-        :options="tingkatKesukaranOptions"
-        class="my-6"
-        text-by="label"
-        value-by="value"
-      />
-      <va-textarea
-        v-for="key in textAreaFields"
-        :key="key"
-        :label="displayNames[key]"
-        v-model="createdItem[key]"
-        class="my-6"
+        readonly
       />
 
       <!-- this va-select below is intended for soal -->
 
+      <va-input
+        v-model="createdItem.TingkatKesukaran.label"
+        :label="displayNames.tingkatKesukaran"
+        class="my-6"
+        text-by="label"
+        value-by="value"
+        readonly
+      />
       <va-select
         v-model="createdItem.BankSoalID"
         :label="displayNames.BankSoal"
-        :options="bankSoalOptions"
+        :options="filteredBankSoalOptions"
         class="my-6"
         text-by="label"
         value-by="value"
@@ -1114,7 +1248,7 @@ export default defineComponent({
         <va-select
           v-model="dynamicFieldsArray[index]"
           :label="'Soal ' + (index + 2)"
-          :options="bankSoalOptions"
+          :options="filteredBankSoalOptions"
           class="my-6"
           text-by="label"
           value-by="value"
@@ -1133,7 +1267,7 @@ export default defineComponent({
           box-sizing: border-box;
           margin-bottom: 10px;
         "
-        >Add Input Fields
+        >Add Soal Fields
       </va-button>
     </va-modal>
 
@@ -1266,3 +1400,16 @@ export default defineComponent({
   justify-content: center;
 }
 </style>
+
+// //experimental // data () { // return { // Materi: '', // createdItem: { //
+BankSoalID: '', // BankSoal: { // Soal: '', // OptionA: '', // OptionB: '', //
+OptionC: '', // OptionD: '', // OptionE: '', // KunciJawaban: '', // }, //
+KunciJawaban: '', // Indikator: '', // TingkatKesukaran: '', // } // } // }, //
+watch: { // 'createdItem.Materi': { // handler(newVal) { //
+this.createdItem.Indikator = newVal.Indikator // tergantung apa yang mau
+di-assign; // this.createdItem.Indikator = this.indikatorOptions //
+.filter((item) => item.Materi === newVal) // .map((item) => ({ // label:
+item.label, // value: item.value, // })); // }, // deep: true // } //
+'createdItem.BankSoalID': { // handler(newVal) { //
+this.createdItem.tingkatKesukaran = // tergantung apa yang mau di-assign; // },
+// deep: true // }, // },

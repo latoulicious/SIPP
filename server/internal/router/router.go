@@ -63,12 +63,6 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	indikatorRepository := repository.NewIndikatorRepository(database.DB)
 	indikatorService := service.NewIndikatorService(indikatorRepository)
 	indikatorHandler := handler.NewIndikatorHandler(indikatorService)
-	kesukaranRepository := repository.NewKesukaranRepository(database.DB)
-	kesukaranService := service.NewKesukaranService(kesukaranRepository)
-	kesukaranHandler := handler.NewKesukaranHandler(kesukaranService)
-	tingkatRepository := repository.NewTingkatRepository(database.DB)
-	tingkatService := service.NewTingkatService(tingkatRepository)
-	tingkatHandler := handler.NewTingkatHandler(tingkatService)
 	soalRepository := repository.NewSoalRepository(database.DB)
 	soalService := service.NewSoalService(soalRepository)
 	soalHandler := handler.NewSoalHandler(soalService)
@@ -76,7 +70,7 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	itemService := service.NewItemSoalService(itemRepository)
 	itemHandler := handler.NewItemSoalHandler(itemService)
 	bankRepository := repository.NewBankRepository(database.DB)
-	bankService := service.NewBankService(bankRepository, tingkatService)
+	bankService := service.NewBankService(bankRepository)
 	bankHandler := handler.NewBankHandler(bankService)
 
 	// Use UserService for AuthHandler
@@ -206,20 +200,6 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	indikatorRoutes.Post("/", indikatorHandler.CreateIndikator)
 	indikatorRoutes.Put("/:id", indikatorHandler.UpdateIndikator)
 	indikatorRoutes.Delete("/:id", indikatorHandler.DeleteIndikator)
-
-	// Kesukaran routes
-	kesukaranRoutes := api.Group("/kesukaran")
-	kesukaranRoutes.Get("/", kesukaranHandler.GetKesukaran)
-	kesukaranRoutes.Get("/:id", kesukaranHandler.GetKesukaranByID)
-	kesukaranRoutes.Post("/", kesukaranHandler.CreateKesukaran)
-	kesukaranRoutes.Put("/:id", kesukaranHandler.UpdateKesukaran)
-	kesukaranRoutes.Delete("/:id", kesukaranHandler.DeleteKesukaran)
-
-	// Indikator Tingkat routes
-	indikatorTingkatRoutes := api.Group("/tingkat")
-	indikatorTingkatRoutes.Get("/", tingkatHandler.GetIndikatorTingkat)
-	indikatorTingkatRoutes.Get("/:id", tingkatHandler.GetIndikatorTingkatByID)
-	indikatorTingkatRoutes.Post("/", tingkatHandler.CreateIndikatorTingkat)
 
 	// Soal routes
 	soalRoutes := api.Group("/soal")
