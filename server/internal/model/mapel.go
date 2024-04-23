@@ -8,5 +8,5 @@ import (
 type Mapel struct {
 	gorm.Model
 	ID    uuid.UUID `gorm:"type:uuid;primary_key"`
-	Mapel string    `gorm:"type:varchar(20)"`
+	Mapel string    `gorm:"type:varchar(50)"`
 }

@@ -486,9 +486,10 @@ export default defineComponent({
                 OptionE: data.OptionE || "",
                 KunciJawaban: data.KunciJawaban || "",
                 TingkatKesukaran: data.TingkatKesukaran || "",
-                // Use the label of the found Indikator option as the Indikator and Materi
-                Indikator: indikatorOption.label.split(" - ")[1] || "", // Assuming the label is in the format "Materi - Indikator"
-                Materi: indikatorOption.label.split(" - ")[0] || "",
+                // Use the label of the found Indikator option as the Indikator
+                Indikator: data.Indikator ? data.Indikator.Indikator : "",
+                // Correctly access the Materi data from the Indikator object
+                Materi: data.Indikator ? data.Indikator.Materi : "",
               },
             };
           } else {

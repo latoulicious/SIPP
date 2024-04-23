@@ -920,6 +920,15 @@ export default defineComponent({
           />
         </div>
       </template>
+      <template #bodyAppend>
+        <tr>
+          <td colspan="6">
+            <div class="flex justify-center mt-4">
+              <VaPagination v-model="currentPage" :pages="pages" />
+            </div>
+          </td>
+        </tr>
+      </template>
     </va-data-table>
 
     <!-- Modal Content -->

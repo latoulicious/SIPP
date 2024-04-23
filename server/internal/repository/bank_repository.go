@@ -18,7 +18,7 @@ func NewBankRepository(db *gorm.DB) *BankRepository {
 
 func (repository *BankRepository) GetBank() ([]model.BankSoal, error) {
 	var bank []model.BankSoal
-	if err := repository.DB.Preload("User").Preload("Mapel").Preload("Kelas").Preload("Jurusan").Find(&bank).Error; err != nil {
+	if err := repository.DB.Preload("User").Preload("Mapel").Preload("Kelas").Preload("Jurusan").Preload("Indikator").Find(&bank).Error; err != nil {
 		return nil, err
 	}
 	return bank, nil
@@ -26,7 +26,7 @@ func (repository *BankRepository) GetBank() ([]model.BankSoal, error) {
 
 func (repository *BankRepository) GetBankByID(bankID uuid.UUID) (*model.BankSoal, error) {
 	var bank model.BankSoal
-	if err := repository.DB.Preload("User").Preload("Mapel").Preload("Kelas").Preload("Jurusan").First(&bank, "id = ?", bankID).Error; err != nil {
+	if err := repository.DB.Preload("User").Preload("Mapel").Preload("Kelas").Preload("Jurusan").Preload("Indikator").First(&bank, "id = ?", bankID).Error; err != nil {
 		return nil, err
 	}
 	return &bank, nil

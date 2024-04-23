@@ -165,12 +165,25 @@ export default defineComponent({
     },
 
     filteredBankSoalOptions() {
-      if (this.createdItem.Indikator && this.createdItem.Indikator.value) {
+      // Check if Indikator and its materi are available
+      if (this.createdItem.Indikator && this.createdItem.Indikator.materi) {
+        // Filter bankSoalOptions based on the selected Indikator's materi
         return this.bankSoalOptions.filter(
-          (item) => item.IndikatorID === this.createdItem.Indikator.value,
+          (item) => item.materi === this.createdItem.Indikator.materi,
         );
       }
+      // If no Indikator is selected, return all bankSoalOptions
       return this.bankSoalOptions;
+    },
+
+    uniqueMateriOptions() {
+      // Assuming materiOptions is an array of objects with a 'label' property
+      const uniqueLabels = [
+        ...new Set(this.materiOptions.map((item) => item.label)),
+      ];
+      return uniqueLabels.map((label) => {
+        return this.materiOptions.find((item) => item.label === label);
+      });
     },
 
     isNewData() {
@@ -398,9 +411,9 @@ export default defineComponent({
         let fieldsPayload = [
           {
             value: this.createdItem.BankSoal.value,
-            // label: this.bankSoalOptions.find(
-            //   (opt) => opt.value === this.createdItem.BankSoal.value,
-            // ).label,
+            label: this.bankSoalOptions.find(
+              (opt) => opt.value === this.createdItem.BankSoal.value,
+            ).label,
           },
         ];
 
@@ -903,6 +916,7 @@ export default defineComponent({
         label: item[labelProperty] ? item[labelProperty] : "", // Use '' if labelProperty is null or undefined
         value: item.ID, // Use 'ID' instead of 'id'
         IndikatorID: item.IndikatorID,
+        materi: item.Indikator ? item.Indikator.Materi : undefined, // Correctly access the materi field from the Indikator association
         options: {
           Soal: item.Soal,
           OptionA: item.OptionA,
@@ -1140,6 +1154,15 @@ export default defineComponent({
           />
         </div>
       </template>
+      <template #bodyAppend>
+        <tr>
+          <td colspan="6">
+            <div class="flex justify-center mt-4">
+              <VaPagination v-model="currentPage" :pages="pages" />
+            </div>
+          </td>
+        </tr>
+      </template>
     </va-data-table>
 
     <!-- Modal Content -->
@@ -1210,7 +1233,7 @@ export default defineComponent({
       <va-select
         v-model="createdItem.Materi"
         :label="displayNames.Materi"
-        :options="materiOptions"
+        :options="uniqueMateriOptions"
         class="my-6"
         text-by="label"
         value-by="value"
