@@ -1,4 +1,4 @@
-# Sistem Informasi Perangkat Pembelajaran (Learning Resources Information System)
+# Sistem Informasi Perangkat Pembelajaran 
 
 A comprehensive information system designed to streamline the management of educational resources. Built with Go, Vue.js, and PostgreSQL, and emphasizing clean architecture.
 
