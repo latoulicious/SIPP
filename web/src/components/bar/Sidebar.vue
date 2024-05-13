@@ -80,9 +80,7 @@ function decodeJwt(jwtToken: string) {
           <VaSidebarItem>
             <VaSidebarItemContent>
               <VaIcon name="assessment" />
-              <VaSidebarItemTitle
-                >Penilaian</VaSidebarItemTitle
-              >
+              <VaSidebarItemTitle>Penilaian</VaSidebarItemTitle>
               <VaSpacer />
               <VaIcon :name="isCollapsed ? 'va-arrow-up' : 'va-arrow-down'" />
             </VaSidebarItemContent>

@@ -6,12 +6,15 @@ import (
 	"github.com/latoulicious/SIPP/internal/repository"
 )
 
+// BankService struct that includes all necessary services and repositories
 type BankService struct {
 	BankRepository *repository.BankRepository
 }
 
-// NewBankService creates a new instance of BankService
-func NewBankService(bankRepository *repository.BankRepository) *BankService {
+// NewBankService creates a new instance of BankService with all necessary services and repositories
+func NewBankService(
+	bankRepository *repository.BankRepository,
+) *BankService {
 	return &BankService{
 		BankRepository: bankRepository,
 	}

@@ -42,6 +42,19 @@ func (service *SoalService) GetSoal() ([]*model.Soal, error) {
 	return soals, nil
 }
 
+func (service *SoalService) GetIndikatorByMateri(materi string) ([]model.Indikator, error) {
+	return service.SoalRepository.GetIndikatorByMateri(materi)
+}
+
+func (service *SoalService) GetBankSoalByIndikatorID(indikatorID uuid.UUID) ([]model.BankSoal, error) {
+	return service.SoalRepository.GetBankSoalByIndikatorID(indikatorID)
+}
+
+// // GetBankSoalByCriteria retrieves all BankSoal records associated with a specific Materi, Indikator, and Tingkat Kesukaran
+// func (service *SoalService) GetBankSoalByCriteria(materi string, indikatorID uuid.UUID) ([]*model.BankSoal, error) {
+// 	return service.SoalRepository.GetBankSoalByCriteria(materi, indikatorID)
+// }
+
 // GetSoalByID retrieve a soal by id
 func (service *SoalService) GetSoalByID(soalID uuid.UUID) (*model.Soal, error) {
 	return service.SoalRepository.GetSoalByID(soalID)

@@ -624,17 +624,21 @@ export default defineComponent({
             icon="remove_red_eye"
             @click="openDetailModal(rowIndex)"
           />
-          <!-- <va-button
-            preset="plain"
-            icon="edit"
-            @click="openModalToEditItemById(filteredItems[rowIndex].ID)"
-          /> -->
           <va-button
             preset="plain"
             icon="delete"
             @click="deleteItemById(filteredItems[rowIndex].ID)"
           />
         </div>
+      </template>
+      <template #bodyAppend>
+        <tr>
+          <td colspan="6">
+            <div class="flex justify-center mt-4">
+              <VaPagination v-model="currentPage" :pages="pages" />
+            </div>
+          </td>
+        </tr>
       </template>
     </va-data-table>
 
@@ -701,81 +705,7 @@ export default defineComponent({
           box-sizing: border-box;
           margin-bottom: 10px;
         "
-        >Add Fields
-      </va-button>
-    </va-modal>
-
-    <va-modal
-      blur
-      class="modal-crud"
-      :model-value="!!editedItem"
-      title="Edit Asesmen Kognitif"
-      size="large"
-      @ok="editItem"
-      @cancel="resetEditedItem"
-    >
-      <!-- Using va-select for user, mapel, kelas, and tahun ajar -->
-      <va-select
-        v-model="editedItem.UserID"
-        :label="displayNames.User"
-        :options="usersOptions"
-        text-by="label"
-        value-by="value"
-      />
-      <va-select
-        v-model="editedItem.MapelID"
-        :label="displayNames.Mapel"
-        :options="mapelsOptions"
-        class="my-6"
-        text-by="label"
-        value-by="value"
-      />
-      <va-select
-        v-model="editedItem.KelasID"
-        :label="displayNames.Kelas"
-        :options="kelasOptions"
-        class="my-6"
-        text-by="label"
-        value-by="value"
-      />
-      <va-select
-        v-model="editedItem.TahunAjarID"
-        :label="displayNames.TahunAjar"
-        :options="tahunAjarOptions"
-        class="my-6"
-        text-by="label"
-        value-by="value"
-      />
-
-      <!-- Static 'pertanyaan' field -->
-      <va-textarea
-        :label="displayNames.Pertanyaanertanyaan || 'Pertanyaan'"
-        v-model="editedItem.Pertanyaan"
-        class="my-6"
-      />
-
-      <!-- Dynamic fields area -->
-      <div v-for="(fieldKey, index) in textAreaFields" :key="index">
-        <va-textarea
-          :label="displayNames[fieldKey] || fieldKey"
-          v-model="editedItem.DynamicFields[fieldKey]"
-          class="my-6"
-        />
-      </div>
-
-      <!-- Button to add more dynamic fields -->
-      <va-button
-        class="my-6"
-        color="primary"
-        @click="addField"
-        style="
-          width: 100%;
-          display: flex;
-          box-sizing: border-box;
-          margin-bottom: 10px;
-        "
-      >
-        Add Fields
+        >Add Input Fields
       </va-button>
     </va-modal>
 
@@ -789,14 +719,6 @@ export default defineComponent({
       @ok="resetDetailItem"
       @cancel="resetDetailItem"
     >
-      <!-- Display the Pertanyaan field
-      <va-textarea
-        :label="'Pertanyaan'"
-        v-model="detailItem.Pertanyaan"
-        class="my-6"
-        readonly
-      /> -->
-
       <!-- Display dynamic fields -->
       <va-textarea
         v-for="(value, key) in detailItem.DynamicFields"

@@ -637,6 +637,15 @@ export default defineComponent({
           />
         </div>
       </template>
+      <template #bodyAppend>
+        <tr>
+          <td colspan="6">
+            <div class="flex justify-center mt-4">
+              <VaPagination v-model="currentPage" :pages="pages" />
+            </div>
+          </td>
+        </tr>
+      </template>
     </va-data-table>
 
     <!-- Modal Content -->
@@ -690,7 +699,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       :model-value="!!editedItem"
-      title="Edit Modul Ajar"
+      title="Form Edit Modul Ajar"
       size="large"
       @ok="editItem"
       @cancel="resetEditedItem"

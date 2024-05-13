@@ -42,6 +42,7 @@ const displayNames = {
 };
 
 export default defineComponent({
+  name: "AllowCreate",
   data() {
     const columns = [
       { key: "User", label: "Nama Penyusun", sortable: false },
@@ -49,6 +50,8 @@ export default defineComponent({
       { key: "Kelas", label: "Kelas", sortable: false },
       { key: "Jurusan", label: "Jurusan", sortable: false },
       { key: "Materi", label: "Materi", sortable: false },
+      { key: "Indikator", label: "Indikator", sortable: false },
+      { key: "TingkatKesukaran", label: "TIngkat Kesukaran", sortable: false },
       { key: "actions", label: "Actions", width: 80 },
     ];
 
@@ -63,6 +66,13 @@ export default defineComponent({
       mapelsOptions: [],
       kelasOptions: [],
       jurusanOptions: [],
+      tingkatKesukaranOptions: [
+        { value: "Mudah", label: "Mudah" },
+        { value: "Sedang", label: "Sedang" },
+        { value: "Sukar", label: "Sukar" },
+      ],
+      materiOptions: "",
+      indikatorOptions: "",
       textAreaFields: [
         "Soal",
         "OptionA",
@@ -71,16 +81,17 @@ export default defineComponent({
         "OptionD",
         "OptionE",
         "KunciJawaban",
-        "Materi",
-        "Indikator",
-        "TingkatKesukaran",
       ],
       showModal: false,
+      showIndikatorModal: false,
       viewModalVisible: false,
       detailItem: null,
       detailModalVisible: false,
       displayNames,
       loading: false,
+      perPage: 10,
+      currentPage: 1,
+      filter: "",
     };
   },
 
@@ -135,6 +146,12 @@ export default defineComponent({
     inputFields() {
       return Object.keys(this.createdItem);
     },
+
+    pages() {
+      return this.perPage && this.perPage !== 0
+        ? Math.ceil(this.filteredItems.length / this.perPage)
+        : this.filteredItems.length;
+    },
   },
 
   methods: {
@@ -166,56 +183,85 @@ export default defineComponent({
         const mapelResponse = await axios.get(
           "http://localhost:3000/api/public/mapel",
         );
+        const indikatorsResponse = await axios.get(
+          "http://localhost:3000/api/indikator",
+        );
 
         // Process the data and update the UI
-        console.log("Response from server (BankSoal):", response.data);
-        // console.log("Response from server (Users):", userResponse.data);
-        // console.log("Response from server (Kelas):", kelasResponse.data);
-        console.log("Response from server (Jurusan):", jurusanResponse.data);
-        // console.log("Response from server (Mapel):", mapelResponse.data);
-        // console.log("Response from server (Tahun):", tahunResponse.data);
-
-        // Populate usersOptions, mapelsOptions, kelasOptions, tahunAjarOptions
         this.usersOptions = this.extractOptions(userResponse.data.data, "Name");
-        // console.log("Users options:", this.usersOptions);
-
         this.kelasOptions = this.extractOptions(
           kelasResponse.data.data,
           "Kelas",
         );
-        // console.log("Kelas options:", this.kelasOptions);
-
         this.jurusanOptions = this.extractOptions(
           jurusanResponse.data.data,
           "Jurusan",
         );
-        console.log("Jurusan options:", this.jurusanOptions);
-
         this.mapelsOptions = this.extractOptions(
           mapelResponse.data.data,
           "Mapel",
         );
-        // console.log("Mapels options:", this.mapelsOptions);
+
+        // Correctly call the methods using 'this'
+        this.materiOptions = this.extractMateriOptions(
+          indikatorsResponse.data.data,
+          "Materi",
+        );
+
+        this.indikatorOptions = this.extractIndikatorOptions(
+          indikatorsResponse.data.data,
+          "Indikator",
+        );
+
+        console.log("Materi options:", this.materiOptions);
+        console.log("Indikator options:", this.indikatorOptions);
 
         // Update the items array with BankSoal data
-        this.items = response.data.data.map((item) => ({
-          ...item,
-          ID: item?.ID || "", // Use 'ID' instead of 'id'
-          User: item?.User.Name || "",
-          Mapel: item?.Mapel.Mapel || "",
-          Kelas: item?.Kelas.Kelas || "",
-          Jurusan: item?.Jurusan.Jurusan || "",
-          Soal: item?.Soal || "",
-          OptionA: item?.OptionA || "",
-          OptionB: item?.OptionB || "",
-          OptionC: item?.OptionC || "",
-          OptionD: item?.OptionD || "",
-          OptionE: item?.OptionE || "",
-          KunciJawaban: item?.KunciJawaban || "",
-          Materi: item?.Materi || "",
-          Indikator: item?.Indikator || "",
-          TingkatKesukaran: item?.TingkatKesukaran || "",
-        }));
+        this.items = response.data.data.map((item) => {
+          // Find the option object for Materi
+          const materiOptions = this.materiOptions.find((option) => {
+            return option.value === item.IndikatorID;
+          });
+
+          // Find the option object for Indikator
+          const indikatorOption = this.indikatorOptions.find((option) => {
+            return option.value === item.IndikatorID;
+          });
+
+          // console.log(
+          //   "Materi Label :",
+          //   materiOptions ? materiOptions.label : "No option found",
+          // );
+          // console.log(
+          //   "Indikator Label:",
+          //   indikatorOption ? indikatorOption.label : "No option found",
+          // );
+
+          // Use the labels from the found option objects, or fallback to "N/A" if not found
+          const materiLabel = materiOptions ? materiOptions.label : "N/A";
+          const indikatorLabel = indikatorOption
+            ? indikatorOption.label
+            : "N/A";
+
+          return {
+            ...item,
+            ID: item?.ID || "",
+            User: item?.User.Name || "",
+            Mapel: item?.Mapel.Mapel || "",
+            Kelas: item?.Kelas.Kelas || "",
+            Jurusan: item?.Jurusan.Jurusan || "",
+            Soal: item?.Soal || "",
+            OptionA: item?.OptionA || "",
+            OptionB: item?.OptionB || "",
+            OptionC: item?.OptionC || "",
+            OptionD: item?.OptionD || "",
+            OptionE: item?.OptionE || "",
+            KunciJawaban: item?.KunciJawaban || "",
+            TingkatKesukaran: item?.TingkatKesukaran || "N/A",
+            Materi: materiLabel, // Use the determined label or "N/A"
+            Indikator: indikatorLabel, // Use the determined label or "N/A"
+          };
+        });
 
         console.log("BankSoal items:", this.items);
       } catch (error) {
@@ -237,9 +283,29 @@ export default defineComponent({
         return;
       }
 
-      try {
-        console.log("Creating new item with data:", this.createdItem);
+      console.log("Materi ID:", this.createdItem.Materi);
+      console.log("Indikator ID:", this.createdItem.Indikator);
 
+      try {
+        // First, create the Indikator and TingkatKesukaran entries
+        const indikatorResponse = await axios.post(
+          "http://localhost:3000/api/indikator",
+          {
+            Materi: this.createdItem.Materi,
+            Indikator: this.createdItem.Indikator,
+          },
+        );
+
+        // Log the entire response for debugging
+        console.log("Indikator Response:", indikatorResponse.data);
+
+        // Correctly access the ID from the Indikator response
+        const IndikatorID = indikatorResponse.data.data.ID; // Adjusted line
+
+        // Debugging statements to log the extracted IDs
+        console.log("Extracted IndikatorID:", IndikatorID);
+
+        // Then, create the BankSoal item with the IDs of the created Indikator and TingkatKesukaran entries
         const response = await axios.post("http://localhost:3000/api/bank", {
           UserID: this.createdItem.UserID.toString(),
           MapelID: this.createdItem.MapelID.toString(),
@@ -252,16 +318,47 @@ export default defineComponent({
           OptionD: this.createdItem.OptionD,
           OptionE: this.createdItem.OptionE,
           KunciJawaban: this.createdItem.KunciJawaban,
-          Materi: this.createdItem.Materi,
-          Indikator: this.createdItem.Indikator,
           TingkatKesukaran: this.createdItem.TingkatKesukaran,
+          IndikatorID: IndikatorID, // Use the ID from the created Indikator entry
         });
+
+        // Assuming the response contains the created BankSoal item
+        // const newItem = response.data;
+
+        this.items.push({
+          ...this.createdItem,
+          IndikatorID: IndikatorID,
+        });
+
+        console.log("Server Response:", response.data);
+
+        // Re-fetch the data to refresh the table
+        await this.fetchData();
+
+        setTimeout(() => {
+          this.resetCreatedItem();
+        }, 500);
+      } catch (error) {
+        console.error("Error adding new item:", error);
+      }
+    },
+
+    async addNewItemIndikator() {
+      try {
+        // First, create the Indikator and TingkatKesukaran entries
+        const Response = await axios.post(
+          "http://localhost:3000/api/indikator",
+          {
+            Materi: this.createdItem.Materi,
+            Indikator: this.createdItem.Indikator,
+          },
+        );
 
         this.items.push({
           ...this.createdItem,
         });
 
-        console.log("Server Response:", response.data);
+        console.log("Server Response:", Response.data);
 
         // Re-fetch the data to refresh the table
         await this.fetchData();
@@ -294,6 +391,7 @@ export default defineComponent({
         delete editedData.Mapel;
         delete editedData.Kelas;
         delete editedData.Jurusan;
+        delete editedData.Indikator;
 
         await axios.put(
           `http://localhost:3000/api/bank/${editedData.id}`,
@@ -360,36 +458,46 @@ export default defineComponent({
       console.log("Opening detail modal with ID:", selectedItemId);
 
       try {
+        // Fetch the detail item
         const response = await axios.get(
           `http://localhost:3000/api/bank/${selectedItemId}`,
         );
-        const data = response.data.data; // Access the data object directly
-        console.log("Full response data:", data); // Log the full response data
+        const data = response.data.data;
+        console.log("Full response data:", data);
 
         if (data) {
-          console.log("Data:", data);
-
-          this.detailItem = {
-            ...defaultItem,
-            BankSoal: {
-              Soal: data.Soal || "",
-              OptionA: data.OptionA || "",
-              OptionB: data.OptionB || "",
-              OptionC: data.OptionC || "",
-              OptionD: data.OptionD || "",
-              OptionE: data.OptionE || "",
-            },
-            // If you need to include DynamicFields, you can add it here
-            // DynamicFields: data.DynamicFields || [],
-          };
-
-          console.log("Soal:", this.detailItem.BankSoal.Soal);
-          console.log(
-            "Option Values:",
-            ["OptionA", "OptionB", "OptionC", "OptionD", "OptionE"].map(
-              (option) => this.detailItem.BankSoal[option],
-            ),
+          // Assuming you have already fetched all Indikator options and stored them in this.indikatorOptions
+          // Find the specific Indikator option based on the IndikatorID
+          const indikatorOption = this.indikatorOptions.find(
+            (option) => option.value === data.IndikatorID,
           );
+          if (indikatorOption) {
+            console.log("Found Indikator option:", indikatorOption);
+
+            // Combine the detail item data with the Indikator and Materi data
+            this.detailItem = {
+              ...defaultItem,
+              BankSoal: {
+                Soal: data.Soal || "",
+                OptionA: data.OptionA || "",
+                OptionB: data.OptionB || "",
+                OptionC: data.OptionC || "",
+                OptionD: data.OptionD || "",
+                OptionE: data.OptionE || "",
+                KunciJawaban: data.KunciJawaban || "",
+                TingkatKesukaran: data.TingkatKesukaran || "",
+                // Use the label of the found Indikator option as the Indikator
+                Indikator: data.Indikator ? data.Indikator.Indikator : "",
+                // Correctly access the Materi data from the Indikator object
+                Materi: data.Indikator ? data.Indikator.Materi : "",
+              },
+            };
+          } else {
+            console.error(
+              "No matching Indikator option found for ID:",
+              data.IndikatorID,
+            );
+          }
 
           console.log("Detail item:", this.detailItem);
           this.detailModalVisible = true;
@@ -539,6 +647,52 @@ export default defineComponent({
       }));
     },
 
+    extractMateriOptions(data) {
+      if (!Array.isArray(data)) {
+        console.error("Data is not an array:", data);
+        return [];
+      }
+
+      return data.map((item) => ({
+        label: item.Materi,
+        value: item.ID, // Use 'ID' instead of 'id'
+      }));
+    },
+
+    extractIndikatorOptions(data) {
+      if (!Array.isArray(data)) {
+        console.error("Data is not an array:", data);
+        return [];
+      }
+
+      return data.map((item) => ({
+        label: item.Indikator,
+        value: item.ID, // Use 'ID' instead of 'id'
+      }));
+    },
+
+    addNewMateri(newOption) {
+      const option = {
+        id: String(this.options.length),
+        label: newOption,
+        value: newOption,
+      };
+
+      // Log the new option being added
+      console.log("Adding new Materi option:", option);
+    },
+
+    addNewIndikator(newOption) {
+      const option = {
+        id: String(this.options.length),
+        label: newOption,
+        value: newOption,
+      };
+
+      // Log the new option being added
+      console.log("Adding new Indikator option:", option);
+    },
+
     resetEditedItem() {
       this.editedItem = null;
       this.editedItemId = null;
@@ -549,6 +703,11 @@ export default defineComponent({
       this.showModal = false;
     },
 
+    resetCreatedIndikator() {
+      this.createdItem = { ...defaultItem };
+      this.showIndikatorModal = false;
+    },
+
     openModalToEditItemById(id) {
       this.editedItemId = id;
       this.editedItem = { ...this.items[id] };
@@ -557,6 +716,13 @@ export default defineComponent({
     toggleAddModal() {
       this.showModal = !this.showModal;
       if (!this.showModal) {
+        this.resetCreatedItem();
+      }
+    },
+
+    toggleAddIndikatorModal() {
+      this.showIndikatorModal = !this.showIndikatorModal;
+      if (!this.showIndikatorModal) {
         this.resetCreatedItem();
       }
     },
@@ -592,6 +758,10 @@ export default defineComponent({
       preset="secondary"
       border-color="#000000"
     >
+      <!-- <va-button @click="toggleAddIndikatorModal" preset="secondary" icon="add">
+      Create Indikator
+      </va-button>
+<va-spacer></va-spacer> -->
       <va-button @click="toggleAddModal" preset="secondary" icon="add"
         >Create Bank Soal</va-button
       >
@@ -601,8 +771,12 @@ export default defineComponent({
     <va-data-table
       :items="filteredItems"
       :columns="columns"
-      striped
+      :per-page="perPage"
+      :current-page="currentPage"
       :loading="loading"
+      :filter="filter"
+      @filtered="filtered = $event"
+      striped
     >
       <template #cell(actions)="{ rowIndex }">
         <div class="action-buttons">
@@ -624,7 +798,42 @@ export default defineComponent({
           />
         </div>
       </template>
+      <template #bodyAppend>
+        <tr>
+          <td colspan="6">
+            <div class="flex justify-center mt-4">
+              <VaPagination v-model="currentPage" :pages="pages" />
+            </div>
+          </td>
+        </tr>
+      </template>
     </va-data-table>
+
+    <va-modal
+      blur
+      class="modal-crud"
+      stripe
+      title="Form Input Indikator"
+      size="large"
+      :model-value="showIndikatorModal"
+      @ok="addNewItemIndikator"
+      @cancel="resetCreatedIndikator"
+    >
+      <va-input
+        v-model="createdItem.Materi"
+        :label="displayNames.Materi"
+        class="my-6"
+        text-by="label"
+        value-by="value"
+      />
+      <va-input
+        v-model="createdItem.Indikator"
+        :label="displayNames.Indikator"
+        class="my-6"
+        text-by="label"
+        value-by="value"
+      />
+    </va-modal>
 
     <!-- Modal Content -->
     <va-modal
@@ -670,6 +879,28 @@ export default defineComponent({
         text-by="label"
         value-by="value"
       />
+      <va-input
+        v-model="createdItem.Materi"
+        :label="displayNames.Materi"
+        class="my-6"
+        text-by="label"
+        value-by="value"
+      />
+      <va-input
+        v-model="createdItem.Indikator"
+        :label="displayNames.Indikator"
+        class="my-6"
+        text-by="label"
+        value-by="value"
+      />
+      <va-select
+        v-model="createdItem.TingkatKesukaran"
+        :label="displayNames.TingkatKesukaran"
+        :options="tingkatKesukaranOptions"
+        class="my-6"
+        text-by="label"
+        value-by="value"
+      />
 
       <!-- Using va-textarea for other fields -->
       <va-textarea
@@ -685,7 +916,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       :model-value="!!editedItem"
-      title="Edit Bank Soal"
+      title="Form Edit Bank Soal"
       size="large"
       @ok="editItem"
       @cancel="resetEditedItem"
@@ -722,6 +953,14 @@ export default defineComponent({
         text-by="label"
         value-by="value"
       />
+      <va-select
+        v-model="editedItem.TingkatKesukaran"
+        :label="displayNames.TingkatKesukaran"
+        :options="tingkatKesukaranOptions"
+        class="my-6"
+        text-by="label"
+        value-by="value"
+      />
 
       <!-- Using va-textarea for other fields -->
       <va-textarea
@@ -743,6 +982,33 @@ export default defineComponent({
       @ok="resetDetailItem"
       @cancel="resetDetailItem"
     >
+      <!-- Display the Materi -->
+      <div class="textarea-container">
+        <label>Materi</label>
+        <textarea
+          class="detailarea"
+          readonly
+          :value="detailItem.BankSoal.Materi"
+        ></textarea>
+      </div>
+      <!-- Display the Indikator -->
+      <div class="textarea-container">
+        <label>Indikator</label>
+        <textarea
+          class="detailarea"
+          readonly
+          :value="detailItem.BankSoal.Indikator"
+        ></textarea>
+      </div>
+      <!-- Display the Tingkat Kesukaran (TK) -->
+      <div class="textarea-container">
+        <label>Tingkat Kesukaran</label>
+        <textarea
+          class="detailarea"
+          readonly
+          :value="detailItem.BankSoal.TingkatKesukaran"
+        ></textarea>
+      </div>
       <!-- Display the Soal -->
       <div class="textarea-container">
         <label>Soal</label>
@@ -771,6 +1037,15 @@ export default defineComponent({
           :value="detailItem.BankSoal[option]"
         ></textarea>
       </div>
+      <!-- Display the Kunci Jawaban -->
+      <div class="textarea-container">
+        <label>Kunci Jawaban</label>
+        <textarea
+          class="detailarea"
+          readonly
+          :value="detailItem.BankSoal.KunciJawaban"
+        ></textarea>
+      </div>
     </va-modal>
   </div>
 </template>
@@ -796,6 +1071,7 @@ export default defineComponent({
     display: block;
     margin-bottom: 10px;
   }
+
   .va-textarea {
     width: 100%;
     display: flex;

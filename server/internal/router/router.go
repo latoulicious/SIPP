@@ -60,6 +60,9 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	pengayaanRepository := repository.NewPengayaanRepository(database.DB)
 	pengayaanService := service.NewPengayaanService(pengayaanRepository)
 	pengayaanHandler := handler.NewPengayaanHandler(pengayaanService)
+	indikatorRepository := repository.NewIndikatorRepository(database.DB)
+	indikatorService := service.NewIndikatorService(indikatorRepository)
+	indikatorHandler := handler.NewIndikatorHandler(indikatorService)
 	soalRepository := repository.NewSoalRepository(database.DB)
 	soalService := service.NewSoalService(soalRepository)
 	soalHandler := handler.NewSoalHandler(soalService)
@@ -189,6 +192,14 @@ func SetupRoutes(app *fiber.App, e *casbin.Enforcer) {
 	pengayaanRoutes.Post("/", pengayaanHandler.CreatePengayaan)
 	pengayaanRoutes.Put("/:id", pengayaanHandler.UpdatePengayaan)
 	pengayaanRoutes.Delete("/:id", pengayaanHandler.DeletePengayaan)
+
+	// Indikator routes
+	indikatorRoutes := api.Group("/indikator")
+	indikatorRoutes.Get("/", indikatorHandler.GetIndikator)
+	indikatorRoutes.Get("/:id", indikatorHandler.GetIndikatorByID)
+	indikatorRoutes.Post("/", indikatorHandler.CreateIndikator)
+	indikatorRoutes.Put("/:id", indikatorHandler.UpdateIndikator)
+	indikatorRoutes.Delete("/:id", indikatorHandler.DeleteIndikator)
 
 	// Soal routes
 	soalRoutes := api.Group("/soal")

@@ -20,7 +20,7 @@ type BaseModel struct {
 	Kelas         Kelas     `gorm:"foreignKey:KelasID"`
 	TahunAjarID   uuid.UUID `gorm:"type:uuid" json:"TahunAjarID"`
 	TahunAjar     TahunAjar `gorm:"foreignKey:TahunAjarID"`
-	Pertanyaan    string    `gorm:"type:varchar(255)"`
+	Pertanyaan    string    `gorm:"type:text"`
 	DynamicFields JSON      `gorm:"type:jsonb" json:"DynamicFields"`
 }
 

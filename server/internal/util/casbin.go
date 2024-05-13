@@ -17,7 +17,7 @@ var Enforcer *casbin.Enforcer
 
 func InitCasbin() error {
 	// Initialize a Xorm adapter with hardcoded credentials
-	a, err := xormadapter.NewAdapter("postgres", "user=postgres password=postgres host=127.0.0.1 port=5432 sslmode=disable")
+	a, err := xormadapter.NewAdapter("postgres", "user=postgres password=postgres host=localhost port=5432 sslmode=disable")
 	if err != nil {
 		return err
 	}

@@ -14,20 +14,20 @@ type ModulAjar struct {
 	TahunAjar            TahunAjar `gorm:"foreignKey:TahunAjarID"`
 	KelasID              uuid.UUID `gorm:"type:uuid" json:"KelasID"`
 	Kelas                Kelas     `gorm:"foreignKey:KelasID"`
-	Sekolah              string    `gorm:"type:varchar(255)" json:"sekolah"`
-	AlokasiWaktu         string    `gorm:"type:varchar(255)" json:"alokasiWaktu"`
-	KompetensiAwal       string    `gorm:"type:varchar(255)" json:"kompetensiAwal"`
-	ProjekPPancasila     string    `gorm:"type:varchar(255)" json:"projekPPancasila"`
-	SaranaPrasarana      string    `gorm:"type:varchar(255)" json:"saranaPrasarana"`
-	TargetPesertaDidik   string    `gorm:"type:varchar(255)" json:"targetPesertaDidik"`
-	ModelPembelajaran    string    `gorm:"type:varchar(255)" json:"modelPembelajaran"`
-	TujuanPembelajaran   string    `gorm:"type:varchar(255)" json:"tujuanPembelajaran"`
-	PemahamanBermakna    string    `gorm:"type:varchar(255)" json:"pemahamanBermakna"`
-	PertanyaanPemantik   string    `gorm:"type:varchar(255)" json:"pertanyaanPemantik"`
-	KegiatanPembelajaran string    `gorm:"type:varchar(255)" json:"kegiatanPembelajaran"`
+	Sekolah              string    `gorm:"type:varchar(50)" json:"sekolah"`
+	AlokasiWaktu         string    `gorm:"type:varchar(30)" json:"alokasiWaktu"`
+	KompetensiAwal       string    `gorm:"type:text" json:"kompetensiAwal"`
+	ProjekPPancasila     string    `gorm:"type:text" json:"projekPPancasila"`
+	SaranaPrasarana      string    `gorm:"type:text" json:"saranaPrasarana"`
+	TargetPesertaDidik   string    `gorm:"type:text" json:"targetPesertaDidik"`
+	ModelPembelajaran    string    `gorm:"type:text" json:"modelPembelajaran"`
+	TujuanPembelajaran   string    `gorm:"type:text" json:"tujuanPembelajaran"`
+	PemahamanBermakna    string    `gorm:"type:text" json:"pemahamanBermakna"`
+	PertanyaanPemantik   string    `gorm:"type:text" json:"pertanyaanPemantik"`
+	KegiatanPembelajaran string    `gorm:"type:text" json:"kegiatanPembelajaran"`
 	Asesnmen             string    // not yet being used
 	PengayaanRemedial    string    // not yet being used
-	Refleksi             string    `gorm:"type:varchar(255)" json:"refleksi"`
-	Glosarium            string    `gorm:"type:varchar(255)" json:"glosarium"`
-	DaftarPustaka        string    `gorm:"type:varchar(255)" json:"daftarPustaka"`
+	Refleksi             string    `gorm:"type:text" json:"refleksi"`
+	Glosarium            string    `gorm:"type:text" json:"glosarium"`
+	DaftarPustaka        string    `gorm:"type:text" json:"daftarPustaka"`
 }
