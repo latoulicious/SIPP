@@ -1,0 +1,14 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "Eslint Started"
+pnpm lint
+echo "Eslint Ended"
+
+echo "Prettier Started"
+pnpm format
+
+echo "Next Phase"
+
+pnpm format
+echo "Prettier Ended"

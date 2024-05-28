@@ -1,6 +1,6 @@
 # Sistem Informasi Perangkat Pembelajaran 
 
-A comprehensive information system designed to streamline the management of educational resources. Built with Go, Vue.js, and PostgreSQL, and emphasizing clean architecture.
+This project served as my college thesis. It's a comprehensive information system designed to streamline educational resource management. Built with Go, Vue.js, and PostgreSQL, it emphasizes clean architecture principles.
 
 ## Demo
 
@@ -12,6 +12,10 @@ A comprehensive information system designed to streamline the management of educ
 ![Dashboard](https://i.ibb.co/R0Pvh11/Screenshot-2024-02-21-at-20-35-28-Sistem-Informasi-Perangkat-Pembelajaran.png)
 
 <h4 align="center">Dashboard</h4>
+
+![Database](https://i.ibb.co.com/XtrTxLf/syllabify2-public.png)
+
+<h4 align="center">Database Relation</h4>
 
 ## Tech Stack
 
@@ -34,8 +38,6 @@ A comprehensive information system designed to streamline the management of educ
 
 * Error Handling and Logging: Robustly handle unexpected issues and track system activity.
 
-* Thorough Documentation and Testing: Ensure reliability and provide clear guidance for developers and users
-
 ## Getting Started
 
 This project has two components: a Vue Frontend and a Go Backend. Follow these steps to get up and running.
@@ -44,7 +46,7 @@ This project has two components: a Vue Frontend and a Go Backend. Follow these s
 
 * Node.js and PNPM
 
-* Go 1.21.3 or later
+* Go 1.20 or later
 
 * A PostgreSQL database instance
 
@@ -121,16 +123,6 @@ go run cmd/main.go
 > Additional Notes:
 
 * The server will typically connect to a PostgreSQL database. Setup your database and configure connection settings in the server's environment.
-
-## Contributing
-
-We greatly appreciate contributions to this project! If you have improvements, bug fixes, or new features you'd like to suggest, please:
-
-* Open an issue: Describe the proposed change or issue in detail. This helps us track discussions and understand the context for potential contributions.
-
-* Submit a pull request: Fork the repository, make your changes, and submit a pull request for review. Be sure to follow any established coding standards and conventions.
-
-For more detailed guidelines on our contribution process, please refer to our [CONTRIBUTING](https://github.com/latoulicious/SIPP/blob/server/CONTRIBUTING.md).
 
 ## License
 
