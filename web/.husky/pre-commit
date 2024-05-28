@@ -1,5 +1,5 @@
 #!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
+cd web
 
 echo "Eslint Started"
 pnpm lint
