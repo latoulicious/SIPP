@@ -11,7 +11,7 @@
     "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "format": "prettier --write \"./**/*.{js,jsx,mjs,cjs,ts,tsx,json,vue}\"",
-    "prepare": "cd .. && husky frontend/.husky"
+    "prepare": "cd .. && husky web/.husky"
   },
   "dependencies": {
     "@vuestic/tailwind": "^0.1.3",
