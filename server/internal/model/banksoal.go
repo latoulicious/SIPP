@@ -23,7 +23,7 @@ type BankSoal struct {
 	OptionD          string    `gorm:"type:varchar(255)"`
 	OptionE          string    `gorm:"type:varchar(255)"`
 	KunciJawaban     string    `gorm:"type:varchar(255)"`
-	Materi           string    `gorm:"type:varchar(255)"`
-	Indikator        string    `gorm:"type:varchar(255)"`
 	TingkatKesukaran string    `gorm:"type:varchar(255)"`
+	IndikatorID      uuid.UUID `gorm:"type:uuid"`
+	Indikator        Indikator `gorm:"foreignKey:IndikatorID"`
 }

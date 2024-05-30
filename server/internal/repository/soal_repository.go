@@ -17,7 +17,7 @@ func NewSoalRepository(db *gorm.DB) *SoalRepository {
 // GetSoal retrieves all Soal records along with their associated ItemSoal records
 func (repository *SoalRepository) GetSoal() ([]*model.Soal, error) {
 	var soals []*model.Soal
-	err := repository.DB.Preload("User").Preload("Mapel").Preload("Kelas").Preload("Jurusan").Find(&soals).Error
+	err := repository.DB.Preload("User").Preload("Mapel").Preload("Kelas").Preload("Jurusan").Preload("Indikator").Find(&soals).Error
 	if err != nil {
 		return nil, err
 	}
@@ -32,6 +32,33 @@ func (repository *SoalRepository) GetSoalByID(soalID uuid.UUID) (*model.Soal, er
 	}
 	return &soal, nil
 }
+
+// GetIndikatorByMateri retrieves all Indikator records associated with a specific Materi
+func (repository *SoalRepository) GetIndikatorByMateri(materi string) ([]model.Indikator, error) {
+	var indikators []model.Indikator
+	err := repository.DB.Where("materi = ?", materi).Find(&indikators).Error
+	return indikators, err
+}
+
+// GetBankSoalByIndikatorID retrieves all BankSoal records associated with a specific Materi, Indikator
+func (repository *SoalRepository) GetBankSoalByIndikatorID(indikatorID uuid.UUID) ([]model.BankSoal, error) {
+	var bankSoals []model.BankSoal
+	err := repository.DB.Model(&model.BankSoal{}).
+		Where("indikator_id = ?", indikatorID).
+		Find(&bankSoals).Error
+	return bankSoals, err
+}
+
+// GetBankSoalByCriteria retrieves all BankSoal records associated with a specific Materi, Indikator
+// func (repository *SoalRepository) GetBankSoalByCriteria(materi string, indikatorID uuid.UUID) ([]*model.BankSoal, error) {
+// 	var BankSoals []*model.BankSoal
+// 	err := repository.DB.Joins("JOIN indikator ON bank_soal.indikator_id = indikator.id").Where("indikator.materi = ? AND bank_soal.indikator_id = ?", materi, indikatorID).Find(&BankSoals).Error
+
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return BankSoals, nil
+// }
 
 func (repository *SoalRepository) CreateSoal(soal *model.Soal) error {
 	soal.ID = uuid.New()

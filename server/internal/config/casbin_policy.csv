@@ -24,7 +24,6 @@ p, Admin, /api/tahun, POST
 p, Admin, /api/tahun/:id, PUT
 p, Admin, /api/tahun/:id, DELETE
 
-
 # Bypass all permissions for changing password
 
 p, _, /api/user/:id/change-password, GET

@@ -1,24 +1,29 @@
-# Sistem Informasi Perangkat Pembelajaran (Learning Resources Information System)
+# Sistem Informasi Perangkat Pembelajaran 
 
-A comprehensive information system designed to streamline the management of educational resources. Built with Go, Vue.js, and PostgreSQL, and emphasizing clean architecture.
+>This project served as my college thesis.
+
+It's a comprehensive information system designed to streamline educational resource management. Built with Go, Vue.js, and PostgreSQL.
 
 ## Demo
 
-![Login](https://cdn.discordapp.com/attachments/1119291447926075412/1209856165333303337/Screenshot_2024-02-21_at_20-34-50_Sistem_Informasi_Perangkat_Pembelajaran.png?ex=65e8715b&is=65d5fc5b&hm=2a1f5c907fdbae1409ef7b184aaf89418935697831a8d149066a743e10ffce65&)
+![Login](https://i.ibb.co/cTg6BnX/Screenshot-2024-02-21-at-20-34-50-Sistem-Informasi-Perangkat-Pembelajaran.png)
 
 <h4 align="center">Login Page</h4>
 
 
-![Dashboard](https://cdn.discordapp.com/attachments/1119291447926075412/1209856164872060959/Screenshot_2024-02-21_at_20-35-28_Sistem_Informasi_Perangkat_Pembelajaran.png?ex=65e8715b&is=65d5fc5b&hm=b3913e8dcd22a91b3f2335fa618dc00a29fd55db63aaf1b9793729070a41cd4c&)
+![Dashboard](https://i.ibb.co/R0Pvh11/Screenshot-2024-02-21-at-20-35-28-Sistem-Informasi-Perangkat-Pembelajaran.png)
 
 <h4 align="center">Dashboard</h4>
+
+![Database](https://i.ibb.co.com/XtrTxLf/syllabify2-public.png)
+
+<h4 align="center">Database Design</h4>
 
 ## Tech Stack
 
 ![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white)
 ![Vue.js](https://img.shields.io/badge/vuejs-%2335495e.svg?style=for-the-badge&logo=vuedotjs&logoColor=%234FC08D)
 ![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
-![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 
 ## Key Features
 
@@ -26,15 +31,11 @@ A comprehensive information system designed to streamline the management of educ
 
 * Role-Based Access Control: Ensure secure data handling with fine-grained controls over user permissions.
 
-* Clean Architecture: Maintainable and scalable thanks to a well-structured design.
-
 * User Authentication and Authorization: Protect your system with user logins and role-based access.
 
 * User-Friendly Interface: Designed for easy navigation and intuitive use.
 
 * Error Handling and Logging: Robustly handle unexpected issues and track system activity.
-
-* Thorough Documentation and Testing: Ensure reliability and provide clear guidance for developers and users
 
 ## Getting Started
 
@@ -44,7 +45,7 @@ This project has two components: a Vue Frontend and a Go Backend. Follow these s
 
 * Node.js and PNPM
 
-* Go 1.21.3 or later
+* Go 1.20 or later
 
 * A PostgreSQL database instance
 
@@ -121,16 +122,6 @@ go run cmd/main.go
 > Additional Notes:
 
 * The server will typically connect to a PostgreSQL database. Setup your database and configure connection settings in the server's environment.
-
-## Contributing
-
-We greatly appreciate contributions to this project! If you have improvements, bug fixes, or new features you'd like to suggest, please:
-
-* Open an issue: Describe the proposed change or issue in detail. This helps us track discussions and understand the context for potential contributions.
-
-* Submit a pull request: Fork the repository, make your changes, and submit a pull request for review. Be sure to follow any established coding standards and conventions.
-
-For more detailed guidelines on our contribution process, please refer to our [CONTRIBUTING.md](https://github.com/latoulicious/SIPP/blob/server/CONTRIBUTING.md).
 
 ## License
 

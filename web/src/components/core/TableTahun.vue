@@ -250,7 +250,7 @@ export default defineComponent({
       border-color="bordered"
     >
       <va-button @click="toggleAddModal" preset="secondary" icon="add"
-        >Add Mata Pelajaran</va-button
+        >Add Tahun Ajaran</va-button
       >
     </va-button-group>
   </div>
@@ -258,11 +258,6 @@ export default defineComponent({
     <va-data-table :items="items" :columns="columns" :loading="loading" striped>
       <template #cell(actions)="{ rowIndex }">
         <div class="action-buttons">
-          <!--<va-button
-            preset="plain"
-            icon="remove_red_eye"
-            @click="deleteItemById(rowIndex)"
-          /> -->
           <va-button
             preset="plain"
             icon="edit"
@@ -280,7 +275,7 @@ export default defineComponent({
     <va-modal
       class="modal-crud"
       stripe
-      title="Add tahun"
+      title="Form Input Tahun Ajaran"
       size="small"
       blur
       :model-value="showModal"
@@ -299,7 +294,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       :model-value="!!editedItem"
-      title="Edit tahun"
+      title="Form Edit Tahun Ajaran"
       size="small"
       @ok="editItem"
       @cancel="resetEditedItem"

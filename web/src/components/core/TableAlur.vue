@@ -212,6 +212,9 @@ export default defineComponent({
           this.items = this.items.filter((item) => item.id !== id);
 
           await this.fetchData();
+
+          // Optionally, you can show a success message
+          alert("Item deleted successfully");
         } catch (error) {
           console.error("Error deleting item:", error);
         }
@@ -428,6 +431,15 @@ export default defineComponent({
           />
         </div>
       </template>
+      <template #bodyAppend>
+        <tr>
+          <td colspan="6">
+            <div class="flex justify-center mt-4">
+              <VaPagination v-model="currentPage" :pages="pages" />
+            </div>
+          </td>
+        </tr>
+      </template>
     </va-data-table>
 
     <!-- Modal Content -->
@@ -454,7 +466,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       :model-value="!!editedItem"
-      title="Edit Alur Tujuan Pembelajaran"
+      title="Form Edit Alur Tujuan Pembelajaran"
       size="large"
       @ok="editItem"
       @cancel="resetEditedItem"

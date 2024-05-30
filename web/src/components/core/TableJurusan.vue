@@ -241,7 +241,7 @@ export default defineComponent({
       border-color="bordered"
     >
       <va-button @click="toggleAddModal" preset="secondary" icon="add"
-        >Add Mata Pelajaran</va-button
+        >Add Jurusan</va-button
       >
     </va-button-group>
   </div>
@@ -271,7 +271,7 @@ export default defineComponent({
     <va-modal
       class="modal-crud"
       stripe
-      title="Add jurusan"
+      title="Form Input Jurusan"
       size="small"
       blur
       :model-value="showModal"
@@ -290,7 +290,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       :model-value="!!editedItem"
-      title="Edit jurusan"
+      title="Form Edit Jurusan"
       size="small"
       @ok="editItem"
       @cancel="resetEditedItem"

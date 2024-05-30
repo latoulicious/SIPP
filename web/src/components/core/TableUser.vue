@@ -311,7 +311,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       :model-value="showModal"
-      title="Add user"
+      title="Form Input User"
       size="small"
       @ok="addNewItem"
       @cancel="resetCreatedItem"
@@ -335,7 +335,7 @@ export default defineComponent({
       blur
       class="modal-crud"
       :model-value="!!editedItem"
-      title="Edit User"
+      title="Form Edit User"
       size="small"
       @ok="editItem"
       @cancel="resetEditedItem"

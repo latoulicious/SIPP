@@ -8,5 +8,5 @@ import (
 type Kelas struct {
 	gorm.Model
 	ID    uuid.UUID `gorm:"type:uuid;primary_key"`
-	Kelas string    `gorm:"type:varchar(255)"`
+	Kelas string    `gorm:"type:varchar(5)"`
 }

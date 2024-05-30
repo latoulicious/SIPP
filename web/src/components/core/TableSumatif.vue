@@ -45,6 +45,7 @@ export default defineComponent({
       { key: "Kelas", label: "Kelas", sortable: false },
       { key: "TahunAjar", label: "Tahun Ajar", sortable: false },
       { key: "questionCount", label: "Total Soal", sortable: false },
+      { key: "kunci", label: "Kunci Jawaban", width: 80 },
       { key: "actions", label: "Actions", width: 80 },
     ];
 
@@ -593,6 +594,128 @@ export default defineComponent({
       }
     },
 
+    async printkey(rowIndex) {
+      const selectedItemId = this.filteredItems[rowIndex].ID;
+      console.log(`Selected item ID: ${selectedItemId}`);
+
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/api/sumatif/${selectedItemId}`,
+        );
+        const data = response.data.data;
+        console.log("Data from server:", data);
+
+        if (data) {
+          const metadata = {
+            Mapel: data.Mapel.Mapel,
+            Kelas: data.Kelas.Kelas,
+          };
+          console.log("Extracted metadata:", metadata);
+
+          const bankSoalResponse = await axios.get(
+            "http://localhost:3000/api/bank",
+          );
+          const bankSoalData = bankSoalResponse.data.data;
+          console.log("BankSoal data:", bankSoalData);
+
+          // Extract the questions and their corresponding options from DynamicFields
+          const questionsAndOptions = [];
+          data.DynamicFields.forEach((dynamicField) => {
+            // Use the 'value' property as the optionId
+            const optionId = dynamicField.value;
+            // Find the corresponding question in the bankSoalData using the optionId
+            const questionData = bankSoalData.find(
+              (bankSoal) => bankSoal.ID === optionId,
+            );
+            if (questionData) {
+              // Push the question and its options to the questionsAndOptions array
+              questionsAndOptions.push({
+                question: dynamicField.label,
+                options: [
+                  questionData.OptionA,
+                  questionData.OptionB,
+                  questionData.OptionC,
+                  questionData.OptionD,
+                  questionData.OptionE,
+                ],
+                answerKey: questionData.KunciJawaban, // Include the answer key
+              });
+            }
+          });
+          console.log(
+            "Extracted questions, options, and answer keys:",
+            questionsAndOptions,
+          );
+
+          const docDefinition = {
+            footer: function (currentPage, pageCount) {
+              return [
+                {
+                  text: currentPage.toString() + " of " + pageCount,
+                  alignment: "center",
+                  fontSize: 8,
+                  margin: [10, 10, 10, 0],
+                },
+              ];
+            },
+            content: [
+              {
+                text: `Kunci Jawaban Asesmen Sumatif`,
+                fontSize: 14,
+                bold: true,
+                margin: [0, 20, 0, 20],
+              },
+              { text: `Mapel: ${metadata.Mapel}`, fontSize: 10 },
+              { text: `Kelas: ${metadata.Kelas}`, fontSize: 10 },
+              {
+                canvas: [
+                  {
+                    type: "line",
+                    x1: 0,
+                    y1: 0,
+                    x2: 510,
+                    y2: 0,
+                    lineWidth: 2,
+                    color: "#000000",
+                  },
+                ],
+                margin: [0, 10, 0, 10],
+              },
+              ...questionsAndOptions.flatMap((item, index) => [
+                {
+                  text: `${index + 1}. ${item.question}`,
+                  fontSize: 10,
+                  margin: [0, 5, 0, 5],
+                },
+                ...item.options.map((option, optionIndex) => ({
+                  text: `${String.fromCharCode(97 + optionIndex)}). ${option}`,
+                  fontSize: 10,
+                  margin: [0, 5, 0, 5],
+                })),
+                {
+                  text: `Kunci Jawaban: ${item.answerKey}`, // Include the answer key in the document
+                  fontSize: 10,
+                  margin: [0, 5, 0, 5],
+                },
+              ]),
+            ],
+            pageSize: "A4",
+            pageMargins: [20, 20, 20, 20],
+            pageOrientation: "portrait",
+          };
+
+          console.log("Doc definition:", docDefinition);
+
+          const pdf = pdfMake.createPdf(docDefinition);
+          pdf.open();
+        } else {
+          console.error("No data received from the server");
+        }
+      } catch (error) {
+        console.error("Error fetching data for printing:", error);
+      }
+    },
+
     extractOptions(data, labelProperty) {
       if (!Array.isArray(data)) {
         console.error("Data is not an array:", data);
@@ -777,6 +900,11 @@ export default defineComponent({
       striped
       :loading="loading"
     >
+      <template #cell(kunci)="{ rowIndex }">
+        <div class="kunci-buttons">
+          <va-button preset="plain" icon="print" @click="printkey(rowIndex)" />
+        </div>
+      </template>
       <template #cell(actions)="{ rowIndex }">
         <div class="action-buttons">
           <va-button preset="plain" icon="print" @click="printRow(rowIndex)" />
@@ -785,17 +913,21 @@ export default defineComponent({
             icon="remove_red_eye"
             @click="openDetailModal(rowIndex)"
           />
-          <!-- <va-button
-            preset="plain"
-            icon="edit"
-            @click="openModalToEditItemById(rowIndex)"
-          /> -->
           <va-button
             preset="plain"
             icon="delete"
             @click="deleteItemById(filteredItems[rowIndex].ID)"
           />
         </div>
+      </template>
+      <template #bodyAppend>
+        <tr>
+          <td colspan="6">
+            <div class="flex justify-center mt-4">
+              <VaPagination v-model="currentPage" :pages="pages" />
+            </div>
+          </td>
+        </tr>
       </template>
     </va-data-table>
 
@@ -880,64 +1012,8 @@ export default defineComponent({
           box-sizing: border-box;
           margin-bottom: 10px;
         "
-        >Add Fields
+        >Add Input Fields
       </va-button>
-    </va-modal>
-
-    <va-modal
-      blur
-      class="modal-crud"
-      :model-value="!!editedItem"
-      title="Edit Asesmen Sumatif"
-      size="large"
-      @ok="editItem"
-      @cancel="resetEditedItem"
-    >
-      <!-- Using va-select for user, mapel, kelas, and tahun ajar -->
-      <va-select
-        v-model="editedItem.UserID"
-        :label="displayNames.User"
-        :options="usersOptions"
-        text-by="label"
-        value-by="value"
-      />
-      <va-select
-        v-model="editedItem.MapelID"
-        :label="displayNames.Mapel"
-        :options="mapelsOptions"
-        class="my-6"
-        text-by="label"
-        value-by="value"
-      />
-      <va-select
-        v-model="editedItem.KelasID"
-        :label="displayNames.Kelas"
-        :options="kelasOptions"
-        class="my-6"
-        text-by="label"
-        value-by="value"
-      />
-      <va-select
-        v-model="editedItem.TahunAjarID"
-        :label="displayNames.TahunAjar"
-        :options="tahunAjarOptions"
-        class="my-6"
-        text-by="label"
-        value-by="value"
-      />
-
-      <!-- this va-select below is intended for soal -->
-
-      <va-select
-        v-model="editedItem.BankSoalID"
-        :label="displayNames.BankSoal"
-        :options="bankSoalOptions"
-        class="my-6"
-        text-by="label"
-        value-by="value"
-        @change="handleSelect"
-        autocomplete
-      />
     </va-modal>
 
     <va-modal
@@ -1018,5 +1094,12 @@ export default defineComponent({
 .option-select {
   flex: 1; /* Allow each select to grow and shrink equally */
   max-width: calc(20% - 10px); /* Limit the width to 20% minus the gap size */
+}
+</style>
+
+<style scoped>
+.kunci-buttons {
+  display: flex;
+  justify-content: center;
 }
 </style>
