@@ -1,6 +1,8 @@
 # Sistem Informasi Perangkat Pembelajaran 
 
-This project served as my college thesis. It's a comprehensive information system designed to streamline educational resource management. Built with Go, Vue.js, and PostgreSQL, it emphasizes clean architecture principles.
+>This project served as my college thesis.
+
+It's a comprehensive information system designed to streamline educational resource management. Built with Go, Vue.js, and PostgreSQL.
 
 ## Demo
 
@@ -15,22 +17,19 @@ This project served as my college thesis. It's a comprehensive information syste
 
 ![Database](https://i.ibb.co.com/XtrTxLf/syllabify2-public.png)
 
-<h4 align="center">Database Relation</h4>
+<h4 align="center">Database Design</h4>
 
 ## Tech Stack
 
 ![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white)
 ![Vue.js](https://img.shields.io/badge/vuejs-%2335495e.svg?style=for-the-badge&logo=vuedotjs&logoColor=%234FC08D)
 ![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
-![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 
 ## Key Features
 
 * Powerful CRUD Operations: Easily create, read, update, and delete learning resources.
 
 * Role-Based Access Control: Ensure secure data handling with fine-grained controls over user permissions.
-
-* Clean Architecture: Maintainable and scalable thanks to a well-structured design.
 
 * User Authentication and Authorization: Protect your system with user logins and role-based access.
 
